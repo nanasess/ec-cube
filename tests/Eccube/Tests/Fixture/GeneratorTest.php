@@ -3,6 +3,7 @@
 namespace Eccube\Tests\Fixture;
 
 use Eccube\Common\Constant;
+use Eccube\Entity\PaymentOption;
 use Eccube\Tests\EccubeTestCase;
 
 /**
@@ -16,6 +17,7 @@ class GeneratorTest extends EccubeTestCase
     protected $numberOfCustomer = 100;
     protected $numberOfOrder = 10;
     protected $numberOfDeliveries = 5;
+    protected $numberOfPayments = 3;
     protected $Customers;
     protected $Products;
     protected $Deliveries;
@@ -38,8 +40,22 @@ class GeneratorTest extends EccubeTestCase
 
     public function testDeliveryGenerator()
     {
+        $Payments = $this->app['eccube.repository.payment']->findAll();
         for ($i = 0; $i < $this->numberOfDeliveries; $i++) {
-            $this->Deliveries[] = $this->app['eccube.fixture.generator']->createDelivery();
+            $Delivery = $this->app['eccube.fixture.generator']->createDelivery();
+            foreach ($Payments as $Payment) {
+                $PaymentOption = new PaymentOption();
+                $PaymentOption
+                    ->setDeliveryId($Delivery->getId())
+                    ->setPaymentId($Payment->getId())
+                    ->setDelivery($Delivery)
+                    ->setPayment($Payment);
+                $Payment->addPaymentOption($PaymentOption);
+                $this->app['orm.em']->persist($PaymentOption);
+                $this->app['orm.em']->flush($PaymentOption);
+            }
+            $this->app['orm.em']->flush($Payment);
+            $this->Deliveries[] = $Delivery;
         }
         $this->assertEquals($this->numberOfDeliveries, count($this->Deliveries));
     }
@@ -74,7 +90,7 @@ class GeneratorTest extends EccubeTestCase
             for ($i = 0; $i < $this->numberOfOrder; $i++) {
                 $Order = $this->app['eccube.fixture.generator']->createOrder($Customer, $Product->getProductClasses()->toArray(), $Delivery, $charge, $discount);
                 $Order->setOrderStatus($Status);
-                $Order->setOrderDate(new \DateTime());
+                $Order->setOrderDate($faker->dateTimeThisYear());
                 $this->app['orm.em']->flush($Order);
                 $this->Orders[] = $Order;
             }
