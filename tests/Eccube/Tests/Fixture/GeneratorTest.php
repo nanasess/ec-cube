@@ -88,7 +88,9 @@ class GeneratorTest extends EccubeTestCase
         $faker = $this->getFaker();
         for ($i = 0; $i < $this->numberOfCustomer; $i++) {
             $email = microtime(true).'.'.$faker->safeEmail;
-            $this->Customers[] = $this->app['eccube.fixture.generator']->createCustomer($email);
+            $customer = $this->app['eccube.fixture.generator']->createCustomer($email);
+            $customer->setBirth($faker->dateTimeBetween('-110 years', '- 5 years'));
+            $this->Customers[] = $customer;
         }
         for ($i = 0; $i < $this->numberOfProducts; $i++) {
             $this->Products[] = $this->app['eccube.fixture.generator']->createProduct();
