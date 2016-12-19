@@ -66,7 +66,7 @@ class GeneratorTest extends EccubeTestCase
     {
         $this->markTestSkipped();
         for ($i = 0; $i < $this->numberOfProducts; $i++) {
-            $this->Products[] = $this->app['eccube.fixture.generator']->createProduct();
+            $this->Products[] = $this->app['eccube.fixture.generator']->createProduct(null, 3, 'cats');
         }
         $this->assertEquals($this->numberOfProducts, count($this->Products));
     }
@@ -91,7 +91,7 @@ class GeneratorTest extends EccubeTestCase
             $this->Customers[] = $this->app['eccube.fixture.generator']->createCustomer($email);
         }
         for ($i = 0; $i < $this->numberOfProducts; $i++) {
-            $this->Products[] = $this->app['eccube.fixture.generator']->createProduct();
+            $this->Products[] = $this->app['eccube.fixture.generator']->createProduct(null, 3, 'cats');
         }
         $Customers = $this->Customers;
         $Deliveries = $this->app['eccube.repository.delivery']->findAll();
