@@ -55,6 +55,15 @@ jobs:
       script:
         - ./bin/phpunit --exclude-group cache-clear
         - ./bin/phpunit --group cache-clear
+    - env:
+      - DATABASE_URL=postgres://postgres:password@localhost/cube4_dev DATABASE_SERVER_VERSION=9 COVERAGE=1
+      script:
+        - phpdbg -qrr ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
+      after_script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+      after_success:
+        - php vendor/bin/coveralls -v -x coverage.clover
     - stage: E2E Test
       env: GROUP=admin01 APP_ENV=codeception DATABASE_URL=postgres://postgres:password@localhost/eccube_db DATABASE_SERVER_VERSION=9 MAILER_URL=smtp://localhost:1025
       script: ./codeception.sh -g ${GROUP}
@@ -64,3 +73,6 @@ jobs:
       script: ./codeception.sh -g ${GROUP}
     - env: GROUP=front APP_ENV=codeception DATABASE_URL=postgres://postgres:password@localhost/eccube_db DATABASE_SERVER_VERSION=9 MAILER_URL=smtp://localhost:1025
       script: ./codeception.sh -g ${GROUP}
+  allow_failures:
+    env:
+      - DATABASE_URL=postgres://postgres:password@localhost/cube4_dev DATABASE_SERVER_VERSION=9 COVERAGE=1
