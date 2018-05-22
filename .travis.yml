@@ -41,6 +41,7 @@ install:
   - bin/console doctrine:database:create
   - bin/console doctrine:schema:create
   - bin/console eccube:fixtures:load
+  - vendor/symfony/phpunit-bridge/bin/simple-phpunit install
 
 jobs:
   include:
