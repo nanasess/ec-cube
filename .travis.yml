@@ -34,8 +34,8 @@ before_install:
   - sudo mv -f ./chromedriver /usr/local/bin/
   - sudo chmod +x /usr/local/bin/chromedriver
   - gem install mailcatcher
-  - export DOCKER_IP=$(ip addr show docker0 | grep -Po 'inet \K[\d.]+')
-  - echo $DOCKER_IP
+  - export DOCKER_IP="$(ifconfig docker0 | grep "inet addr:" | awk '{print $2}' | cut -d ':' -f 2)"
+  - echo "Printing Docker0 Interface $DOCKER_IP"
 
 install:
   - composer install --dev --no-interaction -o --apcu-autoloader
@@ -61,7 +61,7 @@ jobs:
     - env:
       - DATABASE_URL=postgres://postgres:password@localhost/cube4_dev DATABASE_SERVER_VERSION=9 COVERAGE=1
       script:
-        - docker run -e DATABASE_URL=postgres://postgres:password@"$(ip addr show docker0 | grep -Po 'inet \K[\d.]+')"/cube4_dev -v "$PWD":/usr/src/myapp:cached -w /usr/src/myapp --rm nanasess/phpdbg phpdbg -qrr -dmemory_limit=2048M ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
+        - docker run -e DATABASE_URL=postgres://postgres:password@"$DOCKER_IP"/cube4_dev -v "$PWD":/usr/src/myapp:cached -w /usr/src/myapp --rm nanasess/phpdbg phpdbg -qrr -dmemory_limit=2048M ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
       after_script:
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
