@@ -34,6 +34,8 @@ before_install:
   - sudo mv -f ./chromedriver /usr/local/bin/
   - sudo chmod +x /usr/local/bin/chromedriver
   - gem install mailcatcher
+  - export DOCKER_IP=$(ip addr show docker0 | grep -Po 'inet \K[\d.]+')
+  - echo $DOCKER_IP
 
 install:
   - composer install --dev --no-interaction -o --apcu-autoloader
@@ -57,7 +59,7 @@ jobs:
         - ./bin/phpunit --exclude-group cache-clear
         - ./bin/phpunit --group cache-clear
     - env:
-      - DATABASE_URL=postgres://postgres:password@$(ip addr show docker0 | grep -Po 'inet \K[\d.]+')/cube4_dev DATABASE_SERVER_VERSION=9 COVERAGE=1
+      - DATABASE_URL=postgres://postgres:password@${DOCKER_IP}/cube4_dev DATABASE_SERVER_VERSION=9 COVERAGE=1
       script:
         - docker run -p 5432:5432 -v "$PWD":/usr/src/myapp:cached -w /usr/src/myapp --rm nanasess/phpdbg phpdbg -qrr -dmemory_limit=2048M ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
       after_script:
