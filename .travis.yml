@@ -34,7 +34,9 @@ before_install:
   - sudo mv -f ./chromedriver /usr/local/bin/
   - sudo chmod +x /usr/local/bin/chromedriver
   - gem install mailcatcher
-  - ulimit -n 60000
+  - ulimit -c
+  - ulimit -a -S
+  - ulimit -a -H
 
 install:
   - composer install --dev --no-interaction -o --apcu-autoloader
@@ -60,6 +62,7 @@ jobs:
     - env:
       - DATABASE_URL=postgres://postgres:password@localhost/cube4_dev DATABASE_SERVER_VERSION=9 COVERAGE=1
       script:
+        - ulimit -c unlimited -S
         - phpdbg -qrr ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
       after_script:
         - wget https://scrutinizer-ci.com/ocular.phar
