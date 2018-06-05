@@ -59,9 +59,9 @@ jobs:
         - ./bin/phpunit --exclude-group cache-clear
         - ./bin/phpunit --group cache-clear
     - env:
-      - DATABASE_URL=sqlite:////usr/src/myapp/var/eccube.db DATABASE_SERVER_VERSION=3 COVERAGE=1
+      - DATABASE_URL=sqlite:///%kernel.project_dir%/var/eccube.db DATABASE_SERVER_VERSION=3 COVERAGE=1
       script:
-        - docker run -v "$PWD":/usr/src/myapp:cached -w /usr/src/myapp --rm nanasess/phpdbg phpdbg -qrr -dmemory_limit=2048M ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
+        - docker run -e DATABASE_URL=sqlite:////usr/src/myapp/var/eccube.db -v "$PWD":/usr/src/myapp:cached -w /usr/src/myapp --rm nanasess/phpdbg phpdbg -qrr -dmemory_limit=2048M ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
       after_script:
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
