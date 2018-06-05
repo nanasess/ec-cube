@@ -45,6 +45,7 @@ install:
   - bin/console doctrine:schema:create
   - bin/console eccube:fixtures:load
   - vendor/symfony/phpunit-bridge/bin/simple-phpunit install
+  - docker run -v "$PWD":/usr/src/myapp:cached -w /usr/src/myapp  --rm php:7.2-cli sh -c "ulimit -n"
 
 jobs:
   include:
