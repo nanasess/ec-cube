@@ -30,7 +30,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function loginAsAdmin($user = '', $password = '', $dir = '')
     {
-        if(!$user || !$password) {
+        if (!$user || !$password) {
             $account = Fixtures::get('admin_account');
             $user = $account['member'];
             $password = $account['password'];
@@ -97,7 +97,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function setStock($pid, $stock = 0)
     {
-        if(!$pid) {
+        if (!$pid) {
             return;
         }
         $entityManager = Fixtures::get('entityManager');
@@ -152,7 +152,7 @@ class AcceptanceTester extends \Codeception\Actor
      */
     public function getLastDownloadFile($fileNameRegex, $retryCount = 3)
     {
-        $downloadDir = __DIR__ . '/_downloads/';
+        $downloadDir = __DIR__.'/_downloads/';
         $files = scandir($downloadDir);
         $files = array_map(function($fileName) use ($downloadDir) {
             return $downloadDir.$fileName;
@@ -181,7 +181,7 @@ class AcceptanceTester extends \Codeception\Actor
     {
         $this->wait(1);
         $this->executeInSelenium(function($webdriver) {
-            $handles=$webdriver->getWindowHandles();
+            $handles = $webdriver->getWindowHandles();
             $last_window = end($handles);
             $webdriver->switchTo()->window($last_window);
         });

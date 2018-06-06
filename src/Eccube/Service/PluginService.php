@@ -33,7 +33,6 @@ use Eccube\Common\EccubeConfig;
 use Eccube\Entity\Plugin;
 use Eccube\Entity\PluginEventHandler;
 use Eccube\Exception\PluginException;
-use Eccube\Plugin\ConfigManager;
 use Eccube\Plugin\ConfigManager as PluginConfigManager;
 use Eccube\Repository\PluginEventHandlerRepository;
 use Eccube\Repository\PluginRepository;
@@ -150,7 +149,7 @@ class PluginService
      * @param string $path   path to tar.gz/zip plugin file
      * @param int    $source
      *
-     * @return mixed
+     * @return boolean
      *
      * @throws PluginException
      * @throws \Exception
@@ -274,6 +273,10 @@ class PluginService
         }
     }
 
+    /**
+     * @param string $archive
+     * @param string $dir
+     */
     public function unpackPluginArchive($archive, $dir)
     {
         $extension = pathinfo($archive, PATHINFO_EXTENSION);
@@ -333,6 +336,9 @@ class PluginService
         }
     }
 
+    /**
+     * @param string $yml
+     */
     public function readYml($yml)
     {
         if (file_exists($yml)) {
@@ -350,6 +356,9 @@ class PluginService
         // ディレクトリ名などに使われれるので厳しめ
     }
 
+    /**
+     * @param string $path
+     */
     public function deleteFile($path)
     {
         $f = new Filesystem();
@@ -369,6 +378,9 @@ class PluginService
         return $this->projectRoot.'/app/Plugin/'.$name;
     }
 
+    /**
+     * @param string $d
+     */
     public function createPluginDir($d)
     {
         $b = @mkdir($d);
@@ -429,6 +441,9 @@ class PluginService
         return $p;
     }
 
+    /**
+     * @param string $method
+     */
     public function callPluginManagerMethod($meta, $method)
     {
         $class = '\\Plugin'.'\\'.$meta['code'].'\\'.'PluginManager';
@@ -504,7 +519,7 @@ class PluginService
         @mkdir($outputDir);
 
         $enabledPluginCodes = array_map(
-            function ($p) { return $p->getCode(); },
+            function($p) { return $p->getCode(); },
             $this->pluginRepository->findAllEnabled()
         );
 
@@ -519,7 +534,7 @@ class PluginService
             }
         }
 
-        $enabledPluginEntityDirs = array_map(function ($code) {
+        $enabledPluginEntityDirs = array_map(function($code) {
             return $this->projectRoot."/app/Plugin/${code}/Entity";
         }, $enabledPluginCodes);
 
@@ -948,7 +963,7 @@ class PluginService
     {
         $result = array_keys($packages);
         if ($getVersion) {
-            $result = array_map(function ($package, $version) {
+            $result = array_map(function($package, $version) {
                 return $package.':'.$version;
             }, array_keys($packages), array_values($packages));
         }
@@ -962,7 +977,7 @@ class PluginService
      * [プラグインコード]/Resource/assets
      * 配下に置かれているファイルが所定の位置へコピーされる
      *
-     * @param $pluginBaseDir
+     * @param string $pluginBaseDir
      * @param $pluginCode
      */
     public function copyAssets($pluginBaseDir, $pluginCode)
@@ -998,7 +1013,7 @@ class PluginService
      * @param string $pluginVersion
      * @param string $remoteVersion
      *
-     * @return mixed
+     * @return boolean
      */
     public function isUpdate($pluginVersion, $remoteVersion)
     {

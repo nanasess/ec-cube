@@ -82,7 +82,7 @@ class PaymentRegisterType extends AbstractType
                 'label' => 'paymentregister.label.commision',
             ])
             ->add('fixed', HiddenType::class)
-            ->addEventListener(FormEvents::POST_SUBMIT, function ($event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function($event) {
                 $form = $event->getForm();
                 $ruleMax = $form['rule_max']->getData();
                 $ruleMin = $form['rule_min']->getData();

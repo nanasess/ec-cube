@@ -148,7 +148,7 @@ class MasterdataController extends AbstractController
                 $entity = new $entityName();
                 $sortNo = 0;
                 $ids = array_map(
-                    function ($v) {
+                    function($v) {
                         return $v['id'];
                     },
                     $data['data']

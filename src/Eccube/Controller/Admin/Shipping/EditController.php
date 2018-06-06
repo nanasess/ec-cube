@@ -178,13 +178,13 @@ class EditController extends AbstractController
                     if ($form->get('notify_email')->getData()) {
                         try {
                             $this->mailService->sendShippingNotifyMail(
-                              $TargetShipping
+                                $TargetShipping
                             );
                         } catch (\Exception $e) {
                             log_error('メール通知エラー', [$TargetShipping->getId(), $e]);
                             $this->addError(
-                              'admin.shipping.edit.shipped_mail_failed',
-                              'admin'
+                                'admin.shipping.edit.shipped_mail_failed',
+                                'admin'
                             );
                         }
                     }

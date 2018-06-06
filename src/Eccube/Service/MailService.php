@@ -108,7 +108,7 @@ class MailService
      * Send customer confirm mail.
      *
      * @param $Customer 会員情報
-     * @param $activateUrl アクティベート用url
+     * @param string $activateUrl アクティベート用url
      */
     public function sendCustomerConfirmMail(\Eccube\Entity\Customer $Customer, $activateUrl)
     {
@@ -305,7 +305,7 @@ class MailService
      *
      * @param \Eccube\Entity\Order $Order 受注情報
      *
-     * @return string
+     * @return \Swift_Message
      */
     public function sendOrderMail(\Eccube\Entity\Order $Order)
     {
@@ -350,7 +350,7 @@ class MailService
      * Send admin customer confirm mail.
      *
      * @param $Customer 会員情報
-     * @param $activateUrl アクティベート用url
+     * @param string $activateUrl アクティベート用url
      */
     public function sendAdminCustomerConfirmMail(\Eccube\Entity\Customer $Customer, $activateUrl)
     {
@@ -441,6 +441,7 @@ class MailService
      * Send password reset notification mail.
      *
      * @param $Customer 会員情報
+     * @param string $reset_url
      */
     public function sendPasswordResetNotificationMail(\Eccube\Entity\Customer $Customer, $reset_url)
     {
@@ -487,6 +488,7 @@ class MailService
      * Send password reset notification mail.
      *
      * @param $Customer 会員情報
+     * @param string $password
      */
     public function sendPasswordResetCompleteMail(\Eccube\Entity\Customer $Customer, $password)
     {
@@ -606,7 +608,7 @@ class MailService
      */
     public function getShippingNotifyMailBody(Shipping $Shipping, Order $Order, MailTemplate $MailTemplate = null)
     {
-        $ShippingItems = array_filter($Shipping->getOrderItems()->toArray(), function (OrderItem $OrderItem) use ($Order) {
+        $ShippingItems = array_filter($Shipping->getOrderItems()->toArray(), function(OrderItem $OrderItem) use ($Order) {
             return $OrderItem->getOrderId() === $Order->getId();
         });
 

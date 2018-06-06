@@ -288,6 +288,10 @@ class FileController extends AbstractController
         return $paths;
     }
 
+    /**
+     * @param string $topDir
+     * @param Request $request
+     */
     private function getTree($topDir, $request)
     {
         $finder = Finder::create()->in($topDir)
@@ -324,10 +328,13 @@ class FileController extends AbstractController
         return $tree;
     }
 
+    /**
+     * @param string $nowDir
+     */
     private function getFileList($nowDir)
     {
         $topDir = $this->getuserDataDir();
-        $filter = function (\SplFileInfo $file) use ($topDir) {
+        $filter = function(\SplFileInfo $file) use ($topDir) {
             $acceptPath = realpath($topDir);
             $targetPath = $file->getRealPath();
 
@@ -376,6 +383,9 @@ class FileController extends AbstractController
         return str_replace('\\', '/', realpath($path));
     }
 
+    /**
+     * @param string $topDir
+     */
     protected function checkDir($targetDir, $topDir)
     {
         $targetDir = realpath($targetDir);
@@ -384,6 +394,9 @@ class FileController extends AbstractController
         return strpos($targetDir, $topDir) === 0;
     }
 
+    /**
+     * @return string
+     */
     private function convertStrFromServer($target)
     {
         if ($this->encode == self::SJIS) {

@@ -1,7 +1,6 @@
 <?php
 
 use Codeception\Util\Fixtures;
-use Page\Admin\CustomerManagePage;
 use Page\Admin\OrderManagePage;
 use Page\Admin\TopPage;
 
@@ -44,7 +43,7 @@ class EA01TopCest
         // 購入された商品が受注管理画面のページにて反映されていることを確認
         $config = Fixtures::get('config');
         $findOrders = Fixtures::get('findOrders');
-        $NewOrders = array_filter($findOrders(), function ($Order) use ($config) {
+        $NewOrders = array_filter($findOrders(), function($Order) use ($config) {
             return $Order->getOrderStatus()->getId() == \Eccube\Entity\Master\OrderStatus::NEW;
         });
         $I->see(count($NewOrders), TopPage::$受付状況_新規受付数);

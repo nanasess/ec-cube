@@ -40,7 +40,7 @@ class OutputParser
         $rowArray = explode(PHP_EOL, str_replace('\r\n', PHP_EOL, $output));
         $installedLogs = array_filter(
             array_map(
-                function ($line) {
+                function($line) {
                     $matches = [];
                     preg_match('/^  - Installing (.*?) \((.*?)\) .*/', $line, $matches);
 
@@ -64,7 +64,7 @@ class OutputParser
     public static function parseInfo($output)
     {
         $rowArray = explode(PHP_EOL, str_replace('\r\n', PHP_EOL, $output));
-        $infoLogs = array_filter(array_map(function ($line) {
+        $infoLogs = array_filter(array_map(function($line) {
             $matches = [];
             preg_match('/^(name|descrip.|keywords|versions|type|license|source|dist|names)\s*:\s*(.*)$/', $line, $matches);
 
@@ -89,7 +89,7 @@ class OutputParser
     public static function parseConfig($output)
     {
         $rowArray = explode(PHP_EOL, str_replace('\r\n', PHP_EOL, $output));
-        $rowArray = array_filter($rowArray, function ($line) {
+        $rowArray = array_filter($rowArray, function($line) {
             return !preg_match('/^<warning>.*/', $line);
         });
 
@@ -106,7 +106,7 @@ class OutputParser
     public static function parseList($output)
     {
         $rowArray = explode(PHP_EOL, str_replace('\r\n', PHP_EOL, $output));
-        $rawConfig = array_map(function ($line) {
+        $rawConfig = array_map(function($line) {
             $matches = [];
             preg_match('/^\[(.*?)\]\s?(.*)$/', $line, $matches);
 
@@ -131,7 +131,7 @@ class OutputParser
 
     /**
      * @param $rowArray
-     * @param $key
+     * @param string $key
      *
      * @return array
      */
@@ -166,7 +166,7 @@ class OutputParser
     public static function parseComposerVersion($output)
     {
         $rowArray = explode(PHP_EOL, str_replace('\r\n', PHP_EOL, $output));
-        $rowArray = array_filter($rowArray, function ($line) {
+        $rowArray = array_filter($rowArray, function($line) {
             return preg_match('/^Composer */', $line);
         });
 

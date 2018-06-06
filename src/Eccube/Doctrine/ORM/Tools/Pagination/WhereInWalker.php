@@ -87,7 +87,7 @@ class WhereInWalker extends TreeWalkerAdapter
             $pathType = PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION;
         }
 
-        $pathExpression = new PathExpression(PathExpression::TYPE_STATE_FIELD | PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION, $rootAlias, $identifierFieldName);
+        $pathExpression = new PathExpression(PathExpression::TYPE_STATE_FIELD|PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION, $rootAlias, $identifierFieldName);
         $pathExpression->type = $pathType;
 
         $count = $this->_getQuery()->getHint(self::HINT_PAGINATOR_ID_COUNT);

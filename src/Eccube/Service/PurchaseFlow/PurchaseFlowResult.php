@@ -53,7 +53,7 @@ class PurchaseFlowResult
      */
     public function getErrors()
     {
-        return array_filter($this->processResults, function (ProcessResult $processResult) {
+        return array_filter($this->processResults, function(ProcessResult $processResult) {
             return $processResult->isError();
         });
     }
@@ -63,7 +63,7 @@ class PurchaseFlowResult
      */
     public function getWarning()
     {
-        return array_filter($this->processResults, function (ProcessResult $processResult) {
+        return array_filter($this->processResults, function(ProcessResult $processResult) {
             return $processResult->isWarning();
         });
     }

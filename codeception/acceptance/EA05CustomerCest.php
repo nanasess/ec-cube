@@ -92,7 +92,7 @@ class EA05CustomerCest
 
         $CustomerRegisterPage->登録();
         /* ブラウザによるhtml5のエラーなのでハンドリング不可 */
-        $I->see('会員情報を保存しました。', CustomerEditPage::$登録完了メッセージ);    }
+        $I->see('会員情報を保存しました。', CustomerEditPage::$登録完了メッセージ); }
 
     public function customer_会員登録_必須項目未入力(\AcceptanceTester $I)
     {
@@ -146,7 +146,7 @@ class EA05CustomerCest
         $CustomerListPage = CustomerManagePage::go($I)
             ->検索($customer->getEmail());
 
-        $I->see('検索結果：1件が該当しました' ,CustomerManagePage::$検索結果メッセージ);
+        $I->see('検索結果：1件が該当しました', CustomerManagePage::$検索結果メッセージ);
 
         $CustomerListPage->一覧_編集(1);
 

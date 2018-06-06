@@ -109,7 +109,7 @@ class OrderType extends AbstractType
         // 支払い方法のプルダウンを生成
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) {
+            function(FormEvent $event) {
                 /** @var Order $Order */
                 $Order = $event->getData();
                 if (is_null($Order) || !$Order->getId()) {
@@ -117,7 +117,7 @@ class OrderType extends AbstractType
                 }
 
                 // 受注明細に含まれる販売種別を抽出.
-                $SaleTypes = array_reduce($Order->getOrderItems()->toArray(), function ($results, $OrderItem) {
+                $SaleTypes = array_reduce($Order->getOrderItems()->toArray(), function($results, $OrderItem) {
                     /* @var OrderItem $OrderItem */
                     $ProductClass = $OrderItem->getProductClass();
                     if (!is_null($ProductClass)) {
@@ -139,7 +139,7 @@ class OrderType extends AbstractType
                     EntityType::class,
                     [
                         'class' => 'Eccube\Entity\Payment',
-                        'choice_label' => function ($Payment) {
+                        'choice_label' => function($Payment) {
                             return $Payment->getMethod();
                         },
                         'expanded' => true,
@@ -158,7 +158,7 @@ class OrderType extends AbstractType
         // TODO Calculatorで行うのが適切.
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
-            function (FormEvent $event) {
+            function(FormEvent $event) {
                 /** @var Order $Order */
                 $Order = $event->getData();
                 // XXX 非会員購入の際, use_point が null で submit される？

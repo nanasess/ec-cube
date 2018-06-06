@@ -645,7 +645,7 @@ class ProductController extends AbstractController
 
         // ツリー表示のため、ルートからのカテゴリを取得
         $TopCategories = $this->categoryRepository->getList(null);
-        $ChoicedCategoryIds = array_map(function ($Category) {
+        $ChoicedCategoryIds = array_map(function($Category) {
             return $Category->getId();
         }, $form->get('Category')->getData());
 
@@ -892,7 +892,7 @@ class ProductController extends AbstractController
         $em->getConfiguration()->setSQLLogger(null);
 
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($request) {
+        $response->setCallback(function() use ($request) {
             // CSV種別を元に初期化.
             $this->csvExportService->initCsvType(CsvType::CSV_TYPE_PRODUCT);
 
@@ -931,7 +931,7 @@ class ProductController extends AbstractController
             // データ行の出力.
             $this->csvExportService->setExportQueryBuilder($qb);
 
-            $this->csvExportService->exportData(function ($entity, CsvExportService $csvService) use ($request) {
+            $this->csvExportService->exportData(function($entity, CsvExportService $csvService) use ($request) {
                 $Csvs = $csvService->getCsvs();
 
                 /** @var $Product \Eccube\Entity\Product */
@@ -989,6 +989,7 @@ class ProductController extends AbstractController
      *
      * @param \Eccube\Entity\Product $Product
      * @param \Eccube\Entity\Category $Category
+     * @param integer $count
      *
      * @return \Eccube\Entity\ProductCategory
      */

@@ -5,7 +5,6 @@ use Page\Admin\CsvSettingsPage;
 use Page\Admin\ShippingManagePage;
 use Page\Admin\ShippingEditPage;
 use Page\Admin\OrderEditPage;
-use Eccube\Entity\Master\ShippingStatus;
 
 /**
  * @group admin

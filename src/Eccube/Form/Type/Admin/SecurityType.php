@@ -79,8 +79,8 @@ class SecurityType extends AbstractType
                     new Assert\NotBlank(),
                     new Assert\Length(['max' => $this->eccubeConfig['eccube_stext_len']]),
                     new Assert\Regex([
-                       'pattern' => '/^[0-9a-zA-Z]+$/',
-                   ]),
+                        'pattern' => '/^[0-9a-zA-Z]+$/',
+                    ]),
                 ],
                 'data' => $this->eccubeConfig->get('eccube_admin_route'),
             ])
@@ -97,7 +97,7 @@ class SecurityType extends AbstractType
                 'required' => false,
                 'data' => $this->eccubeConfig->get('eccube_force_ssl'),
             ])
-            ->addEventListener(FormEvents::POST_SUBMIT, function ($event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function($event) {
                 $form = $event->getForm();
                 $data = $form->getData();
 

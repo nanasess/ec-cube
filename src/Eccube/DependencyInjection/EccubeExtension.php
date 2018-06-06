@@ -56,11 +56,11 @@ class EccubeExtension extends Extension implements PrependExtensionInterface
         $stmt = $conn->query('select * from dtb_plugin');
         $plugins = $stmt->fetchAll();
 
-        $enabled = array_filter($plugins, function ($plugin) {
+        $enabled = array_filter($plugins, function($plugin) {
             return true === (bool) $plugin['enabled'];
         });
 
-        $disabled = array_filter($plugins, function ($plugin) {
+        $disabled = array_filter($plugins, function($plugin) {
             return false === (bool) $plugin['enabled'];
         });
 
@@ -73,6 +73,9 @@ class EccubeExtension extends Extension implements PrependExtensionInterface
         $this->configureTranslations($container, $enabled, $pluginDir);
     }
 
+    /**
+     * @param string $pluginDir
+     */
     protected function configureTwigPaths(ContainerBuilder $container, $enabled, $pluginDir)
     {
         $paths = [];
@@ -92,6 +95,9 @@ class EccubeExtension extends Extension implements PrependExtensionInterface
         }
     }
 
+    /**
+     * @param string $pluginDir
+     */
     protected function configureTranslations(ContainerBuilder $container, $enabled, $pluginDir)
     {
         $paths = [];
@@ -126,7 +132,7 @@ class EccubeExtension extends Extension implements PrependExtensionInterface
         $sm = $conn->getSchemaManager();
         $tables = array_filter(
             $sm->listTables(),
-            function ($table) {
+            function($table) {
                 return $table->getName() === 'dtb_plugin';
             }
         );

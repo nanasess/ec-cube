@@ -247,7 +247,6 @@ class ShippingController extends AbstractController
      * @Method("PUT")
      * @Route("/%eccube_admin_route%/shipping/notify_mail/{id}", requirements={"id" = "\d+"}, name="admin_shipping_notify_mail")
      *
-     * @param Request $request
      * @param Shipping $Shipping
      *
      * @return JsonResponse

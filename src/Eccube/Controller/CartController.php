@@ -91,13 +91,13 @@ class CartController extends AbstractController
         $quantity = 0;
         $isDeliveryFree = false;
 
-        $totalQuantity = array_reduce($Carts, function ($total, $Cart) {
+        $totalQuantity = array_reduce($Carts, function($total, $Cart) {
             /* @var Cart $Cart */
             $total += $Cart->getQuantity();
 
             return $total;
         }, 0);
-        $totalPrice = array_reduce($Carts, function ($total, $Cart) {
+        $totalPrice = array_reduce($Carts, function($total, $Cart) {
             /* @var Cart $Cart */
             $total += $Cart->getTotalPrice();
 
@@ -122,7 +122,7 @@ class CartController extends AbstractController
     protected function execPurchaseFlow($Carts)
     {
         /** @var PurchaseFlowResult[] $flowResults */
-        $flowResults = array_map(function ($Cart) {
+        $flowResults = array_map(function($Cart) {
             $purchaseContext = new PurchaseContext($Cart, $this->getUser());
 
             return $this->purchaseFlow->calculate($Cart, $purchaseContext);

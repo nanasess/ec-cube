@@ -14,7 +14,7 @@ class PurchaseProcessorsServiceProvider implements ServiceProviderInterface
     {
         $app->extend(
             'eccube.purchase.flow.cart.item_processors',
-            function (ArrayCollection $processors, Container $app) {
+            function(ArrayCollection $processors, Container $app) {
                 $processors[] = new EmptyProcessor();
                 $processors[] = new ValidatableEmptyProcessor();
 

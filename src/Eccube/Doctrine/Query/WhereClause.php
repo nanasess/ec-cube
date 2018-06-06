@@ -50,6 +50,9 @@ class WhereClause
         $this->params = $params;
     }
 
+    /**
+     * @param Expr\Comparison $expr
+     */
     private static function newWhereClause($expr, $x, $y)
     {
         if ($y) {

@@ -58,6 +58,9 @@ class ShippingManagePage extends AbstractAdminPageStyleGuide
         return $this;
     }
 
+    /**
+     * @param integer $rowNum
+     */
     public function 一覧_編集($rowNum)
     {
         $this->tester->click(['xpath' => "//*[@id='form_bulk']/div[2]/div/table/tbody/tr[${rowNum}]/td[2]/a"]);
@@ -117,6 +120,9 @@ class ShippingManagePage extends AbstractAdminPageStyleGuide
         $this->tester->click('#form_bulk #btn_bulk_mail');
     }
 
+    /**
+     * @param integer $rowNum
+     */
     public function 一覧_チェックボックス($rowNum)
     {
         $this->tester->click(['xpath' => "//*[@id='form_bulk']/div[2]/div/table/tbody/tr[${rowNum}]/td[1]/input"]);

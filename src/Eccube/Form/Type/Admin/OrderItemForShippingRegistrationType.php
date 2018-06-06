@@ -59,7 +59,7 @@ class OrderItemForShippingRegistrationType extends AbstractType
                 ],
             ]);
 
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::SUBMIT, function(FormEvent $event) {
             $form = $event->getForm();
             $orderItemId = $form['id']->getData();
 

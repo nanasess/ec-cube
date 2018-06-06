@@ -22,7 +22,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
     public function register(Container $app)
     {
         // EventDispatcher
-        $app['eccube.event.dispatcher'] = function () use ($app) {
+        $app['eccube.event.dispatcher'] = function() use ($app) {
             return $app['dispatcher'];
         };
 
@@ -31,8 +31,8 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
 
         $enabledPlugins = $app['orm.em']->getRepository('Eccube\Entity\Plugin')->findAllEnabled();
 
-        $app['eccube.routers.plugin'] = function ($app) use ($enabledPlugins) {
-            $pluginDirs = array_map(function ($plugin) use ($app) {
+        $app['eccube.routers.plugin'] = function($app) use ($enabledPlugins) {
+            $pluginDirs = array_map(function($plugin) use ($app) {
                 return $app['config']['root_dir'].'/app/Plugin/'.$plugin->getCode();
             }, $enabledPlugins);
 
@@ -58,7 +58,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
             $config = $pluginConfig['config'];
 
             if (isset($config['const'])) {
-                $app->extend('config', function ($eccubeConfig) use ($config) {
+                $app->extend('config', function($eccubeConfig) use ($config) {
                     $eccubeConfig[$config['code']] = [
                         'const' => $config['const'],
                     ];
@@ -81,7 +81,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
     public function initPluginEventDispatcher(Application $app)
     {
         // hook point
-        $app->on(KernelEvents::REQUEST, function (GetResponseEvent $event) use ($app) {
+        $app->on(KernelEvents::REQUEST, function(GetResponseEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -89,7 +89,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
             $app['eccube.event.dispatcher']->dispatch($hookpoint, $event);
         }, Application::EARLY_EVENT);
 
-        $app->on(KernelEvents::REQUEST, function (GetResponseEvent $event) use ($app) {
+        $app->on(KernelEvents::REQUEST, function(GetResponseEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -98,7 +98,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
             $app['eccube.event.dispatcher']->dispatch($hookpoint, $event);
         });
 
-        $app->on(KernelEvents::RESPONSE, function (FilterResponseEvent $event) use ($app) {
+        $app->on(KernelEvents::RESPONSE, function(FilterResponseEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -107,7 +107,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
             $app['eccube.event.dispatcher']->dispatch($hookpoint, $event);
         });
 
-        $app->on(KernelEvents::RESPONSE, function (FilterResponseEvent $event) use ($app) {
+        $app->on(KernelEvents::RESPONSE, function(FilterResponseEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -115,13 +115,13 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
             $app['eccube.event.dispatcher']->dispatch($hookpoint, $event);
         }, Application::LATE_EVENT);
 
-        $app->on(KernelEvents::TERMINATE, function (PostResponseEvent $event) use ($app) {
+        $app->on(KernelEvents::TERMINATE, function(PostResponseEvent $event) use ($app) {
             $route = $event->getRequest()->attributes->get('_route');
             $hookpoint = "eccube.event.controller.$route.finish";
             $app['eccube.event.dispatcher']->dispatch($hookpoint, $event);
         });
 
-        $app->on(\Symfony\Component\HttpKernel\KernelEvents::RESPONSE, function (\Symfony\Component\HttpKernel\Event\FilterResponseEvent $event) use ($app) {
+        $app->on(\Symfony\Component\HttpKernel\KernelEvents::RESPONSE, function(\Symfony\Component\HttpKernel\Event\FilterResponseEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -130,7 +130,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
         });
 
         // Request Event
-        $app->on(\Symfony\Component\HttpKernel\KernelEvents::REQUEST, function (\Symfony\Component\HttpKernel\Event\GetResponseEvent $event) use ($app) {
+        $app->on(\Symfony\Component\HttpKernel\KernelEvents::REQUEST, function(\Symfony\Component\HttpKernel\Event\GetResponseEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -159,7 +159,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
         }, 30); // Routing(32)が解決し, 認証判定(8)が実行される前のタイミング.
 
         // Controller Event
-        $app->on(\Symfony\Component\HttpKernel\KernelEvents::CONTROLLER, function (\Symfony\Component\HttpKernel\Event\FilterControllerEvent $event) use ($app) {
+        $app->on(\Symfony\Component\HttpKernel\KernelEvents::CONTROLLER, function(\Symfony\Component\HttpKernel\Event\FilterControllerEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -187,7 +187,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
         });
 
         // Response Event
-        $app->on(\Symfony\Component\HttpKernel\KernelEvents::RESPONSE, function (\Symfony\Component\HttpKernel\Event\FilterResponseEvent $event) use ($app) {
+        $app->on(\Symfony\Component\HttpKernel\KernelEvents::RESPONSE, function(\Symfony\Component\HttpKernel\Event\FilterResponseEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -216,7 +216,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
         });
 
         // Exception Event
-        $app->on(\Symfony\Component\HttpKernel\KernelEvents::EXCEPTION, function (\Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent $event) use ($app) {
+        $app->on(\Symfony\Component\HttpKernel\KernelEvents::EXCEPTION, function(\Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent $event) use ($app) {
             if (!$event->isMasterRequest()) {
                 return;
             }
@@ -245,7 +245,7 @@ class EccubePluginServiceProvider implements ServiceProviderInterface, BootableP
         });
 
         // Terminate Event
-        $app->on(\Symfony\Component\HttpKernel\KernelEvents::TERMINATE, function (\Symfony\Component\HttpKernel\Event\PostResponseEvent $event) use ($app) {
+        $app->on(\Symfony\Component\HttpKernel\KernelEvents::TERMINATE, function(\Symfony\Component\HttpKernel\Event\PostResponseEvent $event) use ($app) {
             $route = $event->getRequest()->attributes->get('_route');
 
             if (is_null($route)) {

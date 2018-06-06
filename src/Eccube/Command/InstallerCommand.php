@@ -93,7 +93,7 @@ class InstallerCommand extends Command
         $question = new ConfirmationQuestion('Is it OK?');
         if (!$this->io->askQuestion($question)) {
             // `no`の場合はキャンセルメッセージを出力して終了する
-            $this->setCode(function () {
+            $this->setCode(function() {
                 $this->io->success('EC-CUBE installation stopped.');
             });
 

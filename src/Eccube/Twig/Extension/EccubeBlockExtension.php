@@ -27,7 +27,7 @@ class EccubeBlockExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('eccube_block_*', function () {
+            new TwigFunction('eccube_block_*', function() {
                 $sources = $this->blockTemplates;
                 $arg_list = func_get_args();
                 $block_name = array_shift($arg_list);

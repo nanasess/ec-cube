@@ -177,7 +177,7 @@ class MainEditType extends AbstractType
                 'required' => false,
                 'label' => 'PC',
                 'class' => Layout::class,
-                'query_builder' => function (EntityRepository $er) {
+                'query_builder' => function(EntityRepository $er) {
                     $DeviceType = $this->deviceTypeRepository->find(DeviceType::DEVICE_TYPE_PC);
 
                     return $er->createQueryBuilder('l')
@@ -192,7 +192,7 @@ class MainEditType extends AbstractType
                 'required' => false,
                 'label' => 'mainedit.label.smartphone',
                 'class' => Layout::class,
-                'query_builder' => function (EntityRepository $er) {
+                'query_builder' => function(EntityRepository $er) {
                     $DeviceType = $this->deviceTypeRepository->find(DeviceType::DEVICE_TYPE_SP);
 
                     return $er->createQueryBuilder('l')
@@ -201,7 +201,7 @@ class MainEditType extends AbstractType
                         ->orderBy('l.id', 'DESC');
                 },
             ])
-            ->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
+            ->addEventListener(FormEvents::POST_SET_DATA, function(FormEvent $event) {
                 $Page = $event->getData();
                 if (is_null($Page->getId())) {
                     return;
@@ -217,7 +217,7 @@ class MainEditType extends AbstractType
                     }
                 }
             })
-            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
                 $form = $event->getForm();
 
                 /** @var Page $Page */

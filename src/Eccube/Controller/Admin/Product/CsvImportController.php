@@ -193,10 +193,10 @@ class CsvImportController
 
                         return $this->render($form, $headers);
                     }
-                    $getId = function ($item) {
+                    $getId = function($item) {
                         return $item['id'];
                     };
-                    $requireHeader = array_keys(array_map($getId, array_filter($headers, function ($value) {
+                    $requireHeader = array_keys(array_map($getId, array_filter($headers, function($value) {
                         return $value['required'];
                     })));
 
@@ -693,7 +693,7 @@ class CsvImportController
             throw new NotFoundHttpException();
         }
 
-        $response->setCallback(function () use ($request, $headers) {
+        $response->setCallback(function() use ($request, $headers) {
             // ヘッダ行の出力
             $row = [];
             foreach ($headers as $key => $value) {
@@ -797,6 +797,7 @@ class CsvImportController
      *
      * @param $row
      * @param Product $Product
+     * @param CsvImportService $data
      */
     protected function createProductImage($row, Product $Product, $data, $headerByKey)
     {
@@ -843,7 +844,7 @@ class CsvImportController
      *
      * @param $row
      * @param Product $Product
-     * @param $data
+     * @param CsvImportService $data
      * @param $headerByKey
      */
     protected function createProductCategory($row, Product $Product, $data, $headerByKey)
@@ -963,7 +964,7 @@ class CsvImportController
      *
      * @param $row
      * @param Product $Product
-     * @param $data
+     * @param CsvImportService $data
      * @param $headerByKey
      * @param null $ClassCategory1
      * @param null $ClassCategory2
@@ -1115,7 +1116,7 @@ class CsvImportController
      * @param $row
      * @param Product $Product
      * @param ProductClass $ProductClass
-     * @param $data
+     * @param CsvImportService $data
      *
      * @return ProductClass
      */

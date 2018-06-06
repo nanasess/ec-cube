@@ -31,7 +31,7 @@ class ItemCollection extends ArrayCollection
     public function getProductClasses()
     {
         return $this->filter(
-            function (ItemInterface $OrderItem) {
+            function(ItemInterface $OrderItem) {
                 return $OrderItem->isProduct();
             });
     }
@@ -39,7 +39,7 @@ class ItemCollection extends ArrayCollection
     public function getDeliveryFees()
     {
         return $this->filter(
-            function (ItemInterface $OrderItem) {
+            function(ItemInterface $OrderItem) {
                 return $OrderItem->isDeliveryFee();
             });
     }
@@ -47,7 +47,7 @@ class ItemCollection extends ArrayCollection
     public function getCharges()
     {
         return $this->filter(
-            function (ItemInterface $OrderItem) {
+            function(ItemInterface $OrderItem) {
                 return $OrderItem->isCharge();
             });
     }
@@ -55,7 +55,7 @@ class ItemCollection extends ArrayCollection
     public function getDiscounts()
     {
         return $this->filter(
-            function (ItemInterface $OrderItem) {
+            function(ItemInterface $OrderItem) {
                 return $OrderItem->isDiscount();
             });
     }
@@ -68,7 +68,7 @@ class ItemCollection extends ArrayCollection
     public function hasProductByName($productName)
     {
         $OrderItems = $this->filter(
-            function (ItemInterface $OrderItem) use ($productName) {
+            function(ItemInterface $OrderItem) use ($productName) {
                 /* @var OrderItem $OrderItem */
                 return $OrderItem->getProductName() == $productName;
             });
@@ -85,7 +85,7 @@ class ItemCollection extends ArrayCollection
      */
     public function hasItemByOrderItemType($OrderItemType)
     {
-        $filteredItems = $this->filter(function (ItemInterface $OrderItem) use ($OrderItemType) {
+        $filteredItems = $this->filter(function(ItemInterface $OrderItem) use ($OrderItemType) {
             /* @var OrderItem $OrderItem */
             return $OrderItem->getOrderItemType() && $OrderItem->getOrderItemType()->getId() == $OrderItemType->getId();
         });
@@ -101,7 +101,7 @@ class ItemCollection extends ArrayCollection
     public function sort()
     {
         $Items = $this->toArray();
-        usort($Items, function (ItemInterface $a, ItemInterface $b) {
+        usort($Items, function(ItemInterface $a, ItemInterface $b) {
             if ($a->getOrderItemType() === $b->getOrderItemType()) {
                 return ($a->getId() < $b->getId()) ? -1 : 1;
             } elseif ($a->isProduct()) {

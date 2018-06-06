@@ -195,7 +195,7 @@ class EA03ProductCest
         $I->wantTo('EA0310-UC02-T02 一覧からの規格編集 規格あり2');
 
         $findProducts = Fixtures::get('findProducts');
-        $Products = array_filter($findProducts(), function ($Product) {
+        $Products = array_filter($findProducts(), function($Product) {
             return $Product->hasProductClass();
         });
         $Product = array_pop($Products);
@@ -217,7 +217,7 @@ class EA03ProductCest
         $I->wantTo('EA0310-UC05-T02 一覧からの商品複製');
 
         $findProducts = Fixtures::get('findProducts');
-        $Products = array_filter($findProducts(), function ($Product) {
+        $Products = array_filter($findProducts(), function($Product) {
             return $Product->hasProductClass();
         });
         $Product = array_pop($Products);
@@ -236,7 +236,7 @@ class EA03ProductCest
         $I->wantTo('EA0310-UC02-T01 一覧からの規格編集 規格あり1');
 
         $findProducts = Fixtures::get('findProducts');
-        $Products = array_filter($findProducts(), function ($Product) {
+        $Products = array_filter($findProducts(), function($Product) {
             return $Product->hasProductClass();
         });
         $Product = array_pop($Products);

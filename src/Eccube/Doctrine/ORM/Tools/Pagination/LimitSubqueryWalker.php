@@ -90,7 +90,7 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
         );
 
         $pathExpression = new PathExpression(
-            PathExpression::TYPE_STATE_FIELD | PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION,
+            PathExpression::TYPE_STATE_FIELD|PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION,
             $rootAlias,
             $identifier
         );
@@ -142,7 +142,7 @@ class LimitSubqueryWalker extends TreeWalkerAdapter
                     && isset($queryComponents[$expression->identificationVariable])) {
                     $queryComponent = $queryComponents[$expression->identificationVariable];
                     if (isset($queryComponent['parent'])
-                        && $queryComponent['relation']['type'] & ClassMetadataInfo::TO_MANY) {
+                        && $queryComponent['relation']['type']&ClassMetadataInfo::TO_MANY) {
                         throw new \RuntimeException('Cannot select distinct identifiers from query with LIMIT and ORDER BY on a column from a fetch joined to-many association. Use output walkers.');
                     }
                 }

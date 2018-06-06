@@ -104,7 +104,7 @@ class BlockType extends AbstractType
                 'choice_label' => 'id',
             ])
             ->add('id', HiddenType::class)
-            ->addEventListener(FormEvents::POST_SUBMIT, function ($event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function($event) {
                 $form = $event->getForm();
                 $file_name = $form['file_name']->getData();
                 $DeviceType = $form['DeviceType']->getData();

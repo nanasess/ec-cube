@@ -44,7 +44,7 @@ class PaymentType extends AbstractType
             'choice_label' => 'method',
             'placeholder' => '-',
             // fixme 何故かここはDESC
-            'query_builder' => function (EntityRepository $er) {
+            'query_builder' => function(EntityRepository $er) {
                 return $er->createQueryBuilder('m')
                     ->orderBy('m.sort_no', 'DESC');
             },

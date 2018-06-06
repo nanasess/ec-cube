@@ -288,7 +288,7 @@ class CategoryController extends AbstractController
         $em->getConfiguration()->setSQLLogger(null);
 
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($request) {
+        $response->setCallback(function() use ($request) {
             // CSV種別を元に初期化.
             $this->csvExportService->initCsvType(CsvType::CSV_TYPE_CATEGORY);
 
@@ -301,7 +301,7 @@ class CategoryController extends AbstractController
 
             // データ行の出力.
             $this->csvExportService->setExportQueryBuilder($qb);
-            $this->csvExportService->exportData(function ($entity, $csvService) use ($request) {
+            $this->csvExportService->exportData(function($entity, $csvService) use ($request) {
                 $Csvs = $csvService->getCsvs();
 
                 /** @var $Category \Eccube\Entity\Category */

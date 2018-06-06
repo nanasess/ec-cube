@@ -16,7 +16,7 @@ class RoutingTestController
      *
      * @param Application $app
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return string
      */
     public function testAdmin(Application $app)
     {

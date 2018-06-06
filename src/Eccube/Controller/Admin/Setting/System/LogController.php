@@ -89,7 +89,7 @@ class LogController extends AbstractController
     /**
      * parse log file
      *
-     * @param $logFile
+     * @param string $logFile
      * @param $formData
      *
      * @return array
@@ -102,7 +102,7 @@ class LogController extends AbstractController
             return $log;
         }
 
-        foreach (array_reverse(file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)) as $line) {
+        foreach (array_reverse(file($logFile, FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES)) as $line) {
             // 上限に達した場合、処理を抜ける
             if (count($log) >= $formData['line_max']) {
                 break;

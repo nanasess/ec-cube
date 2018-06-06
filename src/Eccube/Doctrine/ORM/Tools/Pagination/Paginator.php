@@ -57,7 +57,7 @@ class Paginator implements \Countable, \IteratorAggregate
     /**
      * Constructor.
      *
-     * @param Query|QueryBuilder $query               A Doctrine ORM query or query builder.
+     * @param Query $query               A Doctrine ORM query or query builder.
      * @param boolean            $fetchJoinCollection Whether the query joins a collection (true by default).
      */
     public function __construct($query, $fetchJoinCollection = true)

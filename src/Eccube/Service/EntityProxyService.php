@@ -128,13 +128,13 @@ class EntityProxyService
             $includedFileSets[] = $includedFiles;
         }
 
-        $declaredTraits = array_map(function ($fqcn) {
+        $declaredTraits = array_map(function($fqcn) {
             // FQCNが'\'で始まるように正規化
             return strpos($fqcn, '\\') === 0 ? $fqcn : '\\'.$fqcn;
         }, get_declared_traits());
 
         // ディレクトリセットに含まれるTraitの一覧を作成
-        $traitSets = array_map(function () { return []; }, $dirSets);
+        $traitSets = array_map(function() { return []; }, $dirSets);
         foreach ($declaredTraits as $className) {
             $rc = new \ReflectionClass($className);
             $sourceFile = $rc->getFileName();
@@ -204,7 +204,7 @@ class EntityProxyService
     /**
      * EntityからTraitを削除.
      *
-     * @param $entityTokens Tokens Entityのトークン
+     * @param Tokens $entityTokens Tokens Entityのトークン
      * @param $trait string 削除するTraitのFQCN
      */
     private function removeTrait($entityTokens, $trait)
@@ -215,9 +215,9 @@ class EntityProxyService
             $traitsTokens = array_slice($entityTokens->toArray(), $useTraitIndex + 1, $useTraitEndIndex - $useTraitIndex - 1);
 
             // Trait名の配列に変換
-            $traitNames = explode(',', implode(array_map(function ($token) {
+            $traitNames = explode(',', implode(array_map(function($token) {
                 return $token->getContent();
-            }, array_filter($traitsTokens, function ($token) {
+            }, array_filter($traitsTokens, function($token) {
                 return $token->getId() != T_WHITESPACE;
             }))));
 

@@ -12,10 +12,10 @@ class Acceptance extends \Codeception\Module
 
     private function clearDownloadDir()
     {
-        $downloadDir = dirname(__DIR__) . '/_downloads/';
+        $downloadDir = dirname(__DIR__).'/_downloads/';
         if (file_exists($downloadDir)) {
             $files = scandir($downloadDir);
-            $files = array_filter($files, function ($fileName) use ($downloadDir) {
+            $files = array_filter($files, function($fileName) use ($downloadDir) {
                 return is_file($downloadDir.$fileName) && (strpos($fileName, '.') != 0);
             });
             foreach ($files as $f) {

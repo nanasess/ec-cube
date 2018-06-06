@@ -149,7 +149,7 @@ class Step3Type extends AbstractType
                 'label' => trans('step3.label.smtp_pass'),
                 'required' => false,
             ])
-            ->addEventListener(FormEvents::POST_SUBMIT, function ($event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function($event) {
                 $form = $event->getForm();
                 $data = $form->getData();
 

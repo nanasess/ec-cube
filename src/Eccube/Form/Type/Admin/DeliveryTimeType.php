@@ -64,7 +64,7 @@ class DeliveryTimeType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => 'Eccube\Entity\DeliveryTime',
-            'query_builder' => function (EntityRepository $er) {
+            'query_builder' => function(EntityRepository $er) {
                 return $er
                     ->createQueryBuilder('dt')
                     ->orderBy('dt.sort_no', 'ASC');

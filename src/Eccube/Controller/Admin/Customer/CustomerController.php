@@ -283,7 +283,6 @@ class CustomerController extends AbstractController
      *
      * @Route("/%eccube_admin_route%/customer/export", name="admin_customer_export")
      *
-     * @param Application $app
      * @param Request $request
      *
      * @return StreamedResponse
@@ -298,7 +297,7 @@ class CustomerController extends AbstractController
         $em->getConfiguration()->setSQLLogger(null);
 
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($request) {
+        $response->setCallback(function() use ($request) {
             // CSV種別を元に初期化.
             $this->csvExportService->initCsvType(CsvType::CSV_TYPE_CUSTOMER);
 
@@ -311,7 +310,7 @@ class CustomerController extends AbstractController
 
             // データ行の出力.
             $this->csvExportService->setExportQueryBuilder($qb);
-            $this->csvExportService->exportData(function ($entity, $csvService) use ($request) {
+            $this->csvExportService->exportData(function($entity, $csvService) use ($request) {
                 $Csvs = $csvService->getCsvs();
 
                 /** @var $Customer \Eccube\Entity\Customer */

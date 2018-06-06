@@ -26,7 +26,7 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
     public function getProductClasses()
     {
         return $this->filter(
-            function (ItemInterface $OrderItem) {
+            function(ItemInterface $OrderItem) {
                 return $OrderItem->isProduct();
             });
     }
@@ -34,7 +34,7 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
     public function getDeliveryFees()
     {
         return $this->filter(
-            function (ItemInterface $OrderItem) {
+            function(ItemInterface $OrderItem) {
                 return $OrderItem->isDeliveryFee();
             });
     }
@@ -42,7 +42,7 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
     public function getCharges()
     {
         return $this->filter(
-            function (ItemInterface $OrderItem) {
+            function(ItemInterface $OrderItem) {
                 return $OrderItem->isCharge();
             });
     }
@@ -50,7 +50,7 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
     public function getDiscounts()
     {
         return $this->filter(
-            function (ItemInterface $OrderItem) {
+            function(ItemInterface $OrderItem) {
                 return $OrderItem->isDiscount();
             });
     }
@@ -63,7 +63,7 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
     public function hasProductByName($productName)
     {
         $OrderItems = $this->filter(
-            function (ItemInterface $OrderItem) use ($productName) {
+            function(ItemInterface $OrderItem) use ($productName) {
                 /* @var OrderItem $OrderItem */
                 return $OrderItem->getProductName() == $productName;
             });
@@ -80,7 +80,7 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
      */
     public function hasItemByOrderItemType($OrderItemType)
     {
-        $filteredItems = $this->filter(function (ItemInterface $OrderItem) use ($OrderItemType) {
+        $filteredItems = $this->filter(function(ItemInterface $OrderItem) use ($OrderItemType) {
             /* @var OrderItem $OrderItem */
             return $OrderItem->getOrderItemType() && $OrderItem->getOrderItemType()->getId() == $OrderItemType->getId();
         });

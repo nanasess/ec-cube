@@ -56,7 +56,7 @@ class AuthorityRoleType extends AbstractType
                 'label' => 'authorityrole.label.denied_url',
                 'required' => false,
             ])
-            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
                 $form = $event->getForm();
 
                 $Authority = $form['Authority']->getData();

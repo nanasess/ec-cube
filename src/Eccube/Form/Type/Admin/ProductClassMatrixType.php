@@ -31,7 +31,7 @@ class ProductClassMatrixType extends AbstractType
             ->add('class_name2', EntityType::class, [
                 'class' => ClassName::class,
                 'placeholder' => '規格2を選択してください',
-                'constraints' => new Callback(function (
+                'constraints' => new Callback(function(
                     ClassName $ClassName2 = null,
                     ExecutionContextInterface $context
                 ) {
@@ -54,7 +54,7 @@ class ProductClassMatrixType extends AbstractType
             ->add('save', SubmitType::class);
 
         if ($options['product_classes_exist']) {
-            $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            $builder->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
                 $form = $event->getForm();
                 $ProductClasses = $form['product_classes']->getData();
                 $hasVisible = false;

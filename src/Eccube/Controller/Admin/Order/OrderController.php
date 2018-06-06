@@ -319,7 +319,7 @@ class OrderController extends AbstractController
         $em->getConfiguration()->setSQLLogger(null);
 
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($request) {
+        $response->setCallback(function() use ($request) {
             // CSV種別を元に初期化.
             $this->csvExportService->initCsvType(CsvType::CSV_TYPE_ORDER);
 
@@ -332,7 +332,7 @@ class OrderController extends AbstractController
 
             // データ行の出力.
             $this->csvExportService->setExportQueryBuilder($qb);
-            $this->csvExportService->exportData(function ($entity, $csvService) use ($request) {
+            $this->csvExportService->exportData(function($entity, $csvService) use ($request) {
                 $Csvs = $csvService->getCsvs();
 
                 $Order = $entity;
@@ -401,7 +401,7 @@ class OrderController extends AbstractController
         $em->getConfiguration()->setSQLLogger(null);
 
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($request) {
+        $response->setCallback(function() use ($request) {
             // CSV種別を元に初期化.
             $this->csvExportService->initCsvType(CsvType::CSV_TYPE_SHIPPING);
 
@@ -414,7 +414,7 @@ class OrderController extends AbstractController
 
             // データ行の出力.
             $this->csvExportService->setExportQueryBuilder($qb);
-            $this->csvExportService->exportData(function ($entity, $csvService) use ($request) {
+            $this->csvExportService->exportData(function($entity, $csvService) use ($request) {
                 /** @var Csv[] $Csvs */
                 $Csvs = $csvService->getCsvs();
 
@@ -505,8 +505,8 @@ class OrderController extends AbstractController
                 if ($flowResult->hasWarning()) {
                     foreach ($flowResult->getWarning() as $warning) {
                         $msg = $this->translator->trans('admin.order.index.bulk_warning', [
-                          '%orderId%' => $Order->getId(),
-                          '%message%' => $warning->getMessage(),
+                            '%orderId%' => $Order->getId(),
+                            '%message%' => $warning->getMessage(),
                         ]);
                         $this->addWarning($msg, 'admin');
                     }
@@ -515,8 +515,8 @@ class OrderController extends AbstractController
                 if ($flowResult->hasError()) {
                     foreach ($flowResult->getErrors() as $error) {
                         $msg = $this->translator->trans('admin.order.index.bulk_error', [
-                          '%orderId%' => $Order->getId(),
-                          '%message%' => $error->getMessage(),
+                            '%orderId%' => $Order->getId(),
+                            '%message%' => $error->getMessage(),
                         ]);
                         $this->addError($msg, 'admin');
                     }
@@ -527,8 +527,8 @@ class OrderController extends AbstractController
                     $this->purchaseFlow->purchase($Order, $purchaseContext);
                 } catch (PurchaseException $e) {
                     $msg = $this->translator->trans('admin.order.index.bulk_error', [
-                      '%orderId%' => $Order->getId(),
-                      '%message%' => $e->getMessage(),
+                        '%orderId%' => $Order->getId(),
+                        '%message%' => $e->getMessage(),
                     ]);
                     $this->addError($msg, 'admin');
                     continue;

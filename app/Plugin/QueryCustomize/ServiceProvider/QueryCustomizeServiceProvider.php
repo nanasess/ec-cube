@@ -12,7 +12,7 @@ class QueryCustomizeServiceProvider implements ServiceProviderInterface, Bootabl
 {
     public function register(Container $app)
     {
-        $app['plugin.query_customize.customer_search'] = function (Container $container) {
+        $app['plugin.query_customize.customer_search'] = function(Container $container) {
             return new AdminCustomerCustomizer();
         };
     }

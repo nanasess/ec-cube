@@ -67,7 +67,7 @@ class CountWalker extends TreeWalkerAdapter
         }
 
         $pathExpression = new PathExpression(
-            PathExpression::TYPE_STATE_FIELD | PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION, $rootAlias,
+            PathExpression::TYPE_STATE_FIELD|PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION, $rootAlias,
             $identifierFieldName
         );
         $pathExpression->type = $pathType;

@@ -41,14 +41,14 @@ class ProductListMaxType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
             $options = $event->getForm()->getConfig()->getOptions();
             if (!$event->getData()) {
                 $data = current(array_keys($options['choice_loader']->loadChoiceList()->getValues()));
                 $event->setData($data);
             }
         });
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
             $options = $event->getForm()->getConfig()->getOptions();
             $values = $options['choice_loader']->loadChoiceList()->getValues();
             if (!in_array($event->getData(), $values)) {

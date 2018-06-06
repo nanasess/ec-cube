@@ -66,7 +66,7 @@ class DoctrineOrmExtension extends AbstractTypeExtension
     {
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) {
+            function(FormEvent $event) {
                 $form = $event->getForm();
                 $config = $form->getConfig();
                 // data_classオプションが必要

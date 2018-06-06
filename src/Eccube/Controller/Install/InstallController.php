@@ -571,7 +571,6 @@ class InstallController extends AbstractController
     }
 
     /**
-     * @param array $options
      *
      * @return string
      *

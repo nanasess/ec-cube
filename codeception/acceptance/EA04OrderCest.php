@@ -30,7 +30,7 @@ class EA04OrderCest
         $I->wantTo('EA0401-UC01-T01(& UC01-T02, UC01-T03) 受注検索');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
-        $TargetOrders = array_filter($findOrders(), function ($Order) {
+        $TargetOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() != OrderStatus::PROCESSING;
         });
         OrderManagePage::go($I)->検索();
@@ -52,7 +52,7 @@ class EA04OrderCest
         $I->wantTo('EA0401-UC02-T01 受注CSVダウンロード');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
-        $TargetOrders = array_filter($findOrders(), function ($Order) {
+        $TargetOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() != OrderStatus::PROCESSING;
         });
         $OrderListPage = OrderManagePage::go($I)->検索();
@@ -70,7 +70,7 @@ class EA04OrderCest
         $I->wantTo('EA0401-UC02-T02 受注情報のCSV出力項目変更設定');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
-        $TargetOrders = array_filter($findOrders(), function ($Order) {
+        $TargetOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() != OrderStatus::PROCESSING;
         });
         $OrderListPage = OrderManagePage::go($I)->検索();
@@ -89,7 +89,7 @@ class EA04OrderCest
         $I->wantTo('EA0401-UC05-T01(& UC05-T02/UC05-T03/UC06-T01) 受注編集');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
-        $TargetOrders = array_filter($findOrders(), function ($Order) {
+        $TargetOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() != OrderStatus::PROCESSING;
         });
         $OrderListPage = OrderManagePage::go($I)->検索();
@@ -152,7 +152,7 @@ class EA04OrderCest
         $I->wantTo('EA0401-UC08-T01(& UC08-T02) 受注削除');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
-        $TargetOrders = array_filter($findOrders(), function ($Order) {
+        $TargetOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() != OrderStatus::PROCESSING;
         });
 
@@ -162,9 +162,9 @@ class EA04OrderCest
         // 削除
         $OrderNumForDel = $OrderListPage->一覧_注文番号(1);
         $OrderListPage
-          ->一覧_選択(1)
-          ->一覧_削除()
-          ->Accept_削除();
+            ->一覧_選択(1)
+            ->一覧_削除()
+            ->Accept_削除();
 
         $I->see('受注情報を削除しました', ['css' => '#page_admin_order > div > div.c-contentsArea > div.alert.alert-success.alert-dismissible.fade.show.m-3 > span']);
         $I->assertNotEquals($OrderNumForDel, $OrderListPage->一覧_注文番号(1));
@@ -172,9 +172,9 @@ class EA04OrderCest
         // 削除キャンセル
         $OrderNumForDontDel = $OrderListPage->一覧_注文番号(1);
         $OrderListPage
-          ->一覧_選択(1)
-          ->一覧_削除()
-          ->Cancel_削除();
+            ->一覧_選択(1)
+            ->一覧_削除()
+            ->Cancel_削除();
 
         $I->assertEquals($OrderNumForDontDel, $OrderListPage->一覧_注文番号(1));
     }
@@ -185,7 +185,7 @@ class EA04OrderCest
 
         $I->resetEmails();
         $findOrders = Fixtures::get('findOrders');
-        $NewOrders = array_filter($findOrders(), function ($Order) {
+        $NewOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() == OrderStatus::NEW;
         });
         $Order = array_pop($NewOrders);
@@ -214,7 +214,7 @@ class EA04OrderCest
 
         $config = Fixtures::get('config');
         $findOrders = Fixtures::get('findOrders'); // Closure
-        $TargetOrders = array_filter($findOrders(), function ($Order) use ($config) {
+        $TargetOrders = array_filter($findOrders(), function($Order) use ($config) {
             return $Order->getOrderStatus()->getId() != OrderStatus::PROCESSING;
         });
         $OrderListPage = OrderManagePage::go($I)->検索();
@@ -274,7 +274,7 @@ class EA04OrderCest
         // 新規受付ステータスをキャンセルに変更する
         $entityManager = Fixtures::get('entityManager');
         $findOrders = Fixtures::get('findOrders');
-        $NewOrders = array_filter($findOrders(), function ($Order) {
+        $NewOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() == OrderStatus::NEW;
         });
         $CancelStatus = $entityManager->getRepository('Eccube\Entity\Master\OrderStatus')->find(OrderStatus::CANCEL);
@@ -293,13 +293,13 @@ class EA04OrderCest
         }
         $entityManager->flush();
 
-        $NewOrders = array_filter($findOrders(), function ($Order) {
+        $NewOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() == OrderStatus::NEW;
         });
         OrderManagePage::go($I)->受注ステータス検索(OrderStatus::NEW);
         $I->see('検索結果：'.count($NewOrders).'件が該当しました', OrderManagePage::$検索結果_メッセージ);
 
-        $DeliveredOrders = array_filter($findOrders(), function ($Order) {
+        $DeliveredOrders = array_filter($findOrders(), function($Order) {
             return $Order->getOrderStatus()->getId() == OrderStatus::DELIVERED;
         });
         OrderManagePage::go($I)->受注ステータス検索(OrderStatus::DELIVERED);

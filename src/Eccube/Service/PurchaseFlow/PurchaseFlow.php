@@ -103,7 +103,7 @@ class PurchaseFlow
      */
     protected function calculateTotal(ItemHolderInterface $itemHolder)
     {
-        $total = $itemHolder->getItems()->reduce(function ($sum, ItemInterface $item) {
+        $total = $itemHolder->getItems()->reduce(function($sum, ItemInterface $item) {
             $sum += $item->getPriceIncTax() * $item->getQuantity();
 
             return $sum;
@@ -120,7 +120,7 @@ class PurchaseFlow
     {
         $total = $itemHolder->getItems()
             ->getProductClasses()
-            ->reduce(function ($sum, ItemInterface $item) {
+            ->reduce(function($sum, ItemInterface $item) {
                 $sum += $item->getPriceIncTax() * $item->getQuantity();
 
                 return $sum;
@@ -139,7 +139,7 @@ class PurchaseFlow
     {
         $total = $itemHolder->getItems()
             ->getDeliveryFees()
-            ->reduce(function ($sum, ItemInterface $item) {
+            ->reduce(function($sum, ItemInterface $item) {
                 $sum += $item->getPriceIncTax() * $item->getQuantity();
 
                 return $sum;
@@ -154,7 +154,7 @@ class PurchaseFlow
     {
         $total = $itemHolder->getItems()
             ->getDiscounts()
-            ->reduce(function ($sum, ItemInterface $item) {
+            ->reduce(function($sum, ItemInterface $item) {
                 $sum += $item->getPriceIncTax() * $item->getQuantity();
 
                 return $sum;
@@ -170,7 +170,7 @@ class PurchaseFlow
     {
         $total = $itemHolder->getItems()
             ->getCharges()
-            ->reduce(function ($sum, ItemInterface $item) {
+            ->reduce(function($sum, ItemInterface $item) {
                 $sum += $item->getPriceIncTax() * $item->getQuantity();
 
                 return $sum;
@@ -184,7 +184,7 @@ class PurchaseFlow
     protected function calculateTax(ItemHolderInterface $itemHolder)
     {
         $total = $itemHolder->getItems()
-            ->reduce(function ($sum, ItemInterface $item) {
+            ->reduce(function($sum, ItemInterface $item) {
                 $sum += ($item->getPriceIncTax() - $item->getPrice()) * $item->getQuantity();
 
                 return $sum;

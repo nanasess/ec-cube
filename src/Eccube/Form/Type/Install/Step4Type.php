@@ -102,7 +102,7 @@ class Step4Type extends AbstractType
                 'label' => trans('step4.label.pass'),
                 'required' => false,
             ])
-            ->addEventListener(FormEvents::POST_SUBMIT, function ($event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function($event) {
                 $form = $event->getForm();
                 $data = $form->getData();
 

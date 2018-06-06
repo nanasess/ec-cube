@@ -40,13 +40,13 @@ class InstallServiceProvider implements ServiceProviderInterface, BootableProvid
      */
     public function register(Container $app)
     {
-        $app->extend('form.type.extensions', function ($extensions) use ($app) {
+        $app->extend('form.type.extensions', function($extensions) use ($app) {
             $extensions[] = new \Eccube\Form\Extension\HelpTypeExtension();
 
             return $extensions;
         });
 
-        $app->extend('form.types', function ($types) use ($app) {
+        $app->extend('form.types', function($types) use ($app) {
             $types[] = new \Eccube\Form\Type\Install\Step1Type($app);
             $types[] = new \Eccube\Form\Type\Install\Step3Type($app);
             $types[] = new \Eccube\Form\Type\Install\Step4Type($app);

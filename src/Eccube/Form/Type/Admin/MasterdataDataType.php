@@ -73,7 +73,7 @@ class MasterdataDataType extends AbstractType
             ->add('name', TextType::class, [
                 'required' => false,
             ])
-        ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+        ->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
             $form = $event->getForm();
             $data = $form->getData();
             if (strlen($data['id']) && strlen($data['name']) == 0) {

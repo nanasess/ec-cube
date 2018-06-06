@@ -49,13 +49,13 @@ class CartController extends AbstractController
     {
         $Carts = $this->cartService->getCarts();
 
-        $totalQuantity = array_reduce($Carts, function ($total, $Cart) {
+        $totalQuantity = array_reduce($Carts, function($total, $Cart) {
             /* @var Cart $Cart */
             $total += $Cart->getTotalQuantity();
 
             return $total;
         }, 0);
-        $totalPrice = array_reduce($Carts, function ($total, $Cart) {
+        $totalPrice = array_reduce($Carts, function($total, $Cart) {
             /* @var Cart $Cart */
             $total += $Cart->getTotalPrice();
 

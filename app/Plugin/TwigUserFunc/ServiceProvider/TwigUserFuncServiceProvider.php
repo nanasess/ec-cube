@@ -30,7 +30,7 @@ class TwigUserFuncServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $app)
     {
-        $app->extend('eccube_twig_block_templates', function ($templates) {
+        $app->extend('eccube_twig_block_templates', function($templates) {
             $templates[] = 'TwigUserFunc/Resource/template/hello_block.twig';
 
             return $templates;

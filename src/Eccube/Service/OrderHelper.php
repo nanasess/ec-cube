@@ -167,7 +167,7 @@ class OrderHelper
 
         // 明細情報の設定
         $OrderItems = $this->createOrderItemsFromCartItems($CartItems);
-        $OrderItemsGroupBySaleType = array_reduce($OrderItems, function ($result, $item) {
+        $OrderItemsGroupBySaleType = array_reduce($OrderItems, function($result, $item) {
             /* @var OrderItem $item */
             $saleTypeId = $item->getProductClass()->getSaleType()->getId();
             $result[$saleTypeId][] = $item;
@@ -236,7 +236,7 @@ class OrderHelper
         $TaxExclude = $this->entityManager->getRepository(TaxDisplayType::class)->find(TaxDisplayType::EXCLUDED);
         $Taxion = $this->entityManager->getRepository(TaxType::class)->find(TaxType::TAXATION);
 
-        return array_map(function ($item) use ($ProductItemType, $TaxExclude, $Taxion) {
+        return array_map(function($item) use ($ProductItemType, $TaxExclude, $Taxion) {
             /* @var $item CartItem */
             /* @var $ProductClass \Eccube\Entity\ProductClass */
             $ProductClass = $item->getProductClass();

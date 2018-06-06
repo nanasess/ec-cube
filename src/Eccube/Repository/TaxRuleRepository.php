@@ -100,7 +100,7 @@ class TaxRuleRepository extends AbstractRepository
      * @param  int|null|\Eccube\Entity\Master\Pref    $Pref         都道府県
      * @param  int|null|\Eccube\Entity\Master\Country $Country      国
      *
-     * @return \Eccube\Entity\TaxRule                 税設定情報
+     * @return integer                 税設定情報
      *
      * @throws NoResultException
      */
@@ -228,7 +228,7 @@ class TaxRuleRepository extends AbstractRepository
         }
 
         // 適用日降順, sortNo 降順にソートする
-        usort($TaxRules, function ($a, $b) {
+        usort($TaxRules, function($a, $b) {
             return $a->compareTo($b);
         });
 

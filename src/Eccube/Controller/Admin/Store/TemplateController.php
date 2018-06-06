@@ -122,7 +122,7 @@ class TemplateController extends AbstractController
      * @param Request $request
      * @param \Eccube\Entity\Template $Template
      *
-     * @return mixed
+     * @return BinaryFileResponse
      */
     public function download(Request $request, \Eccube\Entity\Template $Template)
     {
@@ -161,7 +161,7 @@ class TemplateController extends AbstractController
 
         // ダウンロード完了後にファイルを削除する.
         // http://stackoverflow.com/questions/15238897/removing-file-after-delivering-response-with-silex-symfony
-        $this->eventDispatcher->addListener(KernelEvents::TERMINATE, function () use (
+        $this->eventDispatcher->addListener(KernelEvents::TERMINATE, function() use (
             $tmpDir,
             $tarFile,
             $tarGzFile

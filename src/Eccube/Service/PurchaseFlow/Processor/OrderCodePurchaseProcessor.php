@@ -35,7 +35,7 @@ class OrderCodePurchaseProcessor implements PurchaseProcessor
                     $this->entityManager->flush();
                 }
 
-                $orderCode = preg_replace_callback('/\${(.*)}/U', function ($matches) use ($Order) {
+                $orderCode = preg_replace_callback('/\${(.*)}/U', function($matches) use ($Order) {
                     if (count($matches) == 2) {
                         switch ($matches[1]) {
                             case 'yyyy':

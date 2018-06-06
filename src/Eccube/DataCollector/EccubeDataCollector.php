@@ -116,7 +116,7 @@ class EccubeDataCollector extends DataCollector
             $Plugins = $this->pluginRepository->findBy([], ['code' => 'ASC']);
 
             foreach (array_keys($this->data['plugins']) as $pluginCode) {
-                $Plugin = array_filter($Plugins, function ($Plugin) use ($pluginCode) {
+                $Plugin = array_filter($Plugins, function($Plugin) use ($pluginCode) {
                     return $Plugin->getCode() == $pluginCode;
                 });
                 if (!empty($Plugin) && count($Plugin) > 0) {

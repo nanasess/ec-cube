@@ -9,7 +9,7 @@ use Eccube\Kernel;
 use Faker\Factory as Faker;
 
 
-$config = parse_ini_file(__DIR__.'/config.ini',true);
+$config = parse_ini_file(__DIR__.'/config.ini', true);
 
 /**
  * create fixture
@@ -39,7 +39,7 @@ Fixtures::add('faker', $faker);
 $progress = (function()
 {
     $current = '';
-    return function ($key) use (&$current) {
+    return function($key) use (&$current) {
         if ($current !== $key) {
             if ($current !== '') {
                 echo PHP_EOL;
@@ -73,7 +73,7 @@ $num = $entityManager->getRepository('Eccube\Entity\Product')
     ->getQuery()
     ->getSingleScalarResult();
 // 受注生成件数 + 初期データの商品が生成されているはず
-if ($num < ($config['fixture_product_num']+2)) {
+if ($num < ($config['fixture_product_num'] + 2)) {
     // 規格なしも含め $config['fixture_product_num'] の分だけ生成する
     for ($i = 0; $i < $config['fixture_product_num'] - 1; $i++) {
         $progress('Generating Products');
@@ -160,7 +160,7 @@ function createOrder($container, Customer $Customer, array $ProductClasses, $Del
  */
 
 /** 管理画面アカウント情報. */
-Fixtures::add('admin_account',array(
+Fixtures::add('admin_account', array(
     'member' => $config['admin_user'],
     'password' => $config['admin_password'],
 ));
@@ -181,7 +181,7 @@ $categories = $entityManager->getRepository('Eccube\Entity\Category')
 /** カテゴリ一覧の配列. */
 Fixtures::add('categories', $categories);
 
-$findOrders = function () use ($entityManager) {
+$findOrders = function() use ($entityManager) {
     return $entityManager->getRepository('Eccube\Entity\Order')
     ->createQueryBuilder('o')
     ->getQuery()
@@ -190,7 +190,7 @@ $findOrders = function () use ($entityManager) {
 /** 受注を検索するクロージャ. */
 Fixtures::add('findOrders', $findOrders);
 
-$findShippings = function () use ($entityManager) {
+$findShippings = function() use ($entityManager) {
     return $entityManager->getRepository('Eccube\Entity\Shipping')
     ->createQueryBuilder('o')
     ->getQuery()
@@ -199,7 +199,7 @@ $findShippings = function () use ($entityManager) {
 /** 出荷を検索するクロージャ. */
 Fixtures::add('findShippings', $findShippings);
 
-$resetShippingStatusPrepared = function () use ($entityManager) {
+$resetShippingStatusPrepared = function() use ($entityManager) {
     $StatusPrepared = $entityManager->find(ShippingStatus::class, ShippingStatus::PREPARED);
     $Shippings = $entityManager->getRepository('Eccube\Entity\Shipping')
         ->findAll();
@@ -212,7 +212,7 @@ $resetShippingStatusPrepared = function () use ($entityManager) {
 /** 出荷準備中に更新するクロージャ. */
 Fixtures::add('resetShippingStatusPrepared', $resetShippingStatusPrepared);
 
-$resetShippingStatusShipped = function () use ($entityManager) {
+$resetShippingStatusShipped = function() use ($entityManager) {
     $StatusShipped = $entityManager->find(ShippingStatus::class, ShippingStatus::SHIPPED);
     $Shippings = $entityManager->getRepository('Eccube\Entity\Shipping')
         ->findAll();
@@ -225,9 +225,9 @@ $resetShippingStatusShipped = function () use ($entityManager) {
 /** 出荷済みに更新するクロージャ. */
 Fixtures::add('resetShippingStatusShipped', $resetShippingStatusShipped);
 
-$deleteShippingNotExistsOfItem = function () use ($entityManager) {
+$deleteShippingNotExistsOfItem = function() use ($entityManager) {
 
-    $Shippings= $entityManager->getRepository('Eccube\Entity\Shipping')->findAll();
+    $Shippings = $entityManager->getRepository('Eccube\Entity\Shipping')->findAll();
 
     if ($Shippings) {
         foreach ($Shippings as $Shipping) {
@@ -243,7 +243,7 @@ $deleteShippingNotExistsOfItem = function () use ($entityManager) {
 /** OrderItemの存在しない出荷を削除するクロージャ. */
 Fixtures::add('deleteShippingNotExistsOfItem', $deleteShippingNotExistsOfItem);
 
-$findProducts = function () use ($entityManager) {
+$findProducts = function() use ($entityManager) {
     return $entityManager->getRepository('Eccube\Entity\Product')
         ->createQueryBuilder('p')
         ->getQuery()
@@ -257,7 +257,7 @@ $createProduct = function($product_name = null, $product_class_num = 3) use ($co
 };
 Fixtures::add('createProduct', $createProduct);
 
-$createCustomer = function ($email = null, $active = true) use ($container, $faker) {
+$createCustomer = function($email = null, $active = true) use ($container, $faker) {
     if (is_null($email)) {
         $email = microtime(true).'.'.$faker->safeEmail;
     }
@@ -266,7 +266,7 @@ $createCustomer = function ($email = null, $active = true) use ($container, $fak
 /** 会員を生成するクロージャ. */
 Fixtures::add('createCustomer', $createCustomer);
 
-$createOrders = function ($Customer, $numberOfOrders = 5, $ProductClasses = array()) use ($container, $entityManager, $faker) {
+$createOrders = function($Customer, $numberOfOrders = 5, $ProductClasses = array()) use ($container, $entityManager, $faker) {
     $generator = $container->get('Eccube\Tests\Fixture\Generator');
     $Orders = array();
     for ($i = 0; $i < $numberOfOrders; $i++) {
@@ -283,19 +283,19 @@ $createOrders = function ($Customer, $numberOfOrders = 5, $ProductClasses = arra
 /** 受注を生成するクロージャ. */
 Fixtures::add('createOrders', $createOrders);
 
-$findPlugins = function () use ($entityManager) {
+$findPlugins = function() use ($entityManager) {
     return $entityManager->getRepository('Eccube\Entity\Plugin')->findAll();
 };
 /** プラグインを検索するクロージャ */
 Fixtures::add('findPlugins', $findPlugins);
 
-$findPluginByCode = function ($code = null) use ($entityManager) {
+$findPluginByCode = function($code = null) use ($entityManager) {
     return $entityManager->getRepository('Eccube\Entity\Plugin')->findOneBy(['code' => $code]);
 };
 /** プラグインを検索するクロージャ */
 Fixtures::add('findPluginByCode', $findPluginByCode);
 
-$findCustomers = function () use ($entityManager) {
+$findCustomers = function() use ($entityManager) {
     return $entityManager->getRepository('Eccube\Entity\Customer')
         ->createQueryBuilder('c')
         ->getQuery()
@@ -305,13 +305,13 @@ $findCustomers = function () use ($entityManager) {
 Fixtures::add('findCustomers', $findCustomers);
 
 /** 新着情報を検索するクロージャ */
-Fixtures::add('findNews', function () use ($entityManager) {
+Fixtures::add('findNews', function() use ($entityManager) {
     return $entityManager->getRepository(\Eccube\Entity\News::class)
         ->findBy([], ['sort_no' => 'DESC']);
 });
 
 /** 新着情報を登録するクロージャ */
-Fixtures::add('createNews', function ($publishDate, $title, $description, $url = null) use ($entityManager) {
+Fixtures::add('createNews', function($publishDate, $title, $description, $url = null) use ($entityManager) {
     $TopNews = $entityManager->getRepository(\Eccube\Entity\News::class)
         ->findOneBy([], ['sort_no' => 'DESC']);
     $sortNo = $TopNews ? $TopNews->getSortNo() + 1 : 1;

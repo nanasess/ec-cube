@@ -529,7 +529,7 @@ class PluginController extends AbstractController
     {
         $curl = curl_init($url);
 
-        $options = [           // オプション配列
+        $options = [// オプション配列
             //HEADER
             CURLOPT_HTTPHEADER => [
                 'Authorization: '.base64_encode($authKey),

@@ -62,7 +62,7 @@ class ShippingItemType extends AbstractType
         $app = $this->app;
 
         $builder
-            ->addEventListener(FormEvents::PRE_SET_DATA, function ($event) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function($event) {
                 /** @var \Eccube\Entity\Shipping $data */
                 $data = $event->getData();
                 /** @var \Symfony\Component\Form\Form $form */
@@ -115,7 +115,7 @@ class ShippingItemType extends AbstractType
                         'placeholder' => 'shippingitem.placeholder.not_selected',
                     ]);
             })
-            ->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
+            ->addEventListener(FormEvents::POST_SET_DATA, function(FormEvent $event) {
                 /** @var \Eccube\Entity\Shipping $data */
                 $data = $event->getData();
                 /** @var \Symfony\Component\Form\Form $form */
@@ -130,7 +130,7 @@ class ShippingItemType extends AbstractType
                     $form['shippingDeliveryDuration']->setData($shippingDeliveryDuration->format('Y/m/d'));
                 }
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($app) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use ($app) {
                 $data = $event->getData();
                 $form = $event->getForm();
                 if (!$data) {
@@ -149,7 +149,7 @@ class ShippingItemType extends AbstractType
 
                     if (isset($data['deliveryTime'])) {
                         $value = $data['deliveryTime'];
-                        $filteredDeliveryTimes = $deliveryTimes->filter(function ($DeliveryTime) use ($value) {
+                        $filteredDeliveryTimes = $deliveryTimes->filter(function($DeliveryTime) use ($value) {
                             return  $DeliveryTime->getId() == $value;
                         });
                         if (!$filteredDeliveryTimes->count()) {
@@ -173,7 +173,7 @@ class ShippingItemType extends AbstractType
                     'label' => 'お届け時間',
                 ]);
             })
-            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
                 /** @var \Eccube\Entity\Shipping $data */
                 $data = $event->getData();
                 /** @var \Symfony\Component\Form\Form $form */

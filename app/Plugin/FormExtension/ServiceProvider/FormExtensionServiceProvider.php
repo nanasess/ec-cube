@@ -12,7 +12,7 @@ class FormExtensionServiceProvider implements ServiceProviderInterface
     {
         $app->extend(
             'form.type.extensions',
-            function ($extensions) {
+            function($extensions) {
                 $extensions[] = new EntryTypeExtension();
 
                 return $extensions;

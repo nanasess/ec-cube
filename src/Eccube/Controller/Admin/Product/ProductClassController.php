@@ -108,7 +108,7 @@ class ProductClassController extends AbstractController
         if ($Product->hasProductClass()) {
             // 規格ありの商品は編集画面を表示する.
             $ProductClasses = $Product->getProductClasses()
-                ->filter(function ($pc) {
+                ->filter(function($pc) {
                     return $pc->getClassCategory1() !== null;
                 });
 

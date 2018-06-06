@@ -17,11 +17,11 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $app)
     {
-        $app['eccube.purchase.context'] = $app->protect(function (ItemHolderInterface $origin = null, Customer $user = null) {
+        $app['eccube.purchase.context'] = $app->protect(function(ItemHolderInterface $origin = null, Customer $user = null) {
             return new PurchaseContext($origin, $user);
         });
 
-        $app['eccube.purchase.flow.cart.item_processors'] = function (Container $app) {
+        $app['eccube.purchase.flow.cart.item_processors'] = function(Container $app) {
             $processors = new ArrayCollection();
             $processors[] = new Processor\DisplayStatusValidator();
             $processors[] = new Processor\SaleLimitValidator();
@@ -31,7 +31,7 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $processors;
         };
 
-        $app['eccube.purchase.flow.cart.holder_processors'] = function (Container $app) {
+        $app['eccube.purchase.flow.cart.holder_processors'] = function(Container $app) {
             $processors = new ArrayCollection();
             $processors[] = new Processor\PaymentProcessor($app[DeliveryRepository::class]);
             $processors[] = new Processor\PaymentTotalLimitValidator($app['config']['max_total_fee']);
@@ -41,7 +41,7 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $processors;
         };
 
-        $app['eccube.purchase.flow.cart'] = function (Container $app) {
+        $app['eccube.purchase.flow.cart'] = function(Container $app) {
             $flow = new PurchaseFlow();
             $flow->setItemProcessors($app['eccube.purchase.flow.cart.item_processors']);
             $flow->setItemHolderProcessors($app['eccube.purchase.flow.cart.holder_processors']);
@@ -49,7 +49,7 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $flow;
         };
 
-        $app['eccube.purchase.flow.shopping.item_processors'] = function (Container $app) {
+        $app['eccube.purchase.flow.shopping.item_processors'] = function(Container $app) {
             $processors = new ArrayCollection();
             $processors[] = new Processor\StockValidator();
             $processors[] = new Processor\DisplayStatusValidator();
@@ -57,7 +57,7 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $processors;
         };
 
-        $app['eccube.purchase.flow.shopping.holder_processors'] = function (Container $app) {
+        $app['eccube.purchase.flow.shopping.holder_processors'] = function(Container $app) {
             $processors = new ArrayCollection();
             $processors[] = new Processor\PaymentTotalLimitValidator($app['config']['max_total_fee']);
             $processors[] = new Processor\DeliveryFeeProcessor($app['orm.em']);
@@ -71,7 +71,7 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $processors;
         };
 
-        $app['eccube.purchase.flow.shopping.purchase'] = function (Container $app) {
+        $app['eccube.purchase.flow.shopping.purchase'] = function(Container $app) {
             $processors = new ArrayCollection();
             if ($app[BaseInfo::class]->isOptionPoint()) {
                 $processors[] = new Processor\UsePointToCustomerPurchaseProcessor();
@@ -81,7 +81,7 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $processors;
         };
 
-        $app['eccube.purchase.flow.shopping'] = function (Container $app) {
+        $app['eccube.purchase.flow.shopping'] = function(Container $app) {
             $flow = new PurchaseFlow();
             $flow->setItemProcessors($app['eccube.purchase.flow.shopping.item_processors']);
             $flow->setItemHolderProcessors($app['eccube.purchase.flow.shopping.holder_processors']);
@@ -90,14 +90,14 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $flow;
         };
 
-        $app['eccube.purchase.flow.order.item_processors'] = function (Container $app) {
+        $app['eccube.purchase.flow.order.item_processors'] = function(Container $app) {
             $processors = new ArrayCollection();
             $processors[] = new Processor\StockValidator();
 
             return $processors;
         };
 
-        $app['eccube.purchase.flow.order.holder_processors'] = function (Container $app) {
+        $app['eccube.purchase.flow.order.holder_processors'] = function(Container $app) {
             $processors = new ArrayCollection();
             $processors[] = new Processor\PaymentTotalLimitValidator($app['config']['max_total_fee']);
             $processors[] = new Processor\UpdateDatePurchaseProcessor($app['config']);
@@ -110,7 +110,7 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $processors;
         };
 
-        $app['eccube.purchase.flow.order.purchase'] = function (Container $app) {
+        $app['eccube.purchase.flow.order.purchase'] = function(Container $app) {
             $processors = new ArrayCollection();
             $processors[] = new Processor\AdminOrderRegisterPurchaseProcessor($app);
             $processors[] = new Processor\OrderCodePurchaseProcessor($app['orm.em'], $app['config']['order_code']);
@@ -118,7 +118,7 @@ class PurchaseFlowServiceProvider implements ServiceProviderInterface
             return $processors;
         };
 
-        $app['eccube.purchase.flow.order'] = function (Container $app) {
+        $app['eccube.purchase.flow.order'] = function(Container $app) {
             $flow = new PurchaseFlow();
             $flow->setItemProcessors($app['eccube.purchase.flow.order.item_processors']);
             $flow->setItemHolderProcessors($app['eccube.purchase.flow.order.holder_processors']);

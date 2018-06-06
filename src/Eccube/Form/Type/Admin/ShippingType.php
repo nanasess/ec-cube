@@ -175,7 +175,7 @@ class ShippingType extends AbstractType
                 'required' => false,
                 'label' => 'shipping.label.shipping_company',
                 'class' => 'Eccube\Entity\Delivery',
-                'choice_label' => function (Delivery $Delivery) {
+                'choice_label' => function(Delivery $Delivery) {
                     return $Delivery->isVisible()
                         ? $Delivery->getServiceName()
                         : $Delivery->getServiceName().trans('delivery.text.hidden');
@@ -227,7 +227,7 @@ class ShippingType extends AbstractType
                 'required' => false,
                 'data' => true,
             ])
-            ->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
+            ->addEventListener(FormEvents::POST_SET_DATA, function(FormEvent $event) {
                 /** @var \Eccube\Entity\Shipping $data */
                 $data = $event->getData();
                 /** @var \Symfony\Component\Form\Form $form */
@@ -248,7 +248,7 @@ class ShippingType extends AbstractType
                     'placeholder' => 'shipping.placeholder.not_specified',
                     'required' => false,
                     'data' => $DeliveryTime,
-                    'query_builder' => function (EntityRepository $er) use ($Delivery) {
+                    'query_builder' => function(EntityRepository $er) use ($Delivery) {
                         $qb = $er->createQueryBuilder('dt');
                         if ($Delivery) {
                             $qb
@@ -261,7 +261,7 @@ class ShippingType extends AbstractType
                     'mapped' => false,
                 ]);
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                 $data = $event->getData();
                 $form = $event->getForm();
 
@@ -282,7 +282,7 @@ class ShippingType extends AbstractType
                     'choice_label' => 'delivery_time',
                     'placeholder' => 'shipping.placeholder.not_specified',
                     'required' => false,
-                    'query_builder' => function (EntityRepository $er) use ($Delivery) {
+                    'query_builder' => function(EntityRepository $er) use ($Delivery) {
                         $qb = $er->createQueryBuilder('dt');
                         if ($Delivery) {
                             $qb
@@ -295,7 +295,7 @@ class ShippingType extends AbstractType
                     'mapped' => false,
                 ]);
             })
-            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
                 $form = $event->getForm();
                 $Shipping = $event->getData();
                 $Delivery = $Shipping->getDelivery();

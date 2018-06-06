@@ -55,7 +55,7 @@ class JoinClause
     /**
      * JoinClause constructor.
      *
-     * @param $leftJoin
+     * @param boolean $leftJoin
      * @param $join
      * @param $alias
      * @param $conditionType

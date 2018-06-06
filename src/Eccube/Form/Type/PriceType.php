@@ -66,7 +66,7 @@ class PriceType extends AbstractType
         $max = $this->eccubeConfig['eccube_price_max'];
         $min = -$max;
 
-        $constraints = function (Options $options) use ($max, $min) {
+        $constraints = function(Options $options) use ($max, $min) {
             $constraints = [];
             // requiredがtrueに指定されている場合, NotBlankを追加
             if (isset($options['required']) && true === $options['required']) {

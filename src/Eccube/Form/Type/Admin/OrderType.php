@@ -230,7 +230,7 @@ class OrderType extends AbstractType
                 'class' => 'Eccube\Entity\Master\OrderStatus',
                 'choice_label' => 'name',
                 'placeholder' => 'order.placeholder.select',
-                'query_builder' => function ($er) {
+                'query_builder' => function($er) {
                     return $er->createQueryBuilder('o')
                         ->orderBy('o.sort_no', 'ASC');
                 },
@@ -266,7 +266,7 @@ class OrderType extends AbstractType
                 )));
 
         // 選択された支払い方法の名称をエンティティにコピーする
-        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
             $Order = $event->getData();
             $Payment = $Order->getPayment();
             if (!is_null($Payment)) {
@@ -274,7 +274,7 @@ class OrderType extends AbstractType
             }
         });
         // 会員受注の場合、会員の性別/職業/誕生日をエンティティにコピーする
-        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
             $Order = $event->getData();
             $Customer = $Order->getCustomer();
             if (!is_null($Customer)) {
