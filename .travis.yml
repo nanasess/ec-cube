@@ -63,6 +63,7 @@ jobs:
       script:
         - docker run -e DATABASE_URL=sqlite:////usr/src/myapp/var/eccube.db -v "$PWD":/usr/src/myapp:cached -w /usr/src/myapp --rm nanasess/phpdbg phpdbg -qrr -dmemory_limit=-1 ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
       after_script:
+        - sed -i.bak -e 's|/usr/src/myapp/||g' coverage.clover
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
       after_success:
