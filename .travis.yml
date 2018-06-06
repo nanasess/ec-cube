@@ -62,12 +62,12 @@ jobs:
         - DATABASE_URL=sqlite:///%kernel.project_dir%/var/eccube.db DATABASE_SERVER_VERSION=3 COVERAGE=1
       script:
         - docker run -e DATABASE_URL=sqlite:////usr/src/myapp/var/eccube.db -v "$PWD":/usr/src/myapp:cached -w /usr/src/myapp --rm nanasess/phpdbg phpdbg -qrr -dmemory_limit=-1 ./bin/phpunit --exclude-group cache-clear --coverage-clover=coverage.clover
-      after_script:
+      after_success:
         - sed -i.bak -e 's|/usr/src/myapp/||g' coverage.clover
+        - php vendor/bin/php-coveralls -v -x coverage.clover
+      after_script:
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
-      after_success:
-        - php vendor/bin/php-coveralls -v -x coverage.clover
     - stage: E2E Test
       env: GROUP=admin01 APP_ENV=codeception DATABASE_URL=postgres://postgres:password@localhost/eccube_db DATABASE_SERVER_VERSION=9 MAILER_URL=smtp://localhost:1025
       script: ./codeception.sh -g ${GROUP}
