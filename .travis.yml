@@ -40,9 +40,6 @@ eccube_setup: &eccube_setup |
   bin/console eccube:fixtures:load
 
 jobs:
-  fast_finish: true
-  allow_failures:
-    - env: DATABASE_URL=sqlite:///%kernel.project_dir%/var/eccube.db DATABASE_SERVER_VERSION=3 COVERAGE=1
   include:
     - stage: Inspection
       php: 7.1
