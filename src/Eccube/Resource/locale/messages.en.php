@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+ *
+ * http://www.lockon.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 return [
     //common
     'common.label.add' => 'Add',
@@ -27,7 +38,6 @@ return [
     'common.label.option_delivery_fee_free_amount' => 'Free shipping terms (amount)',
     'common.label.option_delivery_free_quantity' => 'Free shipping terms (quantity)',
     'common.label.option_product_delivery_fee' => 'Activate postage setting per item',
-    'common.label.option_multiple_shipping' => 'Enable multiple shipments',
     'common.label.option_customer_activate' => 'Activate temporary members',
     'common.label.option_mypage_order_status_display' => 'Show order status on my page',
     'common.label.option_favorite_product' => 'Use favorite product features',

@@ -1,24 +1,14 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eccube\Tests\Service;
@@ -29,6 +19,8 @@ use Eccube\Service\CartService;
 use Eccube\Util\StringUtil;
 use Eccube\Entity\Product;
 use Eccube\Entity\Master\SaleType;
+use Eccube\Entity\Master\OrderStatus;
+use Eccube\Repository\OrderRepository;
 use Eccube\Repository\Master\SaleTypeRepository;
 
 class CartServiceTest extends AbstractServiceTestCase
@@ -64,6 +56,11 @@ class CartServiceTest extends AbstractServiceTestCase
     protected $saleTypeRepository;
 
     /**
+     * @var OrderRepository
+     */
+    protected $orderRepository;
+
+    /**
      * {@inheritdoc}
      */
     public function setUp()
@@ -72,6 +69,7 @@ class CartServiceTest extends AbstractServiceTestCase
 
         $this->cartService = $this->container->get(CartService::class);
         $this->saleTypeRepository = $this->container->get(SaleTypeRepository::class);
+        $this->orderRepository = $this->container->get(OrderRepository::class);
 
         $this->SaleType1 = $this->saleTypeRepository->find(1);
         $this->SaleType2 = $this->saleTypeRepository->find(2);
@@ -239,6 +237,27 @@ class CartServiceTest extends AbstractServiceTestCase
         $this->expected = $preOrderId;
         $this->actual = $this->cartService->getCart()->getPreOrderId();
         $this->verify();
+    }
+
+    public function testMergeFromOrders()
+    {
+        $Customer = $this->createCustomer();
+
+        // Create order during purchase processing
+        $Order2 = $this->createOrder($Customer);
+        $Status = $this->entityManager->find(OrderStatus::class, OrderStatus::PROCESSING);
+        $this->orderRepository->changeStatus($Order2->getId(), $Status);
+
+        // Add to cart
+        $this->cartService->addProduct(10, 2);
+        $this->cartService->addProduct(1, 2);
+        $this->cartService->addProduct(2, 2);
+        $this->cartService->addProduct(3, 2);
+
+        $this->cartService->mergeFromOrders($Customer);
+
+        $Cart = current($this->cartService->getCarts());
+        $this->assertCount(5, $Cart->getCartItems()->toArray(), '1 + 4 items in the cart');
     }
 }
 

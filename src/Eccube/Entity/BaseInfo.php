@@ -1,24 +1,14 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eccube\Entity;
@@ -227,13 +217,6 @@ class BaseInfo extends \Eccube\Entity\AbstractEntity
      * @ORM\Column(name="delivery_free_quantity", type="integer", nullable=true, options={"unsigned":true})
      */
     private $delivery_free_quantity;
-
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="option_multiple_shipping", type="boolean", options={"default":false})
-     */
-    private $option_multiple_shipping = false;
 
     /**
      * @var boolean
@@ -966,30 +949,6 @@ class BaseInfo extends \Eccube\Entity\AbstractEntity
     public function getDeliveryFreeQuantity()
     {
         return $this->delivery_free_quantity;
-    }
-
-    /**
-     * Set optionMultipleShipping.
-     *
-     * @param boolean $optionMultipleShipping
-     *
-     * @return BaseInfo
-     */
-    public function setOptionMultipleShipping($optionMultipleShipping)
-    {
-        $this->option_multiple_shipping = $optionMultipleShipping;
-
-        return $this;
-    }
-
-    /**
-     * Get optionMultipleShipping.
-     *
-     * @return boolean
-     */
-    public function isOptionMultipleShipping()
-    {
-        return $this->option_multiple_shipping;
     }
 
     /**

@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+ *
+ * http://www.lockon.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Eccube\Tests\Web\Admin\Customer;
 
 use Eccube\Entity\Master\OrderStatus;
@@ -185,6 +196,6 @@ class CustomerEditControllerTest extends AbstractAdminWebTestCase
         );
 
         $orderListing = $crawler->filter('#history_box')->text();
-        $this->assertContains('データはありません', $orderListing);
+        $this->assertContains('この会員の購入履歴がありません', $orderListing);
     }
 }

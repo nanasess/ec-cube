@@ -1,24 +1,14 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eccube\Controller;
@@ -51,9 +41,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-/**
- * @Route(service=ShoppingController::class)
- */
 class ShoppingController extends AbstractShoppingController
 {
     /**
@@ -145,8 +132,6 @@ class ShoppingController extends AbstractShoppingController
             return $this->redirectToRoute('cart');
         }
 
-        // 複数配送の場合、エラーメッセージを一度だけ表示
-        $this->forwardToRoute('shopping_handle_multiple_errors');
         $form = $this->parameterBag->get(OrderType::class);
 
         return [
@@ -335,7 +320,6 @@ class ShoppingController extends AbstractShoppingController
 
         // 受注に関連するセッションを削除
         $this->session->remove($this->sessionOrderKey);
-        $this->session->remove($this->sessionMultipleKey);
 
         // 非会員用セッション情報を空の配列で上書きする(プラグイン互換性保持のために削除はしない)
         $this->session->set($this->sessionKey, []);
@@ -566,10 +550,6 @@ class ShoppingController extends AbstractShoppingController
      */
     public function login(Request $request, AuthenticationUtils $authenticationUtils)
     {
-        if (!$this->cartService->isLocked()) {
-            return $this->redirectToRoute('cart');
-        }
-
         if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
             return $this->redirectToRoute('shopping');
         }
@@ -630,14 +610,6 @@ class ShoppingController extends AbstractShoppingController
     public function checkToCart(Request $request)
     {
         // カートチェック
-        if (!$this->cartService->isLocked()) {
-            log_info('カートが存在しません');
-
-            // カートが存在しない、カートがロックされていない時はエラー
-            return $this->redirectToRoute('cart');
-        }
-
-        // カートチェック
         if (count($this->cartService->getCart()->getCartItems()) <= 0) {
             log_info('カートに商品が入っていないためショッピングカート画面にリダイレクト');
 
@@ -694,7 +666,6 @@ class ShoppingController extends AbstractShoppingController
 
             // セッション情報を削除
             $this->session->remove($this->sessionOrderKey);
-            $this->session->remove($this->sessionMultipleKey);
         }
 
         // 受注関連情報を最新状態に更新
@@ -771,34 +742,6 @@ class ShoppingController extends AbstractShoppingController
                 default:
                     return $this->redirectToRoute('shopping');
             }
-        }
-
-        return new Response();
-    }
-
-    /**
-     * 複数配送時のエラーを表示する
-     *
-     * @ForwardOnly
-     * @Route("/shopping/handle_multiple_errors", name="shopping_handle_multiple_errors")
-     */
-    public function handleMultipleErrors(Request $request)
-    {
-        $Order = $this->parameterBag->get('Order');
-
-        // 複数配送の場合、エラーメッセージを一度だけ表示
-        if (!$this->session->has($this->sessionMultipleKey)) {
-            if (count($Order->getShippings()) > 1) {
-                if (!$this->BaseInfo->isOptionMultipleShipping()) {
-                    // 複数配送に設定されていないのに複数配送先ができればエラー
-                    $this->addRequestError('cart.product.type.kind');
-
-                    return $this->redirectToRoute('cart');
-                }
-
-                $this->addError('shopping.multiple.delivery');
-            }
-            $this->session->set($this->sessionMultipleKey, 'multiple');
         }
 
         return new Response();

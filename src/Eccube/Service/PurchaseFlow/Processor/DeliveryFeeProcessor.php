@@ -1,24 +1,14 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2017 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eccube\Service\PurchaseFlow\Processor;
@@ -31,6 +21,8 @@ use Eccube\Entity\Master\TaxType;
 use Eccube\Entity\Order;
 use Eccube\Entity\OrderItem;
 use Eccube\Entity\Shipping;
+use Eccube\Repository\DeliveryFeeRepository;
+use Eccube\Repository\TaxRuleRepository;
 use Eccube\Service\PurchaseFlow\ItemHolderProcessor;
 use Eccube\Service\PurchaseFlow\ProcessResult;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
@@ -46,13 +38,30 @@ class DeliveryFeeProcessor implements ItemHolderProcessor
     protected $entityManager;
 
     /**
+     * @var TaxRuleRepository
+     */
+    protected $taxRuleRepository;
+
+    /**
+     * @var DeliveryFeeRepository
+     */
+    protected $deliveryFeeRepository;
+
+    /**
      * DeliveryFeeProcessor constructor.
      *
-     * @param $entityManager
+     * @param EntityManagerInterface $entityManager
+     * @param TaxRuleRepository $taxRuleRepository
+     * @param DeliveryFeeRepository $deliveryFeeRepository
      */
-    public function __construct(EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        TaxRuleRepository $taxRuleRepository,
+        DeliveryFeeRepository $deliveryFeeRepository
+    ) {
         $this->entityManager = $entityManager;
+        $this->taxRuleRepository = $taxRuleRepository;
+        $this->deliveryFeeRepository = $deliveryFeeRepository;
     }
 
     /**
@@ -95,21 +104,30 @@ class DeliveryFeeProcessor implements ItemHolderProcessor
     {
         $DeliveryFeeType = $this->entityManager
             ->find(OrderItemType::class, OrderItemType::DELIVERY_FEE);
-        // TODO
         $TaxInclude = $this->entityManager
             ->find(TaxDisplayType::class, TaxDisplayType::INCLUDED);
         $Taxion = $this->entityManager
             ->find(TaxType::class, TaxType::TAXATION);
+        $TaxRule = $this->taxRuleRepository->getByRule();
 
         /** @var Order $Order */
         $Order = $itemHolder;
         /* @var Shipping $Shipping */
         foreach ($Order->getShippings() as $Shipping) {
+            // 送料の計算
+            $DeliveryFee = $this->deliveryFeeRepository->findOneBy([
+                'Delivery' => $Shipping->getDelivery(),
+                'Pref' => $Shipping->getPref(),
+            ]);
+            $Shipping->setShippingDeliveryFee($DeliveryFee->getFee());
+            $Shipping->setFeeId($DeliveryFee->getId());
+
             $OrderItem = new OrderItem();
             $OrderItem->setProductName(trans('deliveryfeeprocessor.label.shippint_charge'))
                 ->setPrice($Shipping->getShippingDeliveryFee())
                 ->setPriceIncTax($Shipping->getShippingDeliveryFee())
-                ->setTaxRate(8)
+                ->setTaxRule($TaxRule->getId())
+                ->setTaxRate($TaxRule->getTaxRate())
                 ->setQuantity(1)
                 ->setOrderItemType($DeliveryFeeType)
                 ->setShipping($Shipping)

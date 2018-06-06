@@ -1,32 +1,21 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eccube\Form\Type;
 
-use Doctrine\ORM\EntityRepository;
-use Eccube\Annotation\FormType;
-use Eccube\Annotation\Inject;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Eccube\Common\EccubeConfig;
+use Eccube\Entity\Customer;
+use Eccube\Entity\CustomerAddress;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -34,32 +23,50 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @FormType
- */
 class ShippingMultipleItemType extends AbstractType
 {
     /**
-     * @Inject("config")
-     *
      * @var array
      */
     protected $eccubeConfig;
 
     /**
-     * @Inject("session")
-     *
      * @var Session
      */
     protected $session;
 
-    public $app;
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    protected $authorizationChecker;
 
-    public function __construct(\Eccube\Application $app)
-    {
-        $this->app = $app;
+    /**
+     * @var TokenStorageInterface
+     */
+    protected $tokenStorage;
+
+    /**
+     * ShippingMultipleItemType constructor.
+     *
+     * @param array $eccubeConfig
+     * @param Session $session
+     * @param AuthorizationCheckerInterface $authorizationChecker
+     * @param TokenStorageInterface $tokenStorage
+     */
+    public function __construct(
+        EccubeConfig $eccubeConfig,
+        Session $session,
+        AuthorizationCheckerInterface $authorizationChecker,
+        TokenStorageInterface $tokenStorage
+    ) {
+        $this->eccubeConfig = $eccubeConfig;
+        $this->session = $session;
+        $this->authorizationChecker = $authorizationChecker;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -67,8 +74,6 @@ class ShippingMultipleItemType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $app = $this->app;
-
         $builder
             ->add('quantity', IntegerType::class, [
                 'attr' => [
@@ -83,21 +88,22 @@ class ShippingMultipleItemType extends AbstractType
                     new Assert\Regex(['pattern' => '/^\d+$/']),
                 ],
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($app) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
 
-                if ($app->isGranted('IS_AUTHENTICATED_FULLY')) {
+                if ($this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
                     // 会員の場合、CustomerAddressを設定
-                    $Customer = $app->user();
-                    $form->add('customer_address', EntityType::class, [
-                        'class' => 'Eccube\Entity\CustomerAddress',
-                        'choice_label' => 'shippingMultipleDefaultName',
-                        'query_builder' => function (EntityRepository $er) use ($Customer) {
-                            return $er->createQueryBuilder('ca')
-                                ->where('ca.Customer = :Customer')
-                                ->orderBy('ca.id', 'ASC')
-                                ->setParameter('Customer', $Customer);
-                        },
+                    /** @var Customer $Customer */
+                    $Customer = $this->tokenStorage->getToken()->getUser();
+                    $CustomerAddresses = $Customer->getCustomerAddresses();
+                    $Addresses = array_reduce($CustomerAddresses->toArray(), function (array $result, CustomerAddress $CustomerAddress) {
+                        $result[$CustomerAddress->getShippingMultipleDefaultName()] = $CustomerAddress->getId();
+
+                        return $result;
+                    }, []);
+
+                    $form->add('customer_address', ChoiceType::class, [
+                        'choices' => $Addresses,
                         'constraints' => [
                             new Assert\NotBlank(),
                         ],
@@ -107,14 +113,10 @@ class ShippingMultipleItemType extends AbstractType
                     if ($this->session->has('eccube.front.shopping.nonmember.customeraddress')) {
                         $customerAddresses = $this->session->get('eccube.front.shopping.nonmember.customeraddress');
                         $customerAddresses = unserialize($customerAddresses);
+                        $addresses = array_map(function (CustomerAddress $CustomerAddress) {
+                            return $CustomerAddress->getShippingMultipleDefaultName();
+                        }, $customerAddresses);
 
-                        $addresses = [];
-                        $i = 0;
-                        /** @var \Eccube\Entity\CustomerAddress $CustomerAddress */
-                        foreach ($customerAddresses as $CustomerAddress) {
-                            $addresses[$i] = $CustomerAddress->getShippingMultipleDefaultName();
-                            $i++;
-                        }
                         $form->add('customer_address', ChoiceType::class, [
                             'choices' => array_flip($addresses),
                             'constraints' => [
@@ -132,6 +134,16 @@ class ShippingMultipleItemType extends AbstractType
 
                 if (is_null($data)) {
                     return;
+                }
+
+                $choices = $form['customer_address']->getConfig()->getOption('choices');
+
+                /* @var CustomerAddress $CustomerAddress */
+                foreach ($choices as $address => $id) {
+                    if ($address === $data->getShippingMultipleDefaultName()) {
+                        $form['customer_address']->setData($id);
+                        break;
+                    }
                 }
 
                 $quantity = 0;

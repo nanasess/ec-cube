@@ -1,18 +1,12 @@
 {#
 This file is part of EC-CUBE
-Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
+
+Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+
 http://www.lockon.co.jp/
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
 #}
 {% extends '@admin/styleguide_frame.twig' %}
 
@@ -36,9 +30,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         var total = bread_crumbs.length;
         for (var i in bread_crumbs) {
             file_path += '/' + bread_crumbs[i];
-            $a = $('<a href="javascript:;" onclick="eccube.fileManager.openFolder(\'' + file_path.replace(/user_data/, '') + '\'); return false;" />')
-                .text(bread_crumbs[i]);
-            $li = $('<li class="breadcrumb-item" />').append($a);
+            if (i == total - 1) {
+                $li = $('<li class="breadcrumb-item active" />').text(bread_crumbs[i]);
+            } else {
+                $a = $('<a href="javascript:;" onclick="eccube.fileManager.openFolder(\'' + file_path.replace(/user_data/, '') + '\'); return false;" />')
+                    .text(bread_crumbs[i]);
+                $li = $('<li class="breadcrumb-item" />').append($a);
+            }
             $li.appendTo($node);
             if (i < total - 1) $node.append($delimiter);
         }
@@ -64,7 +62,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         <div class="c-outsideBlock">
             <div class="c-outsideBlock__contents">
                 <nav aria-label="breadcrumb" role="navigation">
-                    {# TODO アクティブなフォルダ表示 #}
                     <ol class="breadcrumb mb-2 p-0" id="bread"></ol>
                 </nav>
                 <div class="card rounded border-0 mb-4">
@@ -146,7 +143,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                                         {{ file.file_size }}
                                                     </td>
                                                     <td class="align-middle">
-                                                        {{ file.file_time }} {{ 'admin.content.file.31'|trans }} {# TODO 英語だとフォーマットが変わるかも #}
+                                                        {{ file.file_time|date_sec }} {{ 'admin.content.file.31'|trans }}
                                                     </td>
                                                     {% if file.is_dir %}
                                                         <td class="align-middle">
@@ -163,7 +160,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                                                 </div>
 
                                                                 <div class="col-auto text-center">
-                                                                    <a class="btn btn-ec-actionIcon" href="{{ url('admin_content_file_delete', { 'select_file': file.file_path}) }}" {{ csrf_token_for_anchor() }} data-method="delete" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{'admin.content.file.34'|trans}}"><i class="fa fa-close fa-lg text-secondary" aria-hidden="true"></i></a>
+                                                                    <a class="btn btn-ec-actionIcon" data-toggle="modal" data-target="#confirmModal-{{ loop.index }}" data-tooltip="tooltip" data-placement="top" title="{{'admin.content.file.34'|trans}}" data-original-title="{{'admin.content.file.34'|trans}}"><i class="fa fa-close fa-lg text-secondary" aria-hidden="true"></i></a>
+
+                                                                    <div class="modal fade" id="confirmModal-{{ loop.index }}" tabindex="-1" role="dialog" aria-labelledby="confirmModal-{{ loop.index }}" aria-hidden="true">
+                                                                        <div class="modal-dialog" role="document">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title font-weight-bold">{{ 'admin.content.file.delete.confirm.title'|trans }}</h5>
+                                                                                    <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                                                                </div>
+                                                                                <div class="modal-body text-left">
+                                                                                    <p class="text-left">{{ 'admin.content.file.delete.confirm.message'|trans }}</p>
+                                                                                </div>
+                                                                                <div class="modal-footer">
+                                                                                    <button class="btn btn-ec-sub" type="button" data-dismiss="modal">{{ 'common.label.cancel'|trans }}</button>
+                                                                                    <a class="btn btn-ec-delete" data-confirm="false"
+                                                                                            href="{{ url('admin_content_file_delete', { 'select_file': file.file_path}) }}" {{ csrf_token_for_anchor() }} data-method="delete">
+                                                                                        {{ 'common.label.delete'|trans }}
+                                                                                    </a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
                                                                 </div>
                                                             </div>
                                                         </td>

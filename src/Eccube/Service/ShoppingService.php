@@ -1,31 +1,20 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
  *
  * http://www.lockon.co.jp/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Eccube\Service;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Eccube\Annotation\Service;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\BaseInfo;
 use Eccube\Entity\Customer;
@@ -63,9 +52,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-/**
- * @Service
- */
 class ShoppingService
 {
     /**
@@ -523,16 +509,12 @@ class ShoppingService
         // 販売種別に紐づく配送業者を取得
         $deliveries = $this->deliveryRepository->getDeliveries($saleTypes);
 
-        if ($this->BaseInfo->isOptionMultipleShipping()) {
-            // 複数配送対応
+        // 支払方法を取得
+        $payments = $this->paymentRepository->findAllowedPayments($deliveries);
 
-            // 支払方法を取得
-            $payments = $this->paymentRepository->findAllowedPayments($deliveries);
-
-            if (count($saleTypes) > 1) {
-                // 販売種別が複数ある場合、配送対象となる配送業者を取得
-                $deliveries = $this->deliveryRepository->findAllowedDeliveries($saleTypes, $payments);
-            }
+        if (count($saleTypes) > 1) {
+            // 販売種別が複数ある場合、配送対象となる配送業者を取得
+            $deliveries = $this->deliveryRepository->findAllowedDeliveries($saleTypes, $payments);
         }
 
         return $deliveries;
@@ -551,7 +533,8 @@ class ShoppingService
     {
         $saleTypes = [];
         foreach ($deliveries as $Delivery) {
-            if (!in_array($Delivery->getSaleType()->getId(), $saleTypes)) {
+            if (!in_array($Delivery->getSaleType()
+                ->getId(), $saleTypes)) {
                 $Shipping = new Shipping();
 
                 $this->copyToShippingFromCustomer($Shipping, $Customer)
@@ -564,7 +547,8 @@ class ShoppingService
 
                 $Order->addShipping($Shipping);
 
-                $saleTypes[] = $Delivery->getProductType()->getId();
+                $saleTypes[] = $Delivery->getProductType()
+                    ->getId();
             }
         }
 
@@ -643,7 +627,8 @@ class ShoppingService
     public function getNewDetails(Order $Order)
     {
         // 受注詳細, 配送商品
-        foreach ($this->cartService->getCart()->getCartItems() as $item) {
+        foreach ($this->cartService->getCart()
+            ->getCartItems() as $item) {
             /* @var $ProductClass \Eccube\Entity\ProductClass */
             $ProductClass = $item->getProductClass();
             /* @var $Product \Eccube\Entity\Product */
@@ -676,7 +661,10 @@ class ShoppingService
         // 選択された商品がどのお届け先情報と関連するかチェック
         $Shipping = null;
         foreach ($shippings as $s) {
-            if ($s->getDelivery()->getSaleType()->getId() == $ProductClass->getSaleType()->getId()) {
+            if ($s->getDelivery()
+                    ->getSaleType()
+                    ->getId() == $ProductClass->getSaleType()
+                    ->getId()) {
                 // 販売種別が同一のお届け先情報と関連させる
                 $Shipping = $s;
                 break;
@@ -708,12 +696,14 @@ class ShoppingService
         $ClassCategory1 = $ProductClass->getClassCategory1();
         if (!is_null($ClassCategory1)) {
             $OrderItem->setClasscategoryName1($ClassCategory1->getName());
-            $OrderItem->setClassName1($ClassCategory1->getClassName()->getName());
+            $OrderItem->setClassName1($ClassCategory1->getClassName()
+                ->getName());
         }
         $ClassCategory2 = $ProductClass->getClassCategory2();
         if (!is_null($ClassCategory2)) {
             $OrderItem->setClasscategoryName2($ClassCategory2->getName());
-            $OrderItem->setClassName2($ClassCategory2->getClassName()->getName());
+            $OrderItem->setClassName2($ClassCategory2->getClassName()
+                ->getName());
         }
         $Shipping->addOrderItem($OrderItem);
         $this->entityManager->persist($OrderItem);
@@ -750,7 +740,8 @@ class ShoppingService
         $productDeliveryFeeTotal = 0;
         $OrderItems = $Shipping->getOrderItems();
         foreach ($OrderItems as $OrderItem) {
-            $productDeliveryFeeTotal += $OrderItem->getProductClass()->getDeliveryFee() * $OrderItem->getQuantity();
+            $productDeliveryFeeTotal += $OrderItem->getProductClass()
+                    ->getDeliveryFee() * $OrderItem->getQuantity();
         }
 
         return $productDeliveryFeeTotal;
@@ -1024,9 +1015,7 @@ class ShoppingService
     public function getFormPayments($deliveries, Order $Order)
     {
         $saleTypes = $this->orderService->getSaleTypes($Order);
-        if ($this->BaseInfo->isOptionMultipleShipping() && count($saleTypes) > 1) {
-            // 複数配送時の支払方法
-
+        if (count($saleTypes) > 1) {
             $payments = $this->paymentRepository->findAllowedPayments($deliveries);
         } else {
             // 配送業者をセット

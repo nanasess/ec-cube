@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+ *
+ * http://www.lockon.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 return [
     //common
     'common.label.add' => '新規作成',
@@ -33,7 +44,6 @@ return [
     'common.label.option_delivery_fee_free_amount' => '送料無料条件（金額）',
     'common.label.option_delivery_free_quantity' => '送料無料条件（数量）',
     'common.label.option_product_delivery_fee' => '商品ごとの送料設定',
-    'common.label.option_multiple_shipping' => '複数配送',
     'common.label.option_customer_activate' => '仮会員機能',
     'common.label.option_mypage_order_status_display' => 'マイページに注文状況を表示',
     'common.label.option_favorite_product' => 'お気に入り商品機能',
@@ -355,7 +365,7 @@ return [
     'mypage.text.message.will_deleted' => '退会手続きが完了した時点で、現在保存されている購入履歴やお届け先等の情報は、すべて削除されますのでご注意ください。',
     'mypage.label.btn.not_cancel' => 'いいえ、退会しません',
     'mypage.label.btn.yes_cancel' => 'はい、退会します',
-    'mypage.history.label.order_id' => 'ご注文番号',
+    'mypage.history.label.order_code' => 'ご注文番号',
     'mypage.history.label.order_status' => 'ご注文状況',
 
     //Admin Panel Theme
@@ -428,13 +438,13 @@ return [
     'admin.nav.store' => 'オーナーズストア',
     'admin.nav.store.plugin' => 'プラグイン',
     'admin.nav.store.plugin.plugin_list' => 'プラグイン一覧',
-    'admin.nav.store.plugin.plugin_owners_install' => '購入済プラグイン',
+    'admin.nav.store.plugin.plugin_owners_install' => 'プラグインを探す',
     'admin.nav.store.plugin.plugin_handler' => '高度な設定',
 
     'admin.nav.store.template' => 'テンプレート',
     'admin.nav.store.template.template_list' => 'テンプレート一覧',
     'admin.nav.store.template.template_install' => 'アップロード',
-    'admin.nav.store.authentication_setting' => '認証キー設定',
+    'admin.nav.store.authentication_setting' => '認証キーの設定',
 
     'admin.nav.home' => 'ホーム',
     'admin.nav.other' => 'その他',
@@ -667,6 +677,8 @@ return [
     'admin.content.layout.popup.confirm.message' => 'ページのレイアウトが変更されます。<br>変更しても宜しいですか？',
     'admin.content.layout.popup.button.move' => '同意する',
     'admin.content.layout.popup.button.cancel' => 'キャンセル',
+    'admin.content.file.delete.confirm.title' => 'ファイルを削除します。',
+    'admin.content.file.delete.confirm.message' => '削除してもよろしいですか?',
     'admin.system.security.save.complete' => 'セキュリティ設定を保存しました。',
     'admin.system.security.route.dir.complete' => '管理画面のURLを変更しましたので再ログインをしてください。',
     'admin.system.authority.save.complete' => '権限設定を保存しました。',
@@ -890,7 +902,8 @@ return [
     'admin.customer.edit.103' => '出荷日',
     'admin.customer.edit.104' => '支払方法',
     'admin.customer.edit.105' => '未出荷',
-    'admin.customer.edit.106' => 'データはありません',
+    'admin.customer.edit.no_customer_address' => 'この会員のお届け先がありません',
+    'admin.customer.edit.no_purchase_history' => 'この会員の購入履歴がありません',
     'admin.customer.edit.107' => '検索画面に戻る',
     'admin.customer.edit.108' => '会員情報を登録',
     'admin.customer.edit.109' => 'ショップ用メモ欄',
@@ -929,6 +942,12 @@ return [
     'admin.customer.delivery_edit.115' => '番地・ビル名（例：1-3-5）',
     'admin.customer.delivery_edit.116' => 'お届け先を登録',
     'admin.customer.delivery_edit.117' => '戻る',
+    'admin.customer.delivery.label.001' => 'お名前',
+    'admin.customer.delivery.label.002' => 'お名前(フリガナ)',
+    'admin.customer.delivery.label.003' => '会社名',
+    'admin.customer.delivery.label.004' => '住所',
+    'admin.customer.delivery.label.005' => '電話番号',
+    'admin.customer.delivery.label.006' => 'FAX番号',
     'admin.customer.index.110' => '会員管理',
     'admin.customer.index.111' => '会員マスター',
     'admin.customer.index.112' => '会員ID・メールアドレス・お名前',
@@ -1810,6 +1829,8 @@ return [
     'admin.setting.system.masterdata.681' => '空のIDを登録すると、値は削除されます。',
     'admin.setting.system.masterdata.682' => '設定値によってはサイトが機能しなくなる場合もありますので、十分ご注意下さい。',
     'admin.setting.system.masterdata.683' => '登録',
+    'admin.setting.system.masterdata.th_id' => 'ID',
+    'admin.setting.system.masterdata.th_name' => 'Name',
     'admin.setting.system.member.684' => 'システム設定',
     'admin.setting.system.member.685' => 'メンバー管理',
     'admin.setting.system.member.686' => 'メンバー管理',
@@ -1823,6 +1844,8 @@ return [
     'admin.setting.system.member.694' => '上へ',
     'admin.setting.system.member.695' => '下へ',
     'admin.setting.system.member.696' => '新規登録',
+    'admin.setting.system.member.delete_modal_title' => '削除',
+    'admin.setting.system.member.delete_modal_body' => '削除してもよろしいですか?',
     'admin.setting.system.member_edit.697' => 'システム設定',
     'admin.setting.system.member_edit.698' => 'メンバー管理',
     'admin.setting.system.member_edit.699' => 'メンバー登録・編集',
@@ -2015,15 +2038,15 @@ return [
     'admin.shipping.csv_shipping.title_csv_format' => '出荷登録CSVファイルフォーマット',
     'admin.shipping.csv_shipping.btn_csv_download' => '雛形ファイルダウンロード',
     'admin.store.authentication_setting.803' => 'オーナーズストア',
-    'admin.store.authentication_setting.804' => '認証キー設定',
-    'admin.store.authentication_setting.805' => '認証キー設定',
+    'admin.store.authentication_setting.804' => 'プラグイン認証キーの設定',
+    'admin.store.authentication_setting.805' => '認証キーの設定',
     'admin.store.authentication_setting.806' => '認証キー',
-    'admin.store.authentication_setting.807' => '※認証キーは<a target="_blank" href="%owners_store_url%">EC-CUBEオーナーズストア</a>で取得できます。',
+    'admin.store.authentication_setting.807' => '※認証キーは<a target="_blank" href="owners_store_url">EC-CUBEオーナーズストア</a>で取得できます。',
     'admin.store.authentication_setting.808' => '設定',
-    'admin.store.plugin.809' => 'オーナーズストア',
-    'admin.store.plugin.810' => 'プラグイン一覧',
+    'admin.store.plugin.809' => 'プラグイン一覧',
+    'admin.store.plugin.810' => 'オーナーズストア',
     'admin.store.plugin.811' => 'プラグインの新規追加はこちら',
-    'admin.store.plugin.812' => 'オーナーズストアプラグイン',
+    'admin.store.plugin.812' => 'プラグインオーナーズストア',
     'admin.store.plugin.813' => 'プラグインのアップロードはこちら',
     'admin.store.plugin.814' => '独自プラグイン',
     'admin.store.plugin.815' => '未登録プラグイン',
@@ -2060,6 +2083,8 @@ return [
     'admin.store.plugin_owners_confirm.846' => '最終更新日',
     'admin.store.plugin_owners_confirm.847' => 'EC-CUBE対応バージョン',
     'admin.store.plugin_owners_confirm.848' => 'ファイルサイズ<br>約 %size% KB',
+    'admin.store.plugin_owners_confirm.848.1' => 'ファイルサイズ',
+    'admin.store.plugin_owners_confirm.848.2' => '約',
     'admin.store.plugin_owners_confirm.849' => 'ライセンス',
     'admin.store.plugin_owners_confirm.850' => 'このプラグインはEC-CUBE %version%をサポートしていないため、正常に動作しない可能性があります。',
     'admin.store.plugin_owners_confirm.851' => '%dependency%が必要です。同時にインストールされます。',
@@ -2162,6 +2187,7 @@ return [
     'admin.store.unregisterd_plugin_table.948' => '詳細を表示',
     'admin.store.unregisterd_plugin_table.949' => '不明',
     'admin.store.unregisterd_plugin_table.950' => '設定',
+    'admin.store.install.label' => 'プラグイン (zip、tar、tar.gz形式)',
 
     //asdasdasdas
     'application.text.error.access' => '',
@@ -2609,9 +2635,9 @@ return [
     'searchcustomer.label.purchased_product_name' => '購入商品名',
     'searchcustomer.label.purchased_product_code' => '購入商品コード',
     'searchcustomer.label.product_category' => '商品カテゴリ',
-    'searchorder.label.multi' => '受注ID・注文者名・注文者会社名・メールアドレス・電話番号',
+    'searchorder.label.multi' => '注文番号・注文者名・注文者会社名・メールアドレス・電話番号',
     'searchorder.label.company_name' => '注文者会社名',
-    'searchorder.label.order_id' => '受注ID',
+    'searchorder.label.order_code' => '注文番号',
     'searchorder.label.status' => '対応状況',
     'searchorder.label.sex' => '性別',
     'searchorder.label.payment_method' => '支払方法',
@@ -2665,7 +2691,8 @@ return [
     'security.label.directory_name' => 'ディレクトリ名',
     'security.label.ip_restriction' => 'IP制限',
     'security.label.ssl_mandatory' => 'SSLを強制',
-    'security.text.error.not_ipv4' => '',
+    'security.text.error.not_ipv4' => '%ip%はIPv4アドレスではありません。',
+    'security.text.error.not_https' => 'httpの場合には設定できません。',
     'shipping.label.company_name' => '会社名',
     'shipping.label.fax' => 'FAX番号',
     'shipping.label.shipping_company' => '配送業者',
