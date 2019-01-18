@@ -4,6 +4,7 @@ use Eccube\Kernel;
 use Symfony\Component\Debug\Debug;
 use Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 // システム要件チェック
 if (version_compare(PHP_VERSION, '7.1.3') < 0) {
@@ -16,6 +17,7 @@ if (!file_exists($autoload) && !is_readable($autoload)) {
     die('Composer is not installed.');
 }
 require $autoload;
+require __DIR__.'/wp-load.php';
 
 // The check is to ensure we don't use .env in production
 if (!isset($_SERVER['APP_ENV'])) {
@@ -72,5 +74,15 @@ if (file_exists(__DIR__.'/.maintenance')) {
 
 $kernel = new Kernel($env, $debug);
 $response = $kernel->handle($request);
-$response->send();
-$kernel->terminate($request, $response);
+
+if ($request->getPathInfo() === '/' || $request->query->get('p') || $response->isNotFound()) {
+    define('WP_USE_THEMES', true);
+
+    /** Loads the WordPress Environment and Template */
+    require( dirname( __FILE__ ) . '/wp-blog-header.php' );
+} else {
+    $response->send();
+    $kernel->terminate($request, $response);
+}
+
+
