@@ -240,6 +240,7 @@ class PluginService
         // dbにプラグイン登録
 
         $this->entityManager->getConnection()->beginTransaction();
+        var_dump('NestingLevel: '.$this->entityManager->getConnection()->getTransactionNestingLevel());
 
         try {
             $Plugin = $this->pluginRepository->findByCode($config['code']);
@@ -267,7 +268,6 @@ class PluginService
             $this->entityManager->flush();
             $this->entityManager->getConnection()->commit();
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
             $this->entityManager->getConnection()->rollback();
             throw new PluginException($e->getMessage(), $e->getCode(), $e);
         }
