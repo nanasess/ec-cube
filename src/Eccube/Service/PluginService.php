@@ -262,8 +262,8 @@ class PluginService
             $this->callPluginManagerMethod($config, 'install');
 
             $Plugin->setInitialized(true);
-            $this->entityManager->persist($Plugin);
-            $this->entityManager->flush();
+            // $this->entityManager->persist($Plugin);
+            // $this->entityManager->flush();
 
             // $this->entityManager->flush();
             // $this->entityManager->getConnection()->commit();
