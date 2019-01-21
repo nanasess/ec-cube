@@ -257,7 +257,7 @@ class PluginService
                 $this->entityManager->flush();
             }
 
-            $this->generateProxyAndUpdateSchema($Plugin, $config);
+            // $this->generateProxyAndUpdateSchema($Plugin, $config);
 
             // $this->callPluginManagerMethod($config, 'install');
 
