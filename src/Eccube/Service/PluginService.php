@@ -267,6 +267,7 @@ class PluginService
             $this->entityManager->flush();
             $this->entityManager->getConnection()->commit();
         } catch (\Exception $e) {
+            var_dump($e->getMessage());
             $this->entityManager->getConnection()->rollback();
             throw new PluginException($e->getMessage(), $e->getCode(), $e);
         }

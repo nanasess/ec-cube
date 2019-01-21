@@ -54,14 +54,14 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
 
     public function tearDown()
     {
-        $schema = $this->getSchemaManager();
-        $columns = $schema->listTableColumns('dtb_customer');
-        foreach ($columns as $column) {
-            if ($column->getName() == 'test_update_schema_command') {
-                $conn = $this->entityManager->getConnection();
-                $conn->executeUpdate('ALTER TABLE dtb_customer DROP test_update_schema_command');
-            }
-        }
+        // $schema = $this->getSchemaManager();
+        // $columns = $schema->listTableColumns('dtb_customer');
+        // foreach ($columns as $column) {
+        //     if ($column->getName() == 'test_update_schema_command') {
+        //         $conn = $this->entityManager->getConnection();
+        //         $conn->executeUpdate('ALTER TABLE dtb_customer DROP test_update_schema_command');
+        //     }
+        // }
         parent::tearDown();
     }
 
