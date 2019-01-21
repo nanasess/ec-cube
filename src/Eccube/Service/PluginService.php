@@ -254,7 +254,7 @@ class PluginService
                     ->setSource($source)
                     ->setCode($config['code']);
                 $this->entityManager->persist($Plugin);
-                // $this->entityManager->flush();
+                $this->entityManager->flush();
             }
 
             $this->generateProxyAndUpdateSchema($Plugin, $config);
