@@ -239,7 +239,7 @@ class PluginService
     {
         // dbにプラグイン登録
 
-        // $this->entityManager->getConnection()->beginTransaction();
+        $this->entityManager->getConnection()->beginTransaction();
         var_dump('NestingLevel: '.$this->entityManager->getConnection()->getTransactionNestingLevel());
 
         try {
@@ -254,12 +254,12 @@ class PluginService
                     ->setSource($source)
                     ->setCode($config['code']);
                 $this->entityManager->persist($Plugin);
-                $this->entityManager->flush();
+                // $this->entityManager->flush();
             }
 
-            // $this->generateProxyAndUpdateSchema($Plugin, $config);
+            $this->generateProxyAndUpdateSchema($Plugin, $config);
 
-            // $this->callPluginManagerMethod($config, 'install');
+            $this->callPluginManagerMethod($config, 'install');
 
             // $Plugin->setInitialized(true);
             // $this->entityManager->persist($Plugin);
@@ -268,7 +268,7 @@ class PluginService
             // $this->entityManager->flush();
             // $this->entityManager->getConnection()->commit();
         } catch (\Exception $e) {
-            // $this->entityManager->getConnection()->rollback();
+            $this->entityManager->getConnection()->rollback();
             throw new PluginException($e->getMessage(), $e->getCode(), $e);
         }
     }
