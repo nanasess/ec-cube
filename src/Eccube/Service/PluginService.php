@@ -239,7 +239,7 @@ class PluginService
     {
         // dbにプラグイン登録
 
-        $this->entityManager->getConnection()->beginTransaction();
+        // $this->entityManager->getConnection()->beginTransaction();
         var_dump('NestingLevel: '.$this->entityManager->getConnection()->getTransactionNestingLevel());
 
         try {
