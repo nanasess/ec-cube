@@ -261,12 +261,12 @@ class PluginService
 
             $this->callPluginManagerMethod($config, 'install');
 
-            // $Plugin->setInitialized(true);
+            $Plugin->setInitialized(true);
             // $this->entityManager->persist($Plugin);
             // $this->entityManager->flush();
 
-            // $this->entityManager->flush();
-            // $this->entityManager->getConnection()->commit();
+            $this->entityManager->flush();
+            $this->entityManager->getConnection()->commit();
         } catch (\Exception $e) {
             $this->entityManager->getConnection()->rollback();
             throw new PluginException($e->getMessage(), $e->getCode(), $e);
