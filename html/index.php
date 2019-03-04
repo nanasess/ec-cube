@@ -25,6 +25,7 @@
 //[INFO]index.php,install.phpをEC-CUBEルート直下に移動させる場合は、コメントアウトしている行に置き換える
 require __DIR__.'/../autoload.php';
 //require __DIR__.'/autoload.php';
+require __DIR__.'/wp-load.php';
 
 ini_set('display_errors', 'Off');
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
@@ -54,7 +55,21 @@ if (isset($app['config']['eccube_install']) && $app['config']['eccube_install'])
     if ($app['config']['http_cache']['enabled']) {
         $app['http_cache']->run();
     } else {
-        $app->run();
+        $request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+
+        $response = $app->handle($request);
+        $response->send();
+        $this->terminate($request, $response);
+
+        if ($request->getPathInfo() === '/' || $request->query->get('p') || $response->isNotFound()) {
+            define('WP_USE_THEMES', true);
+
+            /** Loads the WordPress Environment and Template */
+            require( dirname( __FILE__ ) . '/wp-blog-header.php' );
+        } else {
+            $response->send();
+            $kernel->terminate($request, $response);
+        }
     }
 } else {
     $location = str_replace('index.php', 'install.php', $_SERVER['SCRIPT_NAME']);
