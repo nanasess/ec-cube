@@ -60,6 +60,7 @@ install:
   - echo APP_ENV=codeception >> .env
   - php -r "readfile('http://getcomposer.org/installer');" | php
   - php composer.phar install --dev --no-interaction -o
+  - php -m
 
 # Don't actually build.
 build: off
