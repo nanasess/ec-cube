@@ -20,7 +20,7 @@ jobs:
             database_server_version: 5
           - db: pgsql
             database_url: postgres://postgres:password@localhost:5432/eccube_db
-            database_server_version: 11
+            database_server_version: 9.6
           - db: sqlite3
             database_url: sqlite:///var/eccube.db
             database_server_version: 3
@@ -37,7 +37,7 @@ jobs:
       if: matrix.db == 'pgsql'
       uses: harmon758/postgresql-action@master
       with:
-        postgresql version: '11'
+        postgresql version: '9.6'
         postgresql db: 'myapp_test'
         postgresql user: 'postgres'
         postgresql password: 'password'
@@ -243,6 +243,8 @@ jobs:
 
     - name: Update baseinfo with pgsql
       if: matrix.db == 'pgsql'
+      env:
+        PGPASSWORD: 'password'
       run: |
         sudo apt-get install -y postgresql-client
         psql eccube_db -h 127.0.0.1 -U postgres -c "update dtb_base_info set authentication_key='test';"
