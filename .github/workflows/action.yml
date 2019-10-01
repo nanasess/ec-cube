@@ -637,5 +637,10 @@ jobs:
         ECCUBE_PACKAGE_API_URL: 'http://localhost:8080'
         NO_FIXTURES: 1
       run: vendor/bin/codecept -vvv run acceptance --env chrome,github_action EA10PluginCest:${METHOD}
-
+    - name: check docker services
+      run: |
+        cat .env
+        ls -al $GITHUB_WORKSPACE/repos
+        curl -v http://localhost:1080
+        curl -v http://localhost:8080/category
 
