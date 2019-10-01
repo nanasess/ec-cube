@@ -200,7 +200,7 @@ jobs:
       mock-package-api:
         image: eccube/mock-package-api
         volumes:
-          - /home/runner/work/ec-cube/ec-cube/repos:/repos
+          - $GITHUB_WORKSPACE/repos:/repos
         ports:
           - '8080:8080'
         env:
@@ -318,7 +318,7 @@ jobs:
       mock-package-api:
         image: eccube/mock-package-api
         volumes:
-          - /home/runner/work/ec-cube/ec-cube/repos:/repos
+          - $GITHUB_WORKSPACE/repos:/repos
         ports:
           - '8080:8080'
         env:
@@ -436,7 +436,7 @@ jobs:
       mock-package-api:
         image: eccube/mock-package-api
         volumes:
-          - /home/runner/work/ec-cube/ec-cube/repos:/repos
+          - $GITHUB_WORKSPACE/repos:/repos
         ports:
           - '8080:8080'
         env:
@@ -553,7 +553,7 @@ jobs:
       mock-package-api:
         image: eccube/mock-package-api
         volumes:
-          - /home/runner/work/ec-cube/ec-cube/repos:/repos
+          - $GITHUB_WORKSPACE/repos:/repos
         ports:
           - '8080:8080'
         env:
