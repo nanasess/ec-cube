@@ -628,6 +628,7 @@ jobs:
         php -S localhost:8000 &
 
     - name: Run to Codeception
+      continue-on-error: true
       env:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
@@ -643,4 +644,6 @@ jobs:
         ls -al $GITHUB_WORKSPACE/repos
         curl -v http://localhost:1080
         curl -v http://localhost:8080/category
+        docker ps -a
+        docker inspect $(docker ps -q)
 
