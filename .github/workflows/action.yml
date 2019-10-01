@@ -200,14 +200,7 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-      mock-package-api:
-        image: eccube/mock-package-api
-        volumes:
-          - $GITHUB_WORKSPACE/repos:/repos
-        ports:
-          - '8080:8080'
-        env:
-          MOCK_REPO_DIR: '/repos'
+
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -279,6 +272,7 @@ jobs:
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
         php -S localhost:8000 &
+        docker run -d --rm -v ${PWD}/repos:/repos -e MOCK_REPO_DIR=/repos -p 8080:8080 eccube/mock-package-api
 
     - name: Run to Codeception
       env:
@@ -321,14 +315,7 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-      mock-package-api:
-        image: eccube/mock-package-api
-        volumes:
-          - $GITHUB_WORKSPACE/repos:/repos
-        ports:
-          - '8080:8080'
-        env:
-          MOCK_REPO_DIR: '/repos'
+
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -400,6 +387,7 @@ jobs:
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
         php -S localhost:8000 &
+        docker run -d --rm -v ${PWD}/repos:/repos -e MOCK_REPO_DIR=/repos -p 8080:8080 eccube/mock-package-api
 
     - name: Run to Codeception
       env:
@@ -442,14 +430,7 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-      mock-package-api:
-        image: eccube/mock-package-api
-        volumes:
-          - $GITHUB_WORKSPACE/repos:/repos
-        ports:
-          - '8080:8080'
-        env:
-          MOCK_REPO_DIR: '/repos'
+
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -521,6 +502,7 @@ jobs:
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
         php -S localhost:8000 &
+        docker run -d --rm -v ${PWD}/repos:/repos -e MOCK_REPO_DIR=/repos -p 8080:8080 eccube/mock-package-api
 
     - name: Run to Codeception
       env:
@@ -562,14 +544,7 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-      mock-package-api:
-        image: eccube/mock-package-api
-        volumes:
-          - $GITHUB_WORKSPACE/repos:/repos
-        ports:
-          - '8080:8080'
-        env:
-          MOCK_REPO_DIR: '/repos'
+
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -641,6 +616,7 @@ jobs:
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
         php -S localhost:8000 &
+        docker run -d --rm -v ${PWD}/repos:/repos -e MOCK_REPO_DIR=/repos -p 8080:8080 eccube/mock-package-api
 
     - name: Run to Codeception
       continue-on-error: true
