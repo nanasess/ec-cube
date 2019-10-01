@@ -9,6 +9,7 @@ jobs:
     name: Run to PHPUnit
     runs-on: ${{ matrix.operating-system }}
     strategy:
+      fail-fast: false
       matrix:
         operating-system: [ ubuntu-18.04 ]
         php: [ 7.1, 7.2, 7.3 ]
@@ -73,6 +74,7 @@ jobs:
     name: Run to Codeception
     runs-on: ${{ matrix.operating-system }}
     strategy:
+      fail-fast: false
       matrix:
         operating-system: [ ubuntu-18.04 ]
         php: [ 7.3 ]
@@ -165,6 +167,7 @@ jobs:
     name: Run to Codeception with Plugin install
     runs-on: ${{ matrix.operating-system }}
     strategy:
+      fail-fast: false
       matrix:
         operating-system: [ ubuntu-18.04 ]
         php: [ 7.3 ]
