@@ -142,7 +142,7 @@ jobs:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
       uses: ./.github/actions/setup-codeception
 
     - name: Run chromedriver
@@ -163,7 +163,7 @@ jobs:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
         GROUP: ${{ matrix.group }}
       run: vendor/bin/codecept -vvv run acceptance --env chrome,github_action -g ${GROUP}
 
@@ -197,14 +197,7 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-      mock-package-api:
-        image: eccube/mock-package-api
-        volumes:
-          - $GITHUB_WORKSPACE/repos:/repos
-        ports:
-          - '8080:8080'
-        env:
-          MOCK_REPO_DIR: '/repos'
+
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -258,7 +251,7 @@ jobs:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
       uses: ./.github/actions/setup-codeception
 
     - name: Run chromedriver
@@ -273,13 +266,14 @@ jobs:
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
         php -S localhost:8000 &
+        docker run -d --rm -v ${PWD}/repos:/repos -e MOCK_REPO_DIR=/repos -p 8080:8080 eccube/mock-package-api
 
     - name: Run to Codeception
       env:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
         METHOD: ${{ matrix.method }}
         ECCUBE_PACKAGE_API_URL: 'http://localhost:8080'
         NO_FIXTURES: 1
@@ -315,14 +309,7 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-      mock-package-api:
-        image: eccube/mock-package-api
-        volumes:
-          - $GITHUB_WORKSPACE/repos:/repos
-        ports:
-          - '8080:8080'
-        env:
-          MOCK_REPO_DIR: '/repos'
+
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -376,7 +363,7 @@ jobs:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
       uses: ./.github/actions/setup-codeception
 
     - name: Run chromedriver
@@ -391,13 +378,14 @@ jobs:
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
         php -S localhost:8000 &
+        docker run -d --rm -v ${PWD}/repos:/repos -e MOCK_REPO_DIR=/repos -p 8080:8080 eccube/mock-package-api
 
     - name: Run to Codeception
       env:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
         METHOD: ${{ matrix.method }}
         ECCUBE_PACKAGE_API_URL: 'http://localhost:8080'
         NO_FIXTURES: 1
@@ -433,12 +421,7 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-      mock-package-api:
-        image: eccube/mock-package-api
-        volumes:
-          - $GITHUB_WORKSPACE/repos:/repos
-        ports:
-          - '8080:8080'
+
         env:
           MOCK_REPO_DIR: '/repos'
     steps:
@@ -494,7 +477,7 @@ jobs:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
       uses: ./.github/actions/setup-codeception
 
     - name: Run chromedriver
@@ -509,13 +492,14 @@ jobs:
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
         php -S localhost:8000 &
+        docker run -d --rm -v ${PWD}/repos:/repos -e MOCK_REPO_DIR=/repos -p 8080:8080 eccube/mock-package-api
 
     - name: Run to Codeception
       env:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
         METHOD: ${{ matrix.method }}
         ECCUBE_PACKAGE_API_URL: 'http://localhost:8080'
         NO_FIXTURES: 1
@@ -550,14 +534,7 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-      mock-package-api:
-        image: eccube/mock-package-api
-        volumes:
-          - $GITHUB_WORKSPACE/repos:/repos
-        ports:
-          - '8080:8080'
-        env:
-          MOCK_REPO_DIR: '/repos'
+
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -611,7 +588,7 @@ jobs:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
       uses: ./.github/actions/setup-codeception
 
     - name: Run chromedriver
@@ -626,6 +603,7 @@ jobs:
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         echo ">>> Started xvfb"
         php -S localhost:8000 &
+        docker run -d --rm -v ${PWD}/repos:/repos -e MOCK_REPO_DIR=/repos -p 8080:8080 eccube/mock-package-api
 
     - name: Run to Codeception
       continue-on-error: true
@@ -633,7 +611,7 @@ jobs:
         APP_ENV: ${{ matrix.app_env }}
         DATABASE_URL: ${{ matrix.database_url }}
         DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-        MAILER_URL: 'smtp://localhost:1025'
+        MAILER_URL: 'smtp://127.0.0.1:1025'
         METHOD: ${{ matrix.method }}
         ECCUBE_PACKAGE_API_URL: 'http://localhost:8080'
         NO_FIXTURES: 1
@@ -645,5 +623,5 @@ jobs:
         curl -v http://localhost:1080
         curl -v http://localhost:8080/category
         docker ps -a
-        docker inspect $(docker ps -q)
+        docker inspect $(docker ps | grep mock-package-api | awk '{print $1}')
 
