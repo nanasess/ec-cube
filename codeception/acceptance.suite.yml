@@ -11,8 +11,16 @@ modules:
         - WebDriver
         - Asserts
         - MailCatcher
+        - Symfony:
+            app_path: 'src/Eccube'
+            var_path: 'var'
+            kernel_class: 'Eccube\Kernel'
+            environment: 'test'
+        - Doctrine2:
+            depends: Symfony
     config:
         WebDriver:
+            browser: chrome
             host: '%WEB_DRIVER_HOST%'
             port: '%WEB_DRIVER_PORT%'
             url: '%BASE_URL%'    # テスト対象のurl
