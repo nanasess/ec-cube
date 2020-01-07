@@ -466,7 +466,14 @@ abstract class Abstract_Plugin
         foreach ($this->columns as $column) {
             list($tableName, $columnName) = explode('.', $column);
             $exists = $this->conn->executeQuery("SELECT count(*) AS count FROM information_schema.columns WHERE table_name = '${tableName}' AND column_name = '${columnName}';")->fetch()['count'] == 1;
-            $this->I->assertTrue($exists, 'カラムがあるはず '.$column);
+            $messages = [];
+            if (!$exists) {
+                $results = $this->conn->executeQuery("SELECT * FROM information_schema.columns WHERE table_name = '${tableName}';")->fetchAll();
+                foreach ($results as $key => $value) {
+                    $messages[$key] = $value;
+                }
+            }
+            $this->I->assertTrue($exists, 'カラムがあるはず '.$column.': '.print_r($messages, true));
         }
     }
 
