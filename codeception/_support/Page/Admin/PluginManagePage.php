@@ -122,7 +122,7 @@ class PluginManagePage extends AbstractAdminPageStyleGuide
     public function 独自プラグイン_削除($pluginCode)
     {
         $this->独自プラグイン_ボタンクリック($pluginCode, '削除');
-        $this->tester->waitForElementVisible(['css' => '#localPluginDeleteModal .modal-footer a']);
+        $this->tester->waitForElementVisible(['css' => '#localPluginDeleteModal .modal-footer a'], 120);
         $this->tester->click(['css' => '#localPluginDeleteModal .modal-footer a']);
 
         return $this;
