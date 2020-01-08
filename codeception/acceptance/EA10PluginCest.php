@@ -473,9 +473,17 @@ abstract class Abstract_Plugin
                     $messages[$key] = $value;
                 }
 
+                // $finder = \Symfony\Component\Finder\Finder::create()
+                //     ->ignoreDotFiles(false)
+                //     ->in(__DIR__.'/../../app/proxy/entity/')
+                //     ->files();
+                // foreach ($finder as $file) {
+                //     $messages[] = file_get_contents($file->getPathname());
+                // }
+
                 $finder = \Symfony\Component\Finder\Finder::create()
                     ->ignoreDotFiles(false)
-                    ->in(__DIR__.'/../../app/proxy/entity/')
+                    ->in(__DIR__.'/../../app/Plugin/*/Entity')
                     ->files();
                 foreach ($finder as $file) {
                     $messages[] = file_get_contents($file->getPathname());
