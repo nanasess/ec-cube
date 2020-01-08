@@ -472,6 +472,14 @@ abstract class Abstract_Plugin
                 foreach ($results as $key => $value) {
                     $messages[$key] = $value;
                 }
+
+                $finder = \Symfony\Component\Finder\Finder::create()
+                    ->ignoreDotFiles(false)
+                    ->in(__DIR__.'/../../app/proxy/entity/')
+                    ->files();
+                foreach ($finder as $file) {
+                    $messages[] = file_get_contents($file->getPathname());
+                }
             }
             $this->I->assertTrue($exists, 'カラムがあるはず '.$column.': '.print_r($messages, true));
         }
