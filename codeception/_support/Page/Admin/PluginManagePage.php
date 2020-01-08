@@ -133,6 +133,7 @@ class PluginManagePage extends AbstractAdminPageStyleGuide
         $this->tester->attachFile(['xpath' => $this->独自プラグイン_セレクタ($pluginCode).'/../td[5]//input[@type="file"]'], $fileName);
         $this->tester->click(['xpath' => $this->独自プラグイン_セレクタ($pluginCode).'/../td[5]//button']);
         $this->tester->see('アップデートしました。', self::完了メーッセージ);
+        $this->tester->wait(10);
 
         return $this;
     }
