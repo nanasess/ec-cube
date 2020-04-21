@@ -63,6 +63,7 @@ install:
   - *eccube_setup
 
 script:
+  - bin/phpunit vendor/symfony/http-foundation/Tests/Session/Storage/Handler/AbstractSessionHandlerTest.php
   - bin/phpunit tests/Eccube/Tests/Session/Storage/Handler/SameSiteNoneCompatSessionHandlerTest.php
   # - ./bin/phpunit --exclude-group cache-clear,cache-clear-install,update-schema-doctrine
   # - ./bin/phpunit --group cache-clear
