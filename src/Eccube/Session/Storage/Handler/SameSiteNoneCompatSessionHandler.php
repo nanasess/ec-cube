@@ -91,8 +91,6 @@ class SameSiteNoneCompatSessionHandler extends StrictSessionHandler
      */
     public function destroy($sessionId)
     {
-        return parent::destroy($sessionId);
-        /*
         if (\PHP_VERSION_ID < 70000) {
             $this->prefetchData = null;
         }
@@ -142,7 +140,6 @@ class SameSiteNoneCompatSessionHandler extends StrictSessionHandler
         }
 
         return $this->newSessionId === $sessionId || $this->doDestroy($sessionId);
-        */
     }
 
     /**
