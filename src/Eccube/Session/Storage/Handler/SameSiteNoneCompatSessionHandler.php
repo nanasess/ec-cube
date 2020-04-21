@@ -122,19 +122,17 @@ class SameSiteNoneCompatSessionHandler extends StrictSessionHandler
                     header($h, false);
                 }
             } else {
-                var_dump($this->getCookiePath());
-                var_dump($this->getCookieSameSite());
                 if (\PHP_VERSION_ID < 70300) {
                     setcookie($this->sessionName, '', 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), filter_var(ini_get('session.cookie_secure'), FILTER_VALIDATE_BOOLEAN), filter_var(ini_get('session.cookie_httponly'), FILTER_VALIDATE_BOOLEAN));
                 } else {
                     setcookie($this->sessionName, '',
                               [
                                   'expires' => 0,
-                                  'path' => $this->getCookiePath(),
+                                  'path' => '/',
                                   'domain' => ini_get('session.cookie_domain'),
                                   'secure' => filter_var(ini_get('session.cookie_secure'), FILTER_VALIDATE_BOOLEAN),
                                   'httponly' => filter_var(ini_get('session.cookie_httponly'), FILTER_VALIDATE_BOOLEAN),
-                                  'samesite' => $this->getCookieSameSite(),
+                                  'samesite' => 'None',
                               ]
                     );
                 }
