@@ -1,7 +1,7 @@
 open
 validateId
 read
-doRead: abc|i:123;5
+doRead: abc|i:123;
 read
 destroy
 doDestroy
@@ -9,7 +9,7 @@ close
 open
 validateId
 read
-doRead: abc|i:123;6
+doRead: abc|i:123;
 read
 
 write
