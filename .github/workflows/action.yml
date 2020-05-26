@@ -349,11 +349,11 @@ jobs:
         php: [ 7.1, 7.2, 7.3 ]
         db: [ pgsql, mysql ]
         method:
-          - test_install_update_remove_store
+          # - test_install_update_remove_store
           - test_install_update_remove_local
           - test_install_enable_disable_update_enable_disable_remove_local
-          - test_install_enable_disable_update_enable_disable_remove_store
-          - test_install_enable_update_disable_remove_store
+          # - test_install_enable_disable_update_enable_disable_remove_store
+          # - test_install_enable_update_disable_remove_store
           - test_install_enable_update_disable_remove_local
         include:
           - db: pgsql
