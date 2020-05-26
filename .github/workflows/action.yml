@@ -346,7 +346,7 @@ jobs:
       fail-fast: false
       matrix:
         operating-system: [ ubuntu-18.04 ]
-        php: [ 7.1, 7.2, 7.3 ]
+        php: [ 7.1, 7.2, 7.3, 7.4 ]
         db: [ pgsql, mysql ]
         method:
           # - test_install_update_remove_store
