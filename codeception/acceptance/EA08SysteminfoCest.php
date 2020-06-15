@@ -44,6 +44,7 @@ class EA08SysteminfoCest
         $I->see('PHP情報', '#php_info_box__header > div > span');
 
         $I->expect('session.save_path をチェックします');
+        $I->scrollTo('/html/body/div[1]/table[78]/tbody/tr[18]/td[1]');
         $I->see(realpath(__DIR__.'/../../var/sessions/'.env('APP_ENV')));
     }
 
