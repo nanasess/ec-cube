@@ -44,7 +44,8 @@ class EA08SysteminfoCest
         $I->see('PHP情報', '#php_info_box__header > div > span');
 
         $I->expect('session.save_path をチェックします');
-        $I-amOnPage('/'.$config['eccube_admin_route'].'/setting/system/system/phpinfo#module_session');
+        $I->amOnPage('/'.$config['eccube_admin_route'].'/setting/system/system/phpinfo');
+        $I->scrollTo('a[name=module_session]');
         $I->see(realpath(__DIR__.'/../../var/sessions/'.env('APP_ENV')));
     }
 
