@@ -180,14 +180,14 @@ class EA06ContentsManagementCest
         $I->seeElement('div.ec-layoutRole__footer');
 
         /* レイアウト編集 */
-        LayoutManagePage::go($I)->レイアウト編集('下層ページ用レイアウト');
-        LayoutEditPage::at($I)
-            ->ブロックを移動('新着情報', '#position_4')
-            ->登録();
+        // LayoutManagePage::go($I)->レイアウト編集('下層ページ用レイアウト');
+        // LayoutEditPage::at($I)
+        //     ->ブロックを移動('新着情報', '#position_4')
+        //     ->登録();
 
-        $I->see('保存しました', LayoutEditPage::$登録完了メッセージ);
-        $I->amOnPage('/user_data/'.$page);
-        $I->see('新着情報', '.ec-newsRole');
+        // $I->see('保存しました', LayoutEditPage::$登録完了メッセージ);
+        // $I->amOnPage('/user_data/'.$page);
+        // $I->see('新着情報', '.ec-newsRole');
 
         LayoutManagePage::go($I)->レイアウト編集('下層ページ用レイアウト');
         LayoutEditPage::at($I)
