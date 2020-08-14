@@ -42,3 +42,4 @@
 
 - [DockerでOWASP ZAPを使う](https://pc.atsuhiro-me.net/entry/2019/08/19/011324)
 - [Docker版OWASP ZAPを動かしてみる](https://qiita.com/koujimatsuda11/items/83558cd62c20141ebdda)
+- [テスティングガイド](https://owasp.org/www-pdf-archive/OTGv3Japanese.pdf)
