@@ -29,10 +29,15 @@
 1. コンテキストをインポートします。
     ```shell
     ## 管理画面用
-    docker-compose -f docker-compose.yml -f docker-compose-owaspzap.yml exec zap zap-cli -p 8090 context import /zap/wrk/admin.context`
+    docker-compose -f docker-compose.yml -f docker-compose-owaspzap.yml exec zap zap-cli -p 8090 context import /zap/wrk/admin.context
     ## フロント(ログイン用)
-    docker-compose -f docker-compose.yml -f docker-compose-owaspzap.yml exec zap zap-cli -p 8090 context import /zap/wrk/front_login.context`
+    docker-compose -f docker-compose.yml -f docker-compose-owaspzap.yml exec zap zap-cli -p 8090 context import /zap/wrk/front_login.context
     ```
    - *フロントと管理画面のコンテキストを同時にインポートすると、セッションが競合してログインできなくなる場合があるため注意*
 1. OWASP ZAP のツールバーにある [Forced User Mode On/Off ボタン](https://www.zaproxy.org/docs/desktop/ui/tltoolbar/#--forced-user-mode-on--off) を ON にすると、OWASP ZAP の自動ログインが有効になり、ユーザーログイン中のテストが有効になります
 1. [OWASP ZAP Getting Started](https://www.zaproxy.org/getting-started/) を参考に、テストを実施します
+
+## 参考
+
+- [DockerでOWASP ZAPを使う](https://pc.atsuhiro-me.net/entry/2019/08/19/011324)
+- [Docker版OWASP ZAPを動かしてみる](https://qiita.com/koujimatsuda11/items/83558cd62c20141ebdda)
