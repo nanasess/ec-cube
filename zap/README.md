@@ -35,7 +35,8 @@
     ```
    - *フロントと管理画面のコンテキストを同時にインポートすると、セッションが競合してログインできなくなる場合があるため注意*
 1. OWASP ZAP のツールバーにある [Forced User Mode On/Off ボタン](https://www.zaproxy.org/docs/desktop/ui/tltoolbar/#--forced-user-mode-on--off) を ON にすると、OWASP ZAP の自動ログインが有効になり、ユーザーログイン中のテストが有効になります
-1. [OWASP ZAP Getting Started](https://www.zaproxy.org/getting-started/) を参考に、テストを実施します
+1. [OWASP ZAP Getting Started](https://qiita.com/koujimatsuda11/items/3d5b7eac5f9455015ba6) を参考に、テストを実施します
+
 
 ## 参考
 
