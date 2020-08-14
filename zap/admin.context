@@ -53,11 +53,11 @@
         </postparser>
         <authentication>
             <type>2</type>
-            <loggedin>\Q&lt;span&gt;管理者 様&lt;/span&gt;\E</loggedin>
+            <loggedout>\Q&lt;button type="submit" class="btn btn-primary btn-lg btn-block"&gt;ログイン&lt;/button&gt;\E</loggedout>
             <form>
                 <loginurl>https://ec-cube/admin/login</loginurl>
                 <loginbody>_csrf_token=xxx&amp;login_id={%username%}&amp;password={%password%}</loginbody>
-                <loginpageurl/>
+                <loginpageurl>https://ec-cube/admin/login</loginpageurl>
             </form>
         </authentication>
         <users>

@@ -53,11 +53,11 @@
         </postparser>
         <authentication>
             <type>2</type>
-            <loggedin>\Q&lt;span class="ec-headerNav__itemLink"&gt;ログアウト&lt;/span&gt;\E</loggedin>
+            <loggedout>\Q&lt;span class="ec-headerNav__itemLink"&gt;ログイン&lt;/span&gt;\E</loggedout>
             <form>
                 <loginurl>https://ec-cube/mypage/login</loginurl>
                 <loginbody>login_email={%username%}&amp;login_pass={%password%}&amp;_csrf_token=xxx</loginbody>
-                <loginpageurl/>
+                <loginpageurl>https://ec-cube/mypage/login</loginpageurl>
             </form>
         </authentication>
         <users>
