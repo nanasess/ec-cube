@@ -2,6 +2,8 @@
 
 ## Quick Start
 
+- 意図しない外部サイトへの攻撃を防ぐため、 OWASP ZAP は必ず **プロテクトモード** で使用してください
+
 1. [docker-compose を使用して EC-CUBE をインストールします](https://doc4.ec-cube.net/quickstart_install#4docker-compose%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%99%E3%82%8B)
 1. テスト用のデータを生成しておきます
     ```shell
