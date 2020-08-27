@@ -1,7 +1,7 @@
 {
   "id": "b61df7db-8ea0-4d70-84f9-0ba1ae62176c",
   "version": "2.0",
-  "name": "Manual_Inspection ",
+  "name": "[WIP]Manual_Inspection",
   "url": "https://ec-cube",
   "tests": [{
     "id": "6f6ae007-51ec-4832-98cd-d625753b58c8",
@@ -2729,34 +2729,6 @@
       "id": "59ba9aed-b652-434e-b8ff-a0141273001b",
       "comment": "",
       "command": "click",
-      "target": "name=mode",
-      "targets": [
-        ["name=mode", "name"],
-        ["css=.ec-blockBtn--action", "css:finder"],
-        ["xpath=//button[@name='mode']", "xpath:attributes"],
-        ["xpath=//body[@id='page_contact']/div/div[2]/div/div/div[2]/div/form/div[2]/div/div/button", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div/button", "xpath:position"],
-        ["xpath=//button[contains(.,'送信する')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "0713fd20-0a8b-4f28-8c35-fda14fa9c365",
-      "comment": "",
-      "command": "mouseOver",
-      "target": "name=mode",
-      "targets": [
-        ["name=mode", "name"],
-        ["css=.ec-blockBtn--action", "css:finder"],
-        ["xpath=//button[@name='mode']", "xpath:attributes"],
-        ["xpath=//body[@id='page_contact']/div/div[2]/div/div/div[2]/div/form/div[2]/div/div/button", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div/button", "xpath:position"],
-        ["xpath=//button[contains(.,'送信する')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "49eaf1d8-807c-4605-8ae5-11145c5b97af",
-      "comment": "",
-      "command": "mouseOut",
       "target": "name=mode",
       "targets": [
         ["name=mode", "name"],
