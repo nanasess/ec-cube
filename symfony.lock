@@ -23,6 +23,9 @@
     "composer/composer": {
         "version": "1.5.5"
     },
+    "composer/package-versions-deprecated": {
+        "version": "1.11.99"
+    },
     "composer/semver": {
         "version": "1.4.2"
     },
@@ -123,22 +126,13 @@
         }
     },
     "ec-cube/plugin-installer": {
-        "version": "0.0.3"
+        "version": "2.0.0"
     },
     "egulias/email-validator": {
         "version": "1.2.14"
     },
     "facebook/webdriver": {
         "version": "1.5.0"
-    },
-    "friendsofphp/php-cs-fixer": {
-        "version": "2.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.2",
-            "ref": "bb31a3bbec00a8fc8aa1c9fbf9b0ef9fc492f93d"
-        }
     },
     "fzaninotto/faker": {
         "version": "v1.7.1"
@@ -184,9 +178,6 @@
     },
     "nikic/php-parser": {
         "version": "v4.0.3"
-    },
-    "ocramius/package-versions": {
-        "version": "1.2.0"
     },
     "ocramius/proxy-manager": {
         "version": "2.1.1"
@@ -268,6 +259,9 @@
     },
     "ralouphie/getallheaders": {
         "version": "2.0.5"
+    },
+    "react/promise": {
+        "version": "v2.8.0"
     },
     "sebastian/code-unit-reverse-lookup": {
         "version": "1.0.1"
@@ -425,6 +419,9 @@
             "ref": "8c507e663cf8a8c023d4287974d909bf68f06814"
         }
     },
+    "symfony/http-client-contracts": {
+        "version": "v1.1.10"
+    },
     "symfony/http-foundation": {
         "version": "v3.4.1"
     },
@@ -487,6 +484,9 @@
     },
     "symfony/polyfill-intl-idn": {
         "version": "v1.13.0"
+    },
+    "symfony/polyfill-intl-normalizer": {
+        "version": "v1.18.1"
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.6.0"
