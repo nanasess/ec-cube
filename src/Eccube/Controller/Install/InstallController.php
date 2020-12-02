@@ -41,15 +41,34 @@ use Eccube\Service\PluginService;
 use Eccube\Service\SystemService;
 use Eccube\Util\CacheUtil;
 use Eccube\Util\StringUtil;
+use Jose\Component\Checker\AudienceChecker;
+use Jose\Component\Checker\ClaimCheckerManager;
+use Jose\Component\Checker\ExpirationTimeChecker;
+use Jose\Component\Checker\InvalidClaimException;
+use Jose\Component\Checker\IssuedAtChecker;
+use Jose\Component\Checker\NotBeforeChecker;
+use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\Core\JWK;
+use Jose\Component\KeyManagement\JWKFactory;
+use Jose\Component\Signature\Algorithm\RS256;
+use Jose\Component\Signature\JWS;
+use Jose\Component\Signature\JWSBuilder;
+use Jose\Component\Signature\JWSVerifier;
+use Jose\Component\Signature\Serializer\CompactSerializer;
+use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class InstallController extends AbstractController
 {
@@ -57,6 +76,11 @@ class InstallController extends AbstractController
      * default value of auth magic
      */
     const DEFAULT_AUTH_MAGIC = '<change.me>';
+
+    /** @var string */
+    const JWK_PUBLIC = 'public_jwk.json';
+    /** @var string */
+    const JWK_PRIVATE = 'private_jwk.json';
 
     protected $requiredModules = [
         'pdo',
@@ -104,6 +128,11 @@ class InstallController extends AbstractController
      * @var CacheUtil
      */
     protected $cacheUtil;
+
+    /**
+     * @var string
+     */
+    protected $jwksDir;
 
     public function __construct(PasswordEncoder $encoder, CacheUtil $cacheUtil)
     {
@@ -503,15 +532,21 @@ class InstallController extends AbstractController
 
         $this->removeSessionData($this->session);
 
-        // FIXME: installで設定したsessionをprodで参照できない
-        $this->session->set('install.plugin_enable_ok', true);
+        // 有効化URLを保護するための Cookie を生成する
+        $jwk = $this->createJwks();
+        $algorithmManager = $this->getAlgorithmManager();
+        $payload = $this->createPayload('install.plugin_enable_ok');
+        $token = $this->createJWSToken($payload);
+        $cookie = Cookie::create('ECINSTALLER_TRANSACTION', $token, 0, $this->generateUrl('install', [], UrlGeneratorInterface::ABSOLUTE_URL));
+        $response = $this->render('complete.twig', [
+            'admin_url' => $adminUrl,
+            'plugin_enable_url' => $pluginEnableUrl,
+        ]);
+        $response->headers->setCookie($cookie);
 
         $this->cacheUtil->clearCache('prod');
 
-        return [
-            'admin_url' => $adminUrl,
-            'plugin_enable_url' => $pluginEnableUrl,
-        ];
+        return $response;
     }
 
     /**
@@ -525,10 +560,30 @@ class InstallController extends AbstractController
      */
     public function pluginEnable(Plugin $Plugin, CacheUtil $cacheUtil, SystemService $systemService, PluginService $pluginService)
     {
-        // FIXME: installで設定したsessionをprodで参照できない
-//        if (!$this->session->get('install.plugin_enable_ok', false)) {
-//            throw new BadRequestHttpException();
-//        }
+        // 有効化URLを保護するための Cookie をチェックする
+        $jws = $this->unserializeToken($_COOKIE['ECINSTALLER_TRANSACTION']);
+        $verifier = new JWSVerifier($this->getAlgorithmManager());
+        if ($verifier->verifyWithKey($jws, $this->getPublicJWK(), 0) === false) {
+            throw new AccessDeniedHttpException('bad transaction signeture');
+        }
+        $payload = json_decode($jws->getPayload(), true);
+        try {
+            $claimCheckerManager = new ClaimCheckerManager(
+                [
+                    new IssuedAtChecker(),
+                    new NotBeforeChecker(),
+                    new ExpirationTimeChecker(),
+                    new AudienceChecker($this->generateUrl('install', [], UrlGeneratorInterface::ABSOLUTE_URL)),
+                ]
+            );
+            $claim = $claimCheckerManager->check($payload);
+        } catch (InvalidClaimException $e) {
+            throw new AccessDeniedHttpException($e->getMessage());
+        }
+
+        if ($payload[$this->generateUrl('install', [], UrlGeneratorInterface::ABSOLUTE_URL).'/transaction'] !== 'install.plugin_enable_ok') {
+            throw new AccessDeniedHttpException('bad transaction ');
+        }
 
         $systemService->switchMaintenance(true); // auto_maintenanceと設定されたファイルを生成
         $systemService->disableMaintenance(SystemService::AUTO_MAINTENANCE);
@@ -1115,5 +1170,118 @@ class InstallController extends AbstractController
         }
 
         return false;
+    }
+
+    /**
+     * @return string
+     */
+    private function getJwksDir()
+    {
+        $projectDir = $this->getParameter('kernel.project_dir');
+        return $projectDir.'/var/cache/install/jwks';
+    }
+
+    /**
+     * @return JWK
+     */
+    private function createJwks()
+    {
+        $jwksDir = $this->getJwksDir();
+        if (!file_exists($jwksDir.'/'.self::JWK_PRIVATE) && !file_exists($jwksDir.'/'.self::JWK_PUBLIC)) {
+            if (!file_exists($this->jwksDir)) {
+                mkdir($this->jwksDir, 0755, true);
+            }
+
+            $jwk = JWKFactory::createRSAKey(
+                4096,
+                [
+                    'alg' => 'RS256',
+                    'use' => 'sig'
+                ]
+            );
+            $publicKey = $jwk->toPublic();
+            $jwk_private = json_encode($jwk->jsonSerialize());
+            $jwk_public = json_encode($publicKey->jsonSerialize());
+            file_put_contents($jwksDir.'/'.self::JWK_PRIVATE, $jwk_private);
+            file_put_contents($jwksDir.'/'.self::JWK_PUBLIC, $jwk_public);
+        }
+
+        return JWKFactory::createFromJsonObject(file_get_contents($jwksDir.'/'.self::JWK_PRIVATE));
+    }
+
+    /**
+     * @return JWK
+     */
+    private function getPublicJWK()
+    {
+        $jwksDir = $this->getJwksDir();
+
+        return JWKFactory::createFromJsonObject(file_get_contents($jwksDir.'/'.self::JWK_PUBLIC));
+    }
+
+    /**
+     * @return JWK
+     */
+    private function getPrivateJWK()
+    {
+        $jwksDir = $this->getJwksDir();
+
+        return JWKFactory::createFromJsonObject(file_get_contents($jwksDir.'/'.self::JWK_PRIVATE));
+    }
+
+    /**
+     * @return AlgorithmManager
+     */
+    private function getAlgorithmManager()
+    {
+        return new AlgorithmManager(
+            [new RS256()]
+        );
+    }
+
+    /**
+     * @var string
+     */
+    private function createPayload($transaction)
+    {
+        return json_encode([
+            'iat' => time(),
+            'nbf' => time(),
+            'exp' => time() + (60 * 10),
+            'iss' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'aud' => $this->generateUrl('install', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            $this->generateUrl('install', [], UrlGeneratorInterface::ABSOLUTE_URL).'/transaction' => $transaction
+        ]);
+    }
+
+    /**
+     * @param string $payload
+     * @return string
+     */
+    private function createJWSToken($payload)
+    {
+        $jwsBuilder = new JWSBuilder(null, $this->getAlgorithmManager());
+        $jws = $jwsBuilder->create()
+            ->withPayload($payload)
+            ->addSignature($this->getPrivateJWK(), ['alg' => 'RS256'])
+            ->build();
+
+        $manager = JWSSerializerManager::create(
+            [new CompactSerializer()]
+        );
+
+        return $manager->serialize('jws_compact', $jws, 0);
+    }
+
+    /**
+     * @return JWS
+     */
+    private function unserializeToken($token)
+    {
+        $manager = JWSSerializerManager::create(
+            [new CompactSerializer()]
+        );
+
+        return $manager->unserialize($token);
     }
 }
