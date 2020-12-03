@@ -498,10 +498,11 @@ class InstallController extends AbstractController
         $databaseUrl = $this->createDatabaseUrl($sessionData);
         $mailerUrl = $this->createMailerUrl($sessionData);
         $forceSSL = isset($sessionData['admin_force_ssl']) ? (bool) $sessionData['admin_force_ssl'] : false;
+        $forceSSLString = 'false';
         if ($forceSSL === false) {
-            $forceSSL = 'false';
+            $forceSSLString = 'false';
         } elseif ($forceSSL === true) {
-            $forceSSL = 'true';
+            $forceSSLString = 'true';
         }
         $env = file_get_contents(__DIR__.'/../../../../.env.dist');
         $replacement = [
@@ -512,7 +513,7 @@ class InstallController extends AbstractController
             'ECCUBE_AUTH_MAGIC' => $sessionData['authmagic'],
             'DATABASE_SERVER_VERSION' => isset($sessionData['database_version']) ? $sessionData['database_version'] : '3',
             'ECCUBE_ADMIN_ALLOW_HOSTS' => $this->convertAdminAllowHosts($sessionData['admin_allow_hosts']),
-            'ECCUBE_FORCE_SSL' => $forceSSL,
+            'ECCUBE_FORCE_SSL' => $forceSSLString,
             'ECCUBE_ADMIN_ROUTE' => isset($sessionData['admin_dir']) ? $sessionData['admin_dir'] : 'admin',
             'ECCUBE_COOKIE_PATH' => $request->getBasePath() ? $request->getBasePath() : '/',
             'ECCUBE_TEMPLATE_CODE' => 'default',
@@ -537,11 +538,14 @@ class InstallController extends AbstractController
         $algorithmManager = $this->getAlgorithmManager();
         $payload = $this->createPayload('install.plugin_enable_ok');
         $token = $this->createJWSToken($payload);
-        $cookie = Cookie::create('ECINSTALLER_TRANSACTION', $token, 0, $this->generateUrl('install', [], UrlGeneratorInterface::ABSOLUTE_URL));
+        $cookie = Cookie::create('ECINSTALLER_TRANSACTION', $token, 0, $this->generateUrl('install', [], UrlGeneratorInterface::ABSOLUTE_URL), $request->getHost(), $forceSSL);
+        setcookie('ECINSTALLER_TRANSACTION', $token); // FIXME Symfony cookie が保存されないため暫定措置
+
         $response = $this->render('complete.twig', [
             'admin_url' => $adminUrl,
             'plugin_enable_url' => $pluginEnableUrl,
         ]);
+
         $response->headers->setCookie($cookie);
 
         $this->cacheUtil->clearCache('prod');
@@ -561,7 +565,10 @@ class InstallController extends AbstractController
     public function pluginEnable(Plugin $Plugin, CacheUtil $cacheUtil, SystemService $systemService, PluginService $pluginService)
     {
         // 有効化URLを保護するための Cookie をチェックする
-        $jws = $this->unserializeToken($_COOKIE['ECINSTALLER_TRANSACTION']);
+        if (!$request->cookies->has('ECINSTALLER_TRANSACTION')) {
+            throw new AccessDeniedHttpException('Transaction token not found');
+        }
+        $jws = $this->unserializeToken($request->cookies->get('ECINSTALLER_TRANSACTION'));
         $verifier = new JWSVerifier($this->getAlgorithmManager());
         if ($verifier->verifyWithKey($jws, $this->getPublicJWK(), 0) === false) {
             throw new AccessDeniedHttpException('bad transaction signeture');
@@ -1178,7 +1185,7 @@ class InstallController extends AbstractController
     private function getJwksDir()
     {
         $projectDir = $this->getParameter('kernel.project_dir');
-        return $projectDir.'/var/cache/install/jwks';
+        return $projectDir.'/var/jwks';
     }
 
     /**
@@ -1188,8 +1195,8 @@ class InstallController extends AbstractController
     {
         $jwksDir = $this->getJwksDir();
         if (!file_exists($jwksDir.'/'.self::JWK_PRIVATE) && !file_exists($jwksDir.'/'.self::JWK_PUBLIC)) {
-            if (!file_exists($this->jwksDir)) {
-                mkdir($this->jwksDir, 0755, true);
+            if (!file_exists($jwksDir)) {
+                mkdir($jwksDir, 0755, true);
             }
 
             $jwk = JWKFactory::createRSAKey(
