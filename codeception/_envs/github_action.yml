@@ -3,7 +3,7 @@ modules:
         WebDriver:
             host: 'localhost'
             port: 9515
-            url: 'http://localhost:8000'
+            url: 'http://ec-cube:8080'
             capabilities:
                 chromeOptions:
                     prefs:

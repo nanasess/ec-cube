@@ -25,8 +25,8 @@ jobs:
         group: [ admin01, admin02, admin03, front, installer ]
         include:
           - db: pgsql
-            database_url: postgres://postgres:password@127.0.0.1:5432/eccube_db
-            database_server_version: 11
+            database_url: postgres://dbuser:secret@postgres:5432/eccubedb
+            database_server_version: 10
           - group: admin01
             app_env: 'codeception'
           - group: admin02
@@ -37,57 +37,39 @@ jobs:
             app_env: 'codeception'
           - group: installer
             app_env: 'install'
-    services:
-      postgres:
-        image: postgres:11
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-        ports:
-          - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-      mailcatcher:
-        image: schickling/mailcatcher
-        ports:
-          - 1080:1080
-          - 1025:1025
 
     steps:
       - name: Checkout
         uses: actions/checkout@master
 
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v1
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
       - name: Setup PHP
         uses: nanasess/setup-php@master
         with:
           php-version: ${{ matrix.php }}
-
       - name: composer install
         run: |
           sudo composer selfupdate --1
           composer install --dev --no-interaction -o --apcu-autoloader
+      - name: Start Docker container
+        env:
+          APP_ENV: 'codeception'
+          DATABASE_URL: ${{ matrix.database_url }}
+          DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
+          MAILER_URL: 'smtp://localhost:1025'
+          ECCUBE_PACKAGE_API_URL: 'http://localhost:8080'
+        run: docker-compose up -d
+
       - name: Setup to EC-CUBE
         env:
           APP_ENV: ${{ matrix.app_env }}
           DATABASE_URL: ${{ matrix.database_url }}
           DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
         run: |
-          echo "APP_ENV=${APP_ENV}" > .env
-          bin/console doctrine:database:create --env=dev
-          bin/console doctrine:schema:create --env=dev
-          bin/console eccube:fixtures:load --env=dev
+          docker-compose exec -T ec-cube echo "APP_ENV=${APP_ENV}" > .env
+          docker-compose exec -T ec-cube echo "DATABASE_URL=${DATABASE_URL}" >> .env
+          docker-compose exec -T ec-cube echo "DATABASE_VERSION=${DATABASE_VERSION}" >> .env
+          docker-compose exec -T ec-cube bin/console doctrine:schema:create --env=dev
+          docker-compose exec -T ec-cube bin/console eccube:fixtures:load --env=dev
 
       - name: setup-chromedriver
         uses: nanasess/setup-chromedriver@master
@@ -100,19 +82,10 @@ jobs:
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           echo ">>> Started xvfb"
 
-      - name: Start PHP Development Server
-        env:
-          APP_ENV: 'codeception'
-          DATABASE_URL: ${{ matrix.database_url }}
-          DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
-          MAILER_URL: 'smtp://localhost:1025'
-          ECCUBE_PACKAGE_API_URL: 'http://localhost:8080'
-        run: php -S localhost:8000 &
-
       - name: Codeception
         env:
           APP_ENV: ${{ matrix.app_env }}
-          DATABASE_URL: ${{ matrix.database_url }}
+          DATABASE_URL: postgres://dbuser:secret@127.0.0.1:15432/eccubedb
           DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
           MAILER_URL: 'smtp://localhost:1025'
           ECCUBE_PACKAGE_API_URL: 'http://localhost:8080'
