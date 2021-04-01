@@ -26,13 +26,10 @@ use Eccube\Entity\TaxRule;
 use Eccube\Tests\Fixture\Generator;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
 use Eccube\Util\StringUtil;
-use Symfony\Component\DomCrawler\Crawler;
 use Eccube\Repository\Master\ProductStatusRepository;
 use Eccube\Repository\ProductRepository;
 use Eccube\Repository\ProductTagRepository;
 use Eccube\Repository\TaxRuleRepository;
-use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
-use Eccube\Util\StringUtil;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -1062,7 +1059,7 @@ class ProductControllerTest extends AbstractAdminWebTestCase
     public function testDeleteImage()
     {
         /** @var Generator $generator */
-        $generator = $this->container->get(Generator::class);
+        $generator = self::$container->get(Generator::class);
         $Product1 = $generator->createProduct(null, 0, 'abstract');
         $Product2 = $generator->createProduct(null, 0, 'abstract');
 
@@ -1101,7 +1098,7 @@ class ProductControllerTest extends AbstractAdminWebTestCase
     public function testDeleteAndDeleteProductImage()
     {
         /** @var Generator $generator */
-        $generator = $this->container->get(Generator::class);
+        $generator = self::$container->get(Generator::class);
         $Product1 = $generator->createProduct(null, 0, 'abstract');
         $Product2 = $generator->createProduct(null, 0, 'abstract');
 
