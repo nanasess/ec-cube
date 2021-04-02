@@ -115,8 +115,8 @@
         "fzaninotto/faker": "^1.7",
         "mikey179/vfsstream": "^1.6",
         "phpstan/phpstan": "^0.12",
-        "symfony/browser-kit": "^3.4",
-        "symfony/phpunit-bridge": "^3.4"
+        "symfony/browser-kit": "^4.4",
+        "symfony/phpunit-bridge": "^4.4"
     },
     "autoload": {
         "files": [
