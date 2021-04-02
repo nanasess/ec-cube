@@ -1,19 +1,30 @@
 <?php
 
+/*
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) EC-CUBE CO.,LTD. All Rights Reserved.
+ *
+ * http://www.ec-cube.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+use Dotenv\Dotenv;
 use Eccube\Kernel;
 use Symfony\Component\Debug\Debug;
-use Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 
 // システム要件チェック
 if (version_compare(PHP_VERSION, '7.1.3') < 0) {
-    die('Your PHP installation is too old. EC-CUBE requires at least PHP 7.1.3. See the <a href="http://www.ec-cube.net/product/system.php" target="_blank">system requirements</a> page for more information.');
+    exit('Your PHP installation is too old. EC-CUBE requires at least PHP 7.1.3. See the <a href="http://www.ec-cube.net/product/system.php" target="_blank">system requirements</a> page for more information.');
 }
 
 $autoload = __DIR__.'/vendor/autoload.php';
 
 if (!file_exists($autoload) && !is_readable($autoload)) {
-    die('Composer is not installed.');
+    exit('Composer is not installed.');
 }
 require $autoload;
 
@@ -68,6 +79,7 @@ if (file_exists($maintenanceFile)) {
 
         header('HTTP/1.1 503 Service Temporarily Unavailable');
         require __DIR__.'/maintenance.php';
+
         return;
     }
 }

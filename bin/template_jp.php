@@ -11,7 +11,6 @@
  *
  * composer install
  * bin/template_jp.php
- *
  */
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -78,4 +77,3 @@ function echoLn($message)
     echo $message.PHP_EOL;
     @ob_flush();
 }
-
