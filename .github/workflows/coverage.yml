@@ -68,6 +68,8 @@ jobs:
           bin/console doctrine:database:create
           bin/console doctrine:schema:create
           bin/console eccube:fixtures:load
+      - name: Setup xdebug
+        run: sudo phpenmod -s cli xdebug
 
       - name: PHPUnit
         env:
@@ -75,10 +77,11 @@ jobs:
           DATABASE_URL: ${{ matrix.database_url }}
           DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
           MAILER_URL: 'smtp://127.0.0.1:1025'
+          XDEBUG_MODE: coverage
         continue-on-error: true
         run: |
           bin/phpunit --version
-          phpdbg -dmemory_limit=-1 -qrr bin/phpunit --exclude-group cache-clear,cache-clear-install,update-schema-doctrine --coverage-clover=coverage1.xml
+          bin/phpunit -dmemory_limit=-1 --exclude-group cache-clear,cache-clear-install,update-schema-doctrine --coverage-clover=coverage1.xml
       - name: Upload report
         if: success()
         uses: actions/upload-artifact@v2
