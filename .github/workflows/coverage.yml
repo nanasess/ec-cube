@@ -68,8 +68,8 @@ jobs:
           bin/console doctrine:database:create
           bin/console doctrine:schema:create
           bin/console eccube:fixtures:load
-      - name: Setup xdebug
-        run: sudo phpenmod -s cli xdebug
+      - name: Setup pcov
+        run: sudo apt-fast install -y php-pcov
 
       - name: PHPUnit
         env:
