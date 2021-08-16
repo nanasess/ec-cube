@@ -53,6 +53,9 @@
             "ref": "56eaa387b5e48ebcc7c95a893b47dfa1ad51449c"
         }
     },
+    "defuse/php-encryption": {
+        "version": "v2.3.1"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -137,8 +140,38 @@
             "ref": "70062abc2cd58794d2a90274502f81b55cd9951b"
         }
     },
+    "ec-cube/api": {
+        "version": "2.1.0"
+    },
+    "ec-cube/coupon4": {
+        "version": "4.1.0"
+    },
+    "ec-cube/gmc": {
+        "version": "1.1.0"
+    },
+    "ec-cube/mailmagazine4": {
+        "version": "4.1.0"
+    },
     "ec-cube/plugin-installer": {
         "version": "0.0.3"
+    },
+    "ec-cube/productreview4": {
+        "version": "4.1.0"
+    },
+    "ec-cube/recommend4": {
+        "version": "4.1.0"
+    },
+    "ec-cube/relatedproduct4": {
+        "version": "4.1.0"
+    },
+    "ec-cube/salesreport4": {
+        "version": "4.1.0"
+    },
+    "ec-cube/securitychecker4": {
+        "version": "4.1.0"
+    },
+    "ec-cube/sitekit": {
+        "version": "1.1.0"
     },
     "egulias/email-validator": {
         "version": "1.2.14"
@@ -155,6 +188,9 @@
     "ezyang/htmlpurifier": {
         "version": "v4.13.0"
     },
+    "firebase/php-jwt": {
+        "version": "v5.4.0"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
@@ -169,6 +205,21 @@
     },
     "fzaninotto/faker": {
         "version": "v1.7.1"
+    },
+    "google/apiclient": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.0",
+            "ref": "49c5d7a66d863d28513979bf0666dc77599100c0"
+        }
+    },
+    "google/apiclient-services": {
+        "version": "v0.207.0"
+    },
+    "google/auth": {
+        "version": "v1.16.0"
     },
     "guzzlehttp/guzzle": {
         "version": "6.3.0"
@@ -203,6 +254,15 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.1.1"
     },
+    "lcobucci/jwt": {
+        "version": "3.4.5"
+    },
+    "league/event": {
+        "version": "2.2.0"
+    },
+    "league/oauth2-server": {
+        "version": "7.4.0"
+    },
     "mikey179/vfsstream": {
         "version": "v1.6.5"
     },
@@ -221,11 +281,29 @@
     "nikic/php-parser": {
         "version": "v4.0.3"
     },
+    "nyholm/psr7": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "0cd4d2d0e7f646fda75f9944f747a56e6ed13d4c"
+        },
+        "files": [
+            "app/config/eccube/packages/nyholm_psr7.yaml"
+        ]
+    },
     "ocramius/package-versions": {
         "version": "1.2.0"
     },
     "ocramius/proxy-manager": {
         "version": "2.1.1"
+    },
+    "paragonie/constant_time_encoding": {
+        "version": "v2.4.0"
+    },
+    "paragonie/random_compat": {
+        "version": "v9.99.100"
     },
     "phar-io/manifest": {
         "version": "1.0.1"
@@ -242,6 +320,9 @@
     "php-cs-fixer/diff": {
         "version": "v1.2.0"
     },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
+    },
     "php-webdriver/webdriver": {
         "version": "1.10.0"
     },
@@ -253,6 +334,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "0.4.0"
+    },
+    "phpseclib/phpseclib": {
+        "version": "3.0.9"
     },
     "phpspec/prophecy": {
         "version": "1.7.5"
@@ -292,6 +376,9 @@
     },
     "psr/container": {
         "version": "1.0.0"
+    },
+    "psr/http-factory": {
+        "version": "1.0.1"
     },
     "psr/http-message": {
         "version": "1.0.1"
@@ -581,6 +668,9 @@
     "symfony/proxy-manager-bridge": {
         "version": "v3.4.4"
     },
+    "symfony/psr-http-message-bridge": {
+        "version": "v1.3.0"
+    },
     "symfony/routing": {
         "version": "3.3",
         "recipe": {
@@ -695,6 +785,15 @@
     "theseer/tokenizer": {
         "version": "1.1.0"
     },
+    "trikoder/oauth2-bundle": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.0",
+            "ref": "f9437559d3494fa0189811ff84ab97e51cb58772"
+        }
+    },
     "twig/extensions": {
         "version": "1.0",
         "recipe": {
@@ -712,6 +811,9 @@
     },
     "webmozart/assert": {
         "version": "1.3.0"
+    },
+    "webonyx/graphql-php": {
+        "version": "v14.9.0"
     },
     "zendframework/zend-code": {
         "version": "3.3.0"
