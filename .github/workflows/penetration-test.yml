@@ -42,7 +42,9 @@ jobs:
       - name: yarn install
         working-directory: zap/selenium/ci/TypeScript
         run: yarn install
-
+      - name: Debug
+        if: ${{ always() }}
+        uses: mxschmitt/action-tmate@v3
       - name: Penetration testing
         working-directory: zap/selenium/ci/TypeScript
         env:
