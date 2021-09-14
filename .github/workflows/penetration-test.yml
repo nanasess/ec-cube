@@ -47,7 +47,8 @@ jobs:
         working-directory: zap/selenium/ci/TypeScript
         env:
           GROUP: ${{ matrix.group }}
-        run: yarn jest --group=${GROUP}
+        # run: yarn jest --group=${GROUP}
+        run: yarn jest
       - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v2
