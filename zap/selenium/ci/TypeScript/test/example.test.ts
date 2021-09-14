@@ -35,11 +35,15 @@ test('example', async () => {
     await zaproxy.core.setMode('protect');
     await zaproxy.core.newSession('/zap/wrk/sessions/front_login_contact', true);
     await zaproxy.context.importContext('/zap/wrk/front_login.context');
-    console.log(await zaproxy.forcedUser.isForcedUserModeEnabled());
-    // if (!await zaproxy.forcedUser.isForcedUserModeEnabled()) {
+    const isForcedUserModeEnabled = async (): Promise<boolean> => {
+      const result: any = await zaproxy.forcedUser.isForcedUserModeEnabled();
+      return JSON.parse(result.forcedModeEnabled);
+    };
+
+    if (await isForcedUserModeEnabled()) {
       await zaproxy.forcedUser.setForcedUserModeEnabled(true);
-      expect(await zaproxy.forcedUser.isForcedUserModeEnabled()).toBeTruthy();
-    // }
+      expect(await isForcedUserModeEnabled()).toBeTruthy();
+    }
 
     await driver.get(baseURL + '/contact');
     const title = await driver.wait(
@@ -50,8 +54,7 @@ test('example', async () => {
     await driver.findElement(By.id('contact_name_name01')).sendKeys('石');
     await driver.findElement(By.id('contact_name_name02')).sendKeys('球部');
     await driver.findElement(By.id('contact_contents')).sendKeys('お問い合わせ入力');
-    //expect(await driver.findElement(By.id('contact_address_addr01')).getAttribute('value')).toBe('333');
-
+    expect(await driver.findElement(By.id('contact_email')).getAttribute('value')).toBe('zap_user@example.com');
     await driver.findElement(By.xpath('//*[@id="page_contact"]/div[1]/div[2]/div/div/div[2]/div/form/div[2]/div/div/button')).click();
 
     const numberOfMessagesResult = await zaproxy.core.numberOfMessages(baseURL + '/contact');
@@ -86,7 +89,7 @@ const intervalRepeater = async (callback: any, interval: number) => {
 
   while (progress < 100) {
     progress = await callback();
-    // console.log(`Active Scan progress : ${progress}%`);
+    console.log(`Active Scan progress : ${progress}%`);
     await sleep(interval);
   }
 }
