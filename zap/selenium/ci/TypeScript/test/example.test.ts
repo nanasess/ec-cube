@@ -57,7 +57,6 @@ test('example', async () => {
     const numberOfMessagesResult = await zaproxy.core.numberOfMessages(baseURL + '/contact');
     const messages = await zaproxy.core.messages(baseURL + '/contact', numberOfMessagesResult.numberOfMessages, 10);
     const requestBody = messages.messages.pop().requestBody;
-    console.log(requestBody);
 
     const scanResult = await zaproxy.ascan.scanAsUser(baseURL + '/contact', 2, 110, false, null, 'POST', requestBody);
 
