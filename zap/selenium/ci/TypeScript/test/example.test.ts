@@ -36,10 +36,10 @@ test('example', async () => {
     await zaproxy.core.newSession('/zap/wrk/sessions/front_login_contact', true);
     await zaproxy.context.importContext('/zap/wrk/front_login.context');
 
-    if (!await zaproxy.forcedUser.isForcedUserModeEnabled()) {
+    // if (!await zaproxy.forcedUser.isForcedUserModeEnabled()) {
       await zaproxy.forcedUser.setForcedUserModeEnabled(true);
       expect(await zaproxy.forcedUser.isForcedUserModeEnabled()).toBeTruthy();
-    }
+    // }
 
     await driver.get(baseURL + '/contact');
     const title = await driver.wait(
