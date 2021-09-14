@@ -35,7 +35,7 @@ test('example', async () => {
     await zaproxy.core.setMode('protect');
     await zaproxy.core.newSession('/zap/wrk/sessions/front_login_contact', true);
     await zaproxy.context.importContext('/zap/wrk/front_login.context');
-
+    console.log(await zaproxy.forcedUser.isForcedUserModeEnabled());
     // if (!await zaproxy.forcedUser.isForcedUserModeEnabled()) {
       await zaproxy.forcedUser.setForcedUserModeEnabled(true);
       expect(await zaproxy.forcedUser.isForcedUserModeEnabled()).toBeTruthy();
@@ -86,7 +86,7 @@ const intervalRepeater = async (callback: any, interval: number) => {
 
   while (progress < 100) {
     progress = await callback();
-    console.log(`Active Scan progress : ${progress}%`);
+    // console.log(`Active Scan progress : ${progress}%`);
     await sleep(interval);
   }
 }
