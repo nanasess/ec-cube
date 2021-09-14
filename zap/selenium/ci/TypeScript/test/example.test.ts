@@ -37,7 +37,7 @@ test('example', async () => {
     await zaproxy.context.importContext('/zap/wrk/front_login.context');
 
     if (!await zaproxy.forcedUser.isForcedUserModeEnabled()) {
-      await zaproxy.forcedUser.setForcedUserModeEnabled();
+      await zaproxy.forcedUser.setForcedUserModeEnabled(true);
       expect(await zaproxy.forcedUser.isForcedUserModeEnabled()).toBeTruthy();
     }
 
