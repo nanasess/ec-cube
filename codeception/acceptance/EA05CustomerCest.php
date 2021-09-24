@@ -70,9 +70,13 @@ class EA05CustomerCest
         $I->see('検索条件に誤りがあります', CustomerManagePage::$検索結果_エラーメッセージ);
     }
 
+    /**
+     * @group vaddy
+     */
     public function customer_会員登録(AcceptanceTester $I)
     {
-        $I->wantTo('EA0502-UC01-T02(& UC01-T02) 会員登録');
+        $I->wantTo('EA0502-UC01-T01 会員登録');
+
         $faker = Fixtures::get('faker');
         $email = microtime(true).'.'.$faker->safeEmail;
 
@@ -98,7 +102,6 @@ class EA05CustomerCest
         }
 
         $CustomerRegisterPage->登録();
-        /* ブラウザによるhtml5のエラーなのでハンドリング不可 */
         $I->see('保存しました', CustomerEditPage::$登録完了メッセージ);
     }
 
@@ -112,6 +115,9 @@ class EA05CustomerCest
         $I->dontSeeElement(CustomerEditPage::$登録完了メッセージ);
     }
 
+    /**
+     * @group vaddy
+     */
     public function customer_会員編集(AcceptanceTester $I)
     {
         $I->wantTo('EA0502-UC02-T01 会員編集');
@@ -138,10 +144,6 @@ class EA05CustomerCest
 
         $CustomerRegisterPage->登録();
         $I->see('保存しました', CustomerEditPage::$登録完了メッセージ);
-
-        $CustomerRegisterPage
-            ->入力_姓('')
-            ->登録();
     }
 
     public function customer_会員編集_必須項目未入力(AcceptanceTester $I)
@@ -166,6 +168,9 @@ class EA05CustomerCest
         $I->dontSeeElement(CustomerEditPage::$登録完了メッセージ);
     }
 
+    /**
+     * @group vaddy
+     */
     public function customer_会員削除(AcceptanceTester $I)
     {
         $I->wantTo('EA0501-UC03-T01 会員削除');
@@ -200,6 +205,7 @@ class EA05CustomerCest
     /**
      * @env firefox
      * @env chrome
+     * @group vaddy
      */
     public function customer_CSV出力(AcceptanceTester $I)
     {
@@ -227,6 +233,9 @@ class EA05CustomerCest
         $I->assertEquals('2', $value);
     }
 
+    /**
+     * @group vaddy
+     */
     public function customer_仮会員メール再送(AcceptanceTester $I)
     {
         $I->wantTo('EA0501-UC06-T01(& UC06-T02) 仮会員メール再送');
@@ -239,6 +248,7 @@ class EA05CustomerCest
 
         CustomerManagePage::go($I)
             ->検索($customer->getEmail())
+            ->一覧_仮会員メール再送(1, false)
             ->一覧_仮会員メール再送(1);
         $I->wait(5);
 

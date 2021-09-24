@@ -48,6 +48,9 @@ class EA04OrderCest
         OrderManagePage::go($I)->検索();
         $I->see('検索結果：'.count($TargetOrders).'件が該当しました', OrderManagePage::$検索結果_メッセージ);
 
+        OrderManagePage::go($I)->検索($TargetOrders[0]->getName01());
+        $I->dontSee('検索結果：0件が該当しました', OrderManagePage::$検索結果_メッセージ);
+
         OrderManagePage::go($I)->検索('gege@gege.com');
         $I->see('検索結果：0件が該当しました', OrderManagePage::$検索結果_メッセージ);
 
@@ -57,6 +60,7 @@ class EA04OrderCest
 
     /**
      * @group excludeCoverage
+     * @group vaddy
      */
     public function order_受注CSVダウンロード(AcceptanceTester $I)
     {
@@ -100,7 +104,7 @@ class EA04OrderCest
      */
     public function order_配送CSVダウンロード(AcceptanceTester $I)
     {
-        $I->wantTo('EA0401-UC02-T01 配送CSVダウンロード');
+        $I->wantTo('EA0401-UC03-T01 配送CSVダウンロード');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
         $TargetOrders = array_filter($findOrders(), function ($Order) {
@@ -118,7 +122,7 @@ class EA04OrderCest
 
     public function order_配送情報のCSV出力項目変更設定(AcceptanceTester $I)
     {
-        $I->wantTo('EA0401-UC02-T02 配送情報のCSV出力項目変更設定');
+        $I->wantTo('EA0401-UC03-T02 配送情報のCSV出力項目変更設定');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
         $TargetOrders = array_filter($findOrders(), function ($Order) {
@@ -135,6 +139,9 @@ class EA04OrderCest
         $I->assertEquals(4, $value);
     }
 
+    /**
+     * @group vaddy
+     */
     public function order_受注編集(AcceptanceTester $I)
     {
         $I->wantTo('EA0401-UC05-T01(& UC05-T02/UC05-T03/UC06-T01) 受注編集');
@@ -200,6 +207,9 @@ class EA04OrderCest
         $I->see('保存しました', OrderEditPage::$登録完了メッセージ);
     }
 
+    /**
+     * @group vaddy
+     */
     public function order_受注削除(AcceptanceTester $I)
     {
         $I->getScenario()->incomplete('未実装：受注削除は未実装');
@@ -233,6 +243,9 @@ class EA04OrderCest
         $I->assertEquals($OrderNumForDontDel, $OrderListPage->一覧_注文番号(1));
     }
 
+    /**
+     * @group vaddy
+     */
     public function order_受注メール通知(AcceptanceTester $I)
     {
         $I->wantTo('EA0402-UC01-T01 受注メール通知');
@@ -249,9 +262,12 @@ class EA04OrderCest
         $I->seeInLastEmailSubjectTo('admin@example.com', '[EC-CUBE SHOP] 商品出荷のお知らせ');
     }
 
+    /**
+     * @param AcceptanceTester $I
+     */
     public function order_一括メール通知(AcceptanceTester $I)
     {
-        $I->wantTo('EA0402-UC02-T01(& UC02-T02) 一括メール通知');
+        $I->wantTo('EA0402-UC02-T01 一括メール通知');
 
         $I->resetEmails();
 
@@ -265,6 +281,23 @@ class EA04OrderCest
         $I->seeEmailCount(10);
     }
 
+    public function order_一括メール通知_キャンセル(AcceptanceTester $I)
+    {
+        $I->wantTo('EA0402-UC02-T01 一括メール通知 (キャンセル)');
+
+        $I->resetEmails();
+
+        OrderManagePage::go($I)
+            ->件数変更(10)
+            ->一覧_全選択()
+            ->一括メール送信_キャンセル();
+
+        $I->seeEmailCount(0);
+    }
+
+    /**
+     * @group vaddy
+     */
     public function order_受注登録(AcceptanceTester $I)
     {
         $I->wantTo('EA0405-UC01-T01(& UC01-T02) 受注登録');
@@ -296,9 +329,9 @@ class EA04OrderCest
         $I->see('保存しました', OrderEditPage::$登録完了メッセージ);
     }
 
-    public function order_pdfページをエクスポートする(AcceptanceTester $I)
+    public function order_納品書の出力(AcceptanceTester $I)
     {
-        $I->wantTo('EA0401-UC02-T01 pdfページをエクスポートする');
+        $I->wantTo('EA0405-UC06-T02 納品書の出力');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
         $TargetOrders = array_filter($findOrders(), function ($Order) {
@@ -316,12 +349,20 @@ class EA04OrderCest
         // Check redirect to form pdf information
         $I->see('納品書出力受注管理', OrderManagePage::$タイトル要素);
 
+        $I->click('.btn-ec-conversion');
+        $I->wait(2);
+        $filename = $I->getLastDownloadFile('/^nouhinsyo.pdf$/');
+        $I->assertTrue(file_exists($filename));
+
         $I->closeTab();
     }
 
-    public function order_出力pdfダウンロード(AcceptanceTester $I)
+    /**
+     * @group vaddy
+     */
+    public function order_納品書の一括出力(AcceptanceTester $I)
     {
-        $I->wantTo('EA0401-UC02-T01 出力pdfダウンロード');
+        $I->wantTo('EA0405-UC06-T03 納品書の一括出力');
 
         $findOrders = Fixtures::get('findOrders'); // Closure
         $TargetOrders = array_filter($findOrders(), function ($Order) {
@@ -404,9 +445,12 @@ class EA04OrderCest
         $I->see('検索結果：'.(count($DeliveredOrders) + count($NewOrders)).'件が該当しました', OrderManagePage::$検索結果_メッセージ);
     }
 
+    /**
+     * @group vaddy
+     */
     public function order_個別出荷済みステータス変更(AcceptanceTester $I)
     {
-        $I->wantTo('EA0405-UC06-T02_個別出荷済みステータス変更');
+        $I->wantTo('EA0401-UC06-T02_個別出荷済みステータス変更');
 
         $I->resetEmails();
 
