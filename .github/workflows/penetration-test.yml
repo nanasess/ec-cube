@@ -27,7 +27,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+      - name: Checkout vlunerability
+        run: |
+          git remote add upstream https://github.com/EC-CUBE/ec-cube
+          git fetch --tags upstream
+          git checkout refs/tags/4.0.5 src/Eccube/Resource/template/admin/Order/mail_confirm.twig
+          git checkout refs/tags/4.0.5 src/Eccube/Resource/template/default/Mail/
       - name: Setup to EC-CUBE
         run: |
           sudo chown -R 1001:1000 zap
