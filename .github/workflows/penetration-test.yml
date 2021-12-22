@@ -1,5 +1,13 @@
 name: Penetration testing for EC-CUBE
 on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+    paths:
+      - '**'
+      - '!*.md'
   schedule:
     - cron: '0 15 * * 1'
 
@@ -19,27 +27,41 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+      - name: Checkout vlunerability
+        run: |
+          git remote add upstream https://github.com/EC-CUBE/ec-cube
+          git fetch --tags upstream
+          git checkout refs/tags/4.0.5 src/Eccube/Resource/template/admin/Order/mail_confirm.twig
+          git checkout refs/tags/4.0.5 src/Eccube/Resource/template/default/Mail/
+      - name: Setup environment
+        run: echo "COMPOSE_FILE=docker-compose.yml:docker-compose.pgsql.yml:docker-compose.dev.yml:docker-compose.owaspzap.yml:docker-compose.owaspzap.daemon.yml" >> $GITHUB_ENV
       - name: Setup to EC-CUBE
         run: |
           sudo chown -R 1001:1000 zap
           sudo chmod -R g+w zap
-          docker-compose -f docker-compose.yml -f docker-compose.pgsql.yml -f docker-compose.dev.yml -f docker-compose.owaspzap.yml -f docker-compose.owaspzap.daemon.yml up -d
-          docker-compose -f docker-compose.yml -f docker-compose.pgsql.yml -f docker-compose.dev.yml -f docker-compose.owaspzap.yml -f docker-compose.owaspzap.daemon.yml exec -T ec-cube  bin/console doctrine:schema:create --env=dev
-          docker-compose -f docker-compose.yml -f docker-compose.pgsql.yml -f docker-compose.dev.yml -f docker-compose.owaspzap.yml -f docker-compose.owaspzap.daemon.yml exec -T ec-cube  bin/console eccube:fixtures:load --env=dev
-          docker-compose -f docker-compose.yml -f docker-compose.pgsql.yml -f docker-compose.dev.yml -f docker-compose.owaspzap.yml -f docker-compose.owaspzap.daemon.yml exec -T ec-cube bin/console eccube:fixtures:generate --products=5 --customers=1 --orders=5
-          docker-compose -f docker-compose.yml -f docker-compose.pgsql.yml -f docker-compose.dev.yml -f docker-compose.owaspzap.yml -f docker-compose.owaspzap.daemon.yml exec -T ec-cube bin/console doctrine:query:sql "UPDATE dtb_customer SET email = 'zap_user@example.com' WHERE id = 1;"
+          docker-compose up -d
+          docker-compose exec -T ec-cube bin/console doctrine:schema:create --env=dev
+          docker-compose exec -T ec-cube bin/console eccube:fixtures:load --env=dev
+          docker-compose exec -T ec-cube bin/console eccube:fixtures:generate --products=5 --customers=1 --orders=5
+          docker-compose exec -T ec-cube bin/console doctrine:query:sql "UPDATE dtb_customer SET email = 'zap_user@example.com' WHERE id = 1;"
           sed -i 's!APP_ENV: "dev"!APP_ENV: "prod"!g' docker-compose.yml
-          docker-compose -f docker-compose.yml -f docker-compose.pgsql.yml -f docker-compose.dev.yml -f docker-compose.owaspzap.yml -f docker-compose.owaspzap.daemon.yml up -d ec-cube
+          docker-compose up -d ec-cube
 
       - name: yarn install
         working-directory: zap/selenium/ci/TypeScript
-        run: yarn install
+        run: |
+          yarn install
+          yarn run playwright install --with-deps chromium
+          yarn playwright install-deps chromium
       - name: Penetration testing
         working-directory: zap/selenium/ci/TypeScript
         env:
           GROUP: ${{ matrix.group }}
-        run: yarn jest ${GROUP}
+          HTTP_PROXY: 127.0.0.1:8090
+          HTTPS_PROXY: 127.0.0.1:8090
+          CI: 1
+          FORCE_COLOR: 1
+        run: yarn playwright test ${GROUP}
       - env:
           GROUP: ${{ matrix.group }}
         if: always()
