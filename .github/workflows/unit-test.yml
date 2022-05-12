@@ -76,13 +76,13 @@ jobs:
 
       - name: Setup EC-CUBE
         env:
+          APP_ENV: 'test'
           DATABASE_URL: ${{ matrix.database_url }}
           DATABASE_SERVER_VERSION: ${{ matrix.database_server_version }}
         run: |
           bin/console doctrine:database:create
           bin/console doctrine:schema:create
           bin/console eccube:fixtures:load
-
       - name: PHPUnit
         env:
           APP_ENV: 'test'
