@@ -339,8 +339,9 @@ class ProductController extends AbstractController
         /* @var $form \Symfony\Component\Form\FormInterface */
         $form = $builder->getForm();
         $form->handleRequest($request);
-
+        log_error('test');
         if (!$form->isValid()) {
+            log_error((string)$form->getErrors(true));
             throw new NotFoundHttpException();
         }
 
