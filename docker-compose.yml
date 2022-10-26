@@ -19,8 +19,10 @@ volumes:
 services:
   ### ECCube4 ##################################
   ec-cube:
-    build:
-      context: .
+    ### ローカルでビルドする場合は以下のコマンドを使用します
+    ## docker build -t ec-cube --no-cache --pull --build-arg TAG=7.4-apache-4.1 .
+    ## docker tag ec-cube ghcr.io/ec-cube/ec-cube-php:7.4-apache-4.1
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-ec-cube/ec-cube-php}:${TAG:-7.4-apache-4.1}
     ports:
       - 8080:80
       - 4430:443
@@ -35,7 +37,8 @@ services:
       APP_DEBUG: 1
       DATABASE_URL: "sqlite:///var/eccube.db"
       DATABASE_SERVER_VERSION: 3
-      MAILER_URL: "smtp://mailcatcher:1025"
+      DATABASE_CHARSET: 'utf8'
+      MAILER_DSN: "smtp://mailcatcher:1025"
       ECCUBE_AUTH_MAGIC: "<change.me>"
       # TRUSTED_HOSTS: '^127.0.0.1$$,^localhost$$'
       # ECCUBE_LOCALE: "ja"

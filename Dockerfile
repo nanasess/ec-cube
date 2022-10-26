@@ -1,4 +1,6 @@
-FROM php:7.4-apache-bullseye
+ARG TAG=7.4-apache-bullseye
+FROM php:${TAG}
+ARG GD_OPTIONS="--with-freetype --with-jpeg"
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html
 
@@ -33,7 +35,7 @@ RUN apt update \
   ;
 
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
-  && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+  && docker-php-ext-configure gd ${GD_OPTIONS} \
   && docker-php-ext-install -j$(nproc) zip gd mysqli pdo_mysql opcache intl pgsql pdo_pgsql \
   ;
 
@@ -65,6 +67,7 @@ RUN curl -sS https://getcomposer.org/installer \
   | php \
   && mv composer.phar /usr/bin/composer
 
+RUN composer selfupdate --2.2
 RUN composer config -g repos.packagist composer https://packagist.jp
 
 COPY . ${APACHE_DOCUMENT_ROOT}
