@@ -549,9 +549,6 @@ class ProductControllerTest extends AbstractAdminWebTestCase
         $this->actual = $crawler->filter('div.c-outsideBlock__contents.mb-5 > span')->text();
         $this->verify('検索結果件数の確認テスト');
 
-        // TODO
-        $this->markTestIncomplete('検索項目(公開・非公開・在庫内)の実装完了後に実施');
-
         // No stock click button
         $noStockUrl = $crawler->selectLink('在庫なし')->link()->getUri();
         $crawler = $this->client->request('GET', $noStockUrl);
@@ -587,9 +584,6 @@ class ProductControllerTest extends AbstractAdminWebTestCase
         $this->expected = '検索結果：2件が該当しました';
         $this->actual = $crawler->filter('div.c-outsideBlock__contents.mb-5 > span')->text();
         $this->verify('検索結果件数の確認テスト');
-
-        // TODO
-        $this->markTestIncomplete('検索項目(公開・非公開・在庫内)の実装完了後に実施');
 
         // private click button
         $privateUrl = $crawler->selectLink('非公開')->link()->getUri();
@@ -627,9 +621,6 @@ class ProductControllerTest extends AbstractAdminWebTestCase
         $this->actual = $crawler->filter('div.c-outsideBlock__contents.mb-5 > span')->text();
         $this->verify('検索結果件数の確認テスト');
 
-        // TODO
-        $this->markTestIncomplete('検索項目(公開・非公開・在庫内)の実装完了後に実施');
-
         // public click button
         $privateUrl = $crawler->selectLink('公開')->link()->getUri();
         $crawler = $this->client->request('GET', $privateUrl);
@@ -646,7 +637,6 @@ class ProductControllerTest extends AbstractAdminWebTestCase
      */
     public function testExportWithAll()
     {
-        $this->markTestIncomplete('FIXME expectOutputRegex');
         $this->expectOutputRegex('/[Product with status]{1}[Product with status 02]{2}/');
         $this->createProduct('Product with status 01', 0);
         $testProduct02 = $this->createProduct('Product with status 02', 1);
@@ -666,9 +656,6 @@ class ProductControllerTest extends AbstractAdminWebTestCase
         $this->expected = '検索結果：2件が該当しました';
         $this->actual = $crawler->filter('div.c-outsideBlock__contents.mb-5 > span')->text();
         $this->verify('検索結果件数の確認テスト');
-
-        // TODO
-        $this->markTestIncomplete('検索項目(公開・非公開・在庫内)の実装完了後に実施');
 
         // private click button
         $privateUrl = $crawler->selectLink('非公開')->link()->getUri();
@@ -719,7 +706,7 @@ class ProductControllerTest extends AbstractAdminWebTestCase
         $this->verify('検索結果件数の確認テスト');
 
         $this->expectOutputRegex('/Product name [10-1]/');
-        $csvExportUrl = $crawler->filter('.btn-ec-regular')->selectLink('CSVダウンロード')->link()->getUri();
+        $csvExportUrl = $crawler->filter(['id' => 'productCsvDownload'])->selectLink('商品CSV(非表示の商品規格を含む)')->link()->getUri();
         $this->client->request('GET', $csvExportUrl);
 
         // get list product after call admin_product_export function
@@ -880,7 +867,6 @@ class ProductControllerTest extends AbstractAdminWebTestCase
      */
     public function testProductExport()
     {
-        $this->markTestIncomplete('FIXME expectOutputRegex');
         $productName = 'test01';
         $this->expectOutputRegex("/$productName/");
         $this->createProduct($productName);
