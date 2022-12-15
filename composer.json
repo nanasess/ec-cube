@@ -13,12 +13,13 @@
     "minimum-stability": "stable",
     "require": {
         "php": "^7.4 || ^8.0",
+        "ext-curl": "*",
         "ext-intl": "*",
-        "ext-mbstring": "*",
         "ext-json": "*",
+        "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-zip": "*",
-        "ext-curl": "*",
+        "aws/aws-sdk-php": "^3.253",
         "composer/ca-bundle": "^1.1",
         "composer/composer": "^2.0",
         "doctrine/annotations": "^1.6",
@@ -30,6 +31,7 @@
         "doctrine/doctrine-bundle": "^2.0",
         "doctrine/doctrine-fixtures-bundle": "^3.0",
         "doctrine/doctrine-migrations-bundle": "^3.1",
+        "doctrine/event-manager": "^1.1",
         "doctrine/inflector": "^2.0",
         "doctrine/instantiator": "^1.1",
         "doctrine/lexer": "^1.0",
@@ -42,6 +44,7 @@
         "friendsofphp/php-cs-fixer": "^3.8",
         "guzzlehttp/guzzle": "^7.4.5",
         "knplabs/knp-paginator-bundle": "^5.8",
+        "league/flysystem-aws-s3-v3": "^3.10",
         "mobiledetect/mobiledetectlib": "^2.8",
         "monolog/monolog": "^2.5",
         "nesbot/carbon": "^2",
@@ -61,10 +64,13 @@
         "symfony/css-selector": "^5.4",
         "symfony/debug-bundle": "^5.4",
         "symfony/dependency-injection": "^5.4",
+        "symfony/deprecation-contracts": "^2.5",
         "symfony/doctrine-bridge": "^5.4",
         "symfony/dom-crawler": "^5.4",
         "symfony/dotenv": "^5.4",
+        "symfony/error-handler": "^5.4",
         "symfony/event-dispatcher": "^5.4",
+        "symfony/event-dispatcher-contracts": "^2.5",
         "symfony/expression-language": "^5.4",
         "symfony/filesystem": "^5.4",
         "symfony/finder": "^5.4",
@@ -75,25 +81,32 @@
         "symfony/http-kernel": "^5.4",
         "symfony/inflector": "^5.4",
         "symfony/intl": "^5.4",
+        "symfony/lock": "^5.4",
         "symfony/mailer": "^5.4",
         "symfony/maker-bundle": "^1.0",
+        "symfony/mime": "^5.4",
         "symfony/monolog-bridge": "^5.4",
         "symfony/monolog-bundle": "^3.1",
         "symfony/options-resolver": "^5.4",
+        "symfony/password-hasher": "^5.4",
         "symfony/process": "^5.4",
         "symfony/property-access": "^5.4",
+        "symfony/property-info": "^5.4",
         "symfony/proxy-manager-bridge": "^5.4",
         "symfony/rate-limiter": "^5.4",
         "symfony/routing": "^5.4",
         "symfony/security-bundle": "^5.4",
+        "symfony/security-csrf": "^5.4",
         "symfony/serializer": "^5.4",
         "symfony/stopwatch": "^5.4",
+        "symfony/string": "^5.4",
         "symfony/templating": "^5.4",
         "symfony/translation": "^5.4",
         "symfony/twig-bridge": "^5.4",
         "symfony/twig-bundle": "^5.4",
         "symfony/validator": "^5.4",
         "symfony/var-dumper": "^5.4",
+        "symfony/var-exporter": "^5.4",
         "symfony/web-profiler-bundle": "^5.4",
         "symfony/workflow": "^5.4",
         "symfony/yaml": "^5.4",
@@ -114,6 +127,7 @@
         "fakerphp/faker": "^1.16",
         "mikey179/vfsstream": "^1.6",
         "phpstan/phpstan": "^1.7",
+        "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "^5.4",
         "symfony/phpunit-bridge": "^5.4"
     },
@@ -152,7 +166,7 @@
             "assets:install --symlink --relative html": "symfony-cmd"
         },
         "installer-scripts": {
-            "doctrine:database:create": "bin/console doctrine:database:create",
+            "doctrine:database:create": "bin/console doctrine:database:create --if-not-exists",
             "doctrine:schema:create": "bin/console doctrine:schema:create",
             "eccube:fixtures:load": "bin/console eccube:fixtures:load"
         },
@@ -160,10 +174,6 @@
             "@auto-scripts"
         ],
         "post-update-cmd": [
-            "@auto-scripts"
-        ],
-        "post-create-project-cmd": [
-            "@installer-scripts",
             "@auto-scripts"
         ]
     },
@@ -184,7 +194,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.4.0"
+            "php": "8.1.10"
         },
         "preferred-install": {
             "*": "dist"
