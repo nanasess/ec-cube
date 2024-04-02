@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class TwigBlockPass implements CompilerPassInterface
 {
-    const TWIG_BLOCK_TAG = 'eccube.twig_block';
+    public const TWIG_BLOCK_TAG = 'eccube.twig_block';
 
     public function process(ContainerBuilder $container)
     {
@@ -33,7 +33,7 @@ class TwigBlockPass implements CompilerPassInterface
                 throw new \InvalidArgumentException(sprintf('Service "%s" must implement interface "%s".', $id, EccubeTwigBlock::class));
             }
 
-            /** @var $class EccubeTwigBlock */
+            /** @var EccubeTwigBlock $class */
             $blocks = $class::getTwigBlock();
             foreach ($blocks as $block) {
                 $templates[] = $block;

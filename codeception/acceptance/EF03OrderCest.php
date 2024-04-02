@@ -71,9 +71,9 @@ class EF03OrderCest
             ->カートへ進む();
 
         $I->assertEquals(1, $CartPage->明細数());
-        $I->assertContains('彩のジェラートCUBE', $CartPage->商品名(1));
-        $I->assertContains('チョコ', $CartPage->商品名(1));
-        $I->assertContains('16mm × 16mm', $CartPage->商品名(1));
+        $I->assertStringContainsString('彩のジェラートCUBE', $CartPage->商品名(1));
+        $I->assertStringContainsString('チョコ', $CartPage->商品名(1));
+        $I->assertStringContainsString('16mm × 16mm', $CartPage->商品名(1));
         $I->assertEquals(1, $CartPage->商品数量(1));
     }
 
@@ -345,7 +345,7 @@ class EF03OrderCest
 
     /**
      * @see https://github.com/EC-CUBE/ec-cube/pull/3133
-     * @vaddy
+     * @group vaddy
      */
     public function order_ログインしてカートをマージ(AcceptanceTester $I)
     {
@@ -535,7 +535,7 @@ class EF03OrderCest
         // メール確認
         $message = $I->lastMessage();
         $I->assertCount(2, $message->getRecipients(), 'Bcc で管理者にも送信するので宛先アドレスは2つ');
-        $I->seeEmailCount(1);
+        $I->seeEmailCount(2);
         foreach ([$customer->getEmail(), $BaseInfo->getEmail01()] as $email) {
             $I->seeInLastEmailSubjectTo($email, 'ご注文ありがとうございます');
             $I->seeInLastEmailTo($email, $customer->getName01().' '.$customer->getName02().' 様');
@@ -744,7 +744,7 @@ class EF03OrderCest
         // メール確認
         $message = $I->lastMessage();
         $I->assertCount(2, $message->getRecipients(), 'Bcc で管理者にも送信するので宛先アドレスは2つ');
-        $I->seeEmailCount(1);
+        $I->seeEmailCount(2);
         foreach ([$customer->getEmail(), $BaseInfo->getEmail01()] as $email) {
             $I->seeInLastEmailSubjectTo($email, 'ご注文ありがとうございます');
             $I->seeInLastEmailTo($email, $customer->getName01().' '.$customer->getName02().' 様');
@@ -906,7 +906,7 @@ class EF03OrderCest
         // メール確認
         $message = $I->lastMessage();
         $I->assertCount(2, $message->getRecipients(), 'Bcc で管理者にも送信するので宛先アドレスは2つ');
-        $I->seeEmailCount(1);
+        $I->seeEmailCount(2);
         foreach ([$customer->getEmail(), $BaseInfo->getEmail01()] as $email) {
             $I->seeInLastEmailSubjectTo($email, 'ご注文ありがとうございます');
             $I->seeInLastEmailTo($email, $customer->getName01().' '.$customer->getName02().' 様');
@@ -950,7 +950,7 @@ class EF03OrderCest
 
         ShoppingPage::at($I);
 
-        $I->see('「チェリーアイスサンド」の在庫が不足しております。一度に在庫数を超える購入はできません。', 'div:nth-child(2) > div > div.ec-alert-warning__text');
+        $I->see('「チェリーアイスサンド」の在庫が不足しております。一度に在庫数を超える購入はできません。', 'div:nth-child(2) > div > div> div > div.ec-alert-warning__text');
     }
 
     public function order_複数ブラウザでログインしてカートに追加する(AcceptanceTester $I)
@@ -1017,7 +1017,7 @@ class EF03OrderCest
             ->カートへ進む();
 
         $I->assertEquals(1, $CartPage->明細数());
-        $I->assertContains('チェリーアイスサンド', $CartPage->商品名(1));
+        $I->assertStringContainsString('チェリーアイスサンド', $CartPage->商品名(1));
 
         /*
          * ブラウザ2で未ログインのまま別の商品を入れる
@@ -1028,7 +1028,7 @@ class EF03OrderCest
             ->カートへ進む();
 
         $I->assertEquals(1, $CartPage->明細数());
-        $I->assertContains('彩のジェラートCUBE', $CartPage->商品名(1));
+        $I->assertStringContainsString('彩のジェラートCUBE', $CartPage->商品名(1));
 
         /*
          * ブラウザ2でログインするとブラウザ1のカートとマージされている

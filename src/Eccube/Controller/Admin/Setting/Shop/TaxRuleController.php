@@ -73,7 +73,7 @@ class TaxRuleController extends AbstractController
             ],
             $request
         );
-        $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_SETTING_SHOP_TAX_RULE_INDEX_INITIALIZE, $event);
+        $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_SETTING_SHOP_TAX_RULE_INDEX_INITIALIZE);
 
         $form = $builder->getForm();
 
@@ -92,7 +92,7 @@ class TaxRuleController extends AbstractController
                     ],
                     $request
                 );
-                $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_SETTING_SHOP_TAX_RULE_INDEX_COMPLETE, $event);
+                $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_SETTING_SHOP_TAX_RULE_INDEX_COMPLETE);
 
                 $this->addSuccess('admin.common.save_complete', 'admin');
 
@@ -108,7 +108,7 @@ class TaxRuleController extends AbstractController
         $errors = [];
         /** @var TaxRule $TaxRule */
         foreach ($TaxRules as $TaxRule) {
-            /* @var $builder \Symfony\Component\Form\FormBuilderInterface */
+            /** @var \Symfony\Component\Form\FormBuilderInterface $builder */
             $builder = $this->formFactory->createBuilder(TaxRuleType::class, $TaxRule);
             if ($TaxRule->isDefaultTaxRule()) {
                 $builder->remove('apply_date');
@@ -165,7 +165,7 @@ class TaxRuleController extends AbstractController
                 ],
                 $request
             );
-            $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_SETTING_SHOP_TAX_RULE_DELETE_COMPLETE, $event);
+            $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_SETTING_SHOP_TAX_RULE_DELETE_COMPLETE);
 
             $this->addSuccess('admin.common.delete_complete', 'admin');
         }

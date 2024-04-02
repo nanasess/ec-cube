@@ -55,7 +55,7 @@ if (!class_exists('\Eccube\Entity\Product')) {
             if (!$this->_calc) {
                 $i = 0;
                 foreach ($this->getProductClasses() as $ProductClass) {
-                    /* @var $ProductClass \Eccube\Entity\ProductClass */
+                    /** @var \Eccube\Entity\ProductClass $ProductClass */
                     // stock_find
                     if ($ProductClass->isVisible() == false) {
                         continue;
@@ -417,7 +417,7 @@ if (!class_exists('\Eccube\Entity\Product')) {
         {
             $ProductImages = $this->getProductImage();
 
-            return empty($ProductImages) ? null : $ProductImages[0];
+            return $ProductImages->isEmpty() ? null : $ProductImages[0];
         }
 
         public function getMainFileName()
@@ -462,28 +462,28 @@ if (!class_exists('\Eccube\Entity\Product')) {
         /**
          * @var string|null
          *
-         * @ORM\Column(name="note", type="string", length=4000, nullable=true)
+         * @ORM\Column(name="note", type="text", nullable=true)
          */
         private $note;
 
         /**
          * @var string|null
          *
-         * @ORM\Column(name="description_list", type="string", length=4000, nullable=true)
+         * @ORM\Column(name="description_list", type="text", nullable=true)
          */
         private $description_list;
 
         /**
          * @var string|null
          *
-         * @ORM\Column(name="description_detail", type="string", length=4000, nullable=true)
+         * @ORM\Column(name="description_detail", type="text", nullable=true)
          */
         private $description_detail;
 
         /**
          * @var string|null
          *
-         * @ORM\Column(name="search_word", type="string", length=4000, nullable=true)
+         * @ORM\Column(name="search_word", type="text", nullable=true)
          */
         private $search_word;
 

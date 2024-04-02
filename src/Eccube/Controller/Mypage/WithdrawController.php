@@ -104,7 +104,7 @@ class WithdrawController extends AbstractController
             ],
             $request
         );
-        $this->eventDispatcher->dispatch(EccubeEvents::FRONT_MYPAGE_WITHDRAW_INDEX_INITIALIZE, $event);
+        $this->eventDispatcher->dispatch($event, EccubeEvents::FRONT_MYPAGE_WITHDRAW_INDEX_INITIALIZE);
 
         $form = $builder->getForm();
 
@@ -126,7 +126,7 @@ class WithdrawController extends AbstractController
                 case 'complete':
                     log_info('退会処理開始');
 
-                    /* @var $Customer \Eccube\Entity\Customer */
+                    /** @var \Eccube\Entity\Customer $Customer */
                     $Customer = $this->getUser();
                     $email = $Customer->getEmail();
 
@@ -145,7 +145,7 @@ class WithdrawController extends AbstractController
                             'Customer' => $Customer,
                         ], $request
                     );
-                    $this->eventDispatcher->dispatch(EccubeEvents::FRONT_MYPAGE_WITHDRAW_INDEX_COMPLETE, $event);
+                    $this->eventDispatcher->dispatch($event, EccubeEvents::FRONT_MYPAGE_WITHDRAW_INDEX_COMPLETE);
 
                     // メール送信
                     $this->mailService->sendCustomerWithdrawMail($Customer, $email);

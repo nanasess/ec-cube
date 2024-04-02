@@ -62,7 +62,7 @@ class CategoryController extends AbstractController
      * @Route("/%eccube_admin_route%/product/category/{id}/edit", requirements={"id" = "\d+"}, name="admin_product_category_edit", methods={"GET", "POST"})
      * @Template("@admin/Product/category.twig")
      */
-    public function index(Request $request, $parent_id = null, $id = null, CacheUtil $cacheUtil)
+    public function index(Request $request, CacheUtil $cacheUtil, $parent_id = null, $id = null)
     {
         if ($parent_id) {
             /** @var Category $Parent */
@@ -105,7 +105,7 @@ class CategoryController extends AbstractController
             ],
             $request
         );
-        $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_CATEGORY_INDEX_INITIALIZE, $event);
+        $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_PRODUCT_CATEGORY_INDEX_INITIALIZE);
 
         $form = $builder->getForm();
 
@@ -138,7 +138,7 @@ class CategoryController extends AbstractController
                     ],
                     $request
                 );
-                $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_CATEGORY_INDEX_COMPLETE, $event);
+                $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_PRODUCT_CATEGORY_INDEX_COMPLETE);
 
                 $this->addSuccess('admin.common.save_complete', 'admin');
 
@@ -169,7 +169,7 @@ class CategoryController extends AbstractController
                         $request
                     );
 
-                    $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_CATEGORY_INDEX_COMPLETE, $event);
+                    $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_PRODUCT_CATEGORY_INDEX_COMPLETE);
 
                     $this->addSuccess('admin.common.save_complete', 'admin');
 
@@ -237,7 +237,7 @@ class CategoryController extends AbstractController
                     'TargetCategory' => $TargetCategory,
                 ], $request
             );
-            $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_CATEGORY_DELETE_COMPLETE, $event);
+            $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_PRODUCT_CATEGORY_DELETE_COMPLETE);
 
             $this->addSuccess('admin.common.delete_complete', 'admin');
 
@@ -270,7 +270,7 @@ class CategoryController extends AbstractController
         if ($this->isTokenValid()) {
             $sortNos = $request->request->all();
             foreach ($sortNos as $categoryId => $sortNo) {
-                /* @var $Category \Eccube\Entity\Category */
+                /** @var \Eccube\Entity\Category $Category */
                 $Category = $this->categoryRepository
                     ->find($categoryId);
                 $Category->setSortNo($sortNo);
@@ -319,7 +319,7 @@ class CategoryController extends AbstractController
             $this->csvExportService->exportData(function ($entity, $csvService) use ($request) {
                 $Csvs = $csvService->getCsvs();
 
-                /** @var $Category \Eccube\Entity\Category */
+                /** @var \Eccube\Entity\Category $Category */
                 $Category = $entity;
 
                 // CSV出力項目と合致するデータを取得.
@@ -336,12 +336,12 @@ class CategoryController extends AbstractController
                         ],
                         $request
                     );
-                    $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_CATEGORY_CSV_EXPORT, $event);
+                    $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_PRODUCT_CATEGORY_CSV_EXPORT);
 
                     $ExportCsvRow->pushData();
                 }
 
-                //$row[] = number_format(memory_get_usage(true));
+                // $row[] = number_format(memory_get_usage(true));
                 // 出力.
                 $csvService->fputcsv($ExportCsvRow->getRow());
             });
@@ -351,7 +351,6 @@ class CategoryController extends AbstractController
         $filename = 'category_'.$now->format('YmdHis').'.csv';
         $response->headers->set('Content-Type', 'application/octet-stream');
         $response->headers->set('Content-Disposition', 'attachment; filename='.$filename);
-        $response->send();
 
         log_info('カテゴリCSV出力ファイル名', [$filename]);
 

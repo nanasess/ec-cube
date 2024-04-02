@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class NavCompilerPass implements CompilerPassInterface
 {
-    const NAV_TAG = 'eccube.nav';
+    public const NAV_TAG = 'eccube.nav';
 
     public function process(ContainerBuilder $container)
     {
@@ -33,7 +33,7 @@ class NavCompilerPass implements CompilerPassInterface
                 throw new \InvalidArgumentException(sprintf('Service "%s" must implement interface "%s".', $id, EccubeNav::class));
             }
 
-            /** @var $class EccubeNav */
+            /** @var EccubeNav $class */
             $addNav = $class::getNav();
             $nav = array_replace_recursive($nav, $addNav);
         }

@@ -24,7 +24,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Class PluginServiceTest
  *
- * @group cache-clear
+ * @group plugin-service
  */
 class PluginServiceTest extends AbstractServiceTestCase
 {
@@ -41,20 +41,20 @@ class PluginServiceTest extends AbstractServiceTestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->service = self::$container->get(PluginService::class);
+        $this->service = static::getContainer()->get(PluginService::class);
         $this->pluginRepository = $this->entityManager->getRepository(\Eccube\Entity\Plugin::class);
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         $dirs = [];
         $finder = new Finder();
         $iterator = $finder
-            ->in(self::$container->getParameter('kernel.project_dir').'/app/Plugin')
+            ->in(static::getContainer()->getParameter('kernel.project_dir').'/app/Plugin')
             ->name('dummy*')
             ->directories();
         foreach ($iterator as $dir) {
@@ -66,7 +66,7 @@ class PluginServiceTest extends AbstractServiceTestCase
         }
 
         $files = Finder::create()
-            ->in(self::$container->getParameter('kernel.project_dir').'/app/proxy/entity')
+            ->in(static::getContainer()->getParameter('kernel.project_dir').'/app/proxy/entity')
             ->files();
         $f = new Filesystem();
         $f->remove($files);
@@ -100,7 +100,7 @@ class PluginServiceTest extends AbstractServiceTestCase
     {
         $f = new Filesystem();
 
-        return $f->remove($path);
+        $f->remove($path);
     }
 
     // 必要最小限のファイルのプラグインのインストールとアンインストールを検証
@@ -134,6 +134,13 @@ class PluginServiceTest extends AbstractServiceTestCase
         }
         // 同じプラグインの二重インストールが蹴られるか
 
+        // --if-not-exists オプションの検証
+        try {
+            $this->service->install($tmpfile, 0, true);
+        } catch (\Eccube\Exception\PluginException $e) {
+            $this->fail('--if-not-exists オプションを指定した場合は例外が発生しない: '.$e->getMessage());
+        }
+
         // アンインストールできるか
         $this->assertTrue((bool) $plugin = $this->pluginRepository->findOneBy(['code' => $tmpname]));
         $this->assertEquals(Constant::DISABLED, $plugin->isEnabled());
@@ -142,12 +149,10 @@ class PluginServiceTest extends AbstractServiceTestCase
 
     /**
      * 必須ファイルがないプラグインがインストール出来ないこと
-     *
-     * @expectedException \Eccube\Exception\PluginException
-     * @exceptedExceptionMessage config.yml not found or syntax error
      */
     public function testInstallPluginEmptyError()
     {
+        $this->expectException(\Eccube\Exception\PluginException::class);
         // インストールするプラグインを作成する
         $tmpname = 'dummy'.sha1(mt_rand());
         $tmpdir = $this->createTempDir();
@@ -246,12 +251,10 @@ class PluginServiceTest extends AbstractServiceTestCase
 
     /**
      * config.ymlに異常な項目がある場合
-     *
-     * @expectedException \Eccube\Exception\PluginException
-     * @exceptedExceptionMessage config.yml name empty
      */
     public function testnstallPluginMalformedConfigError()
     {
+        $this->expectException(\Eccube\Exception\PluginException::class);
         $tmpdir = $this->createTempDir();
         $tmpfile = $tmpdir.'/plugin.tar';
         $tar = new \PharData($tmpfile);
@@ -290,7 +293,7 @@ class PluginServiceTest extends AbstractServiceTestCase
 namespace Plugin\@@@@ ;
 
 use Eccube\Plugin\AbstractPluginManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 class PluginManager extends AbstractPluginManager
 {
@@ -357,7 +360,7 @@ EOD;
 namespace Plugin\@@@@ ;
 
 use Eccube\Plugin\AbstractPluginManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 class PluginManager extends AbstractPluginManager
 {
@@ -394,7 +397,7 @@ EOD;
         // インストールできるか、インストーラが呼ばれるか
         ob_start();
         $this->assertTrue($this->service->install($tmpfile));
-        $this->assertRegexp('/Installed/', ob_get_contents());
+        $this->assertMatchesRegularExpression('/Installed/', ob_get_contents());
         ob_end_clean();
         $this->assertFileExists(__DIR__."/../../../../app/Plugin/$tmpname/PluginManager.php");
 
@@ -402,18 +405,18 @@ EOD;
 
         ob_start();
         $this->service->enable($plugin);
-        $this->assertRegexp('/Enabled/', ob_get_contents());
+        $this->assertMatchesRegularExpression('/Enabled/', ob_get_contents());
         ob_end_clean();
         ob_start();
         $this->service->disable($plugin);
-        $this->assertRegexp('/Disabled/', ob_get_contents());
+        $this->assertMatchesRegularExpression('/Disabled/', ob_get_contents());
         ob_end_clean();
 
         // アンインストールできるか、アンインストーラが呼ばれるか
         ob_start();
         $this->service->disable($plugin);
         $this->assertTrue($this->service->uninstall($plugin));
-        $this->assertRegexp('/DisabledUninstalled/', ob_get_contents());
+        $this->assertMatchesRegularExpression('/DisabledUninstalled/', ob_get_contents());
         ob_end_clean();
     }
 
@@ -560,7 +563,7 @@ EOD;
 namespace Plugin\@@@@ ;
 
 use Eccube\Plugin\AbstractPluginManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 class PluginManager extends AbstractPluginManager
 {
@@ -655,7 +658,7 @@ EOD;
         ob_start();
         $this->assertTrue($this->service->install($tmpfile));
 
-        $this->assertRegexp('/Installed/', ob_get_contents());
+        $this->assertMatchesRegularExpression('/Installed/', ob_get_contents());
         ob_end_clean();
         $this->assertFileExists(__DIR__."/../../../../app/Plugin/$tmpname/Entity/Block.php");
         $this->assertFileExists(__DIR__."/../../../../app/Plugin/$tmpname/Entity/BlockTrait.php");
@@ -664,7 +667,7 @@ EOD;
 
         ob_start();
         $this->service->enable($plugin);
-        $this->assertRegexp('/Enabled/', ob_get_contents());
+        $this->assertMatchesRegularExpression('/Enabled/', ob_get_contents());
         ob_end_clean();
 
         // check to Entity and Trait
@@ -677,14 +680,14 @@ EOD;
 
         ob_start();
         $this->service->disable($plugin);
-        $this->assertRegexp('/Disabled/', ob_get_contents());
+        $this->assertMatchesRegularExpression('/Disabled/', ob_get_contents());
         ob_end_clean();
 
         // アンインストールできるか、アンインストーラが呼ばれるか
         ob_start();
         $this->service->disable($plugin);
         $this->assertTrue($this->service->uninstall($plugin));
-        $this->assertRegexp('/DisabledUninstalled/', ob_get_contents());
+        $this->assertMatchesRegularExpression('/DisabledUninstalled/', ob_get_contents());
         ob_end_clean();
     }
 
@@ -698,7 +701,7 @@ EOD;
 
         $this->service->removeAssets($code);
 
-        $this->assertFileNotExists($dir);
+        $this->assertFileDoesNotExist($dir);
     }
 
     public function testReadConfigNormalizeSourceToZero()
