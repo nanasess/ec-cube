@@ -18,6 +18,7 @@ use Eccube\Common\EccubeConfig;
 use Eccube\Entity\Plugin;
 use Eccube\Repository\PluginRepository;
 use Page\Admin\CacheManagePage;
+use Page\Admin\MasterDataManagePage;
 use Page\Admin\PluginLocalInstallPage;
 use Page\Admin\PluginManagePage;
 use Page\Admin\PluginSearchPage;
@@ -487,6 +488,22 @@ class EA10PluginCest
             ->有効化()
             ->アップデート()
             ->有効化()
+            ->無効化()
+            ->削除();
+    }
+
+    public function test_master_entity_extension(AcceptanceTester $I)
+    {
+        $MasterEntityExtension = MasterEntityExtension_Local::start($I);
+
+        $MasterEntityExtension->インストール()
+            ->有効化()
+            ->検証();
+        $I->expect('Entity拡張したマスタデータが選択できることを確認します。');
+        MasterDataManagePage::go($I)->選択('mtb_device_type');
+        $I->see('保存しました', '.c-contentsArea .alert-success');
+
+        $MasterEntityExtension
             ->無効化()
             ->削除();
     }
@@ -1072,5 +1089,19 @@ class Bundle_Store extends Store_Plugin
     public static function start(AcceptanceTester $I)
     {
         return new self($I);
+    }
+}
+
+class MasterEntityExtension_Local extends Local_Plugin
+{
+    public function __construct(AcceptanceTester $I, Store_Plugin $dependency = null)
+    {
+        parent::__construct($I, 'MasterEntityExtension', $dependency);
+        $this->traits['\Plugin\MasterEntityExtension\Entity\DeviceTypeTrait'] = 'src/Eccube/Entity/Master/DeviceType';
+    }
+
+    public static function start(AcceptanceTester $I, Store_Plugin $dependency = null)
+    {
+        return new self($I, $dependency);
     }
 }
