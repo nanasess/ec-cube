@@ -1,0 +1,43 @@
+name: CI/CD for EC-CUBE
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+    paths:
+      - '**'
+      - '!*.md'
+  pull_request:
+    paths:
+      - '**'
+      - '!*.md'
+jobs:
+  dockerbuild:
+    with:
+      event_name: ${{ github.event_name }}
+    uses: ./.github/workflows/dockerbuild.yml
+  phpstan:
+    with:
+      ref_name: ${{ github.ref_name }}
+      base_ref: ${{ github.base_ref }}
+      event_name: ${{ github.event_name }}
+      owner: ${{ github.repository_owner }}
+    needs: [ dockerbuild ]
+    uses: ./.github/workflows/phpstan.yml
+  # unit-tests:
+  #   needs: [ PHPStan ]
+  #   uses: ./.github/workflows/unit-tests.yml
+  # e2e-test:
+  #   needs: [ PHPStan ]
+  #   uses: ./.github/workflows/e2e-test.yml
+  # plugin-test:
+  #   needs: [ PHPStan ]
+  #   uses: ./.github/workflows/plugin-test.yml
+  # e2e-test-throttling:
+  #   needs: [ e2e-test ]
+  #   uses: ./.github/workflows/e2e-test-throttling.yml
+  # deny-test:
+  #   needs: [ UnitTest ]
+  #   uses: ./.github/workflows/deny-test.yml

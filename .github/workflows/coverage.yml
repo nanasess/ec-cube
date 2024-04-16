@@ -1,17 +1,18 @@
 name: Coverage
 on:
-  push:
-    branches:
-      - '*'
-    tags:
-      - '*'
-    paths:
-      - '**'
-      - '!*.md'
-  pull_request:
-    paths:
-      - '**'
-      - '!*.md'
+  workflow_call:
+  # push:
+  #   branches:
+  #     - '*'
+  #   tags:
+  #     - '*'
+  #   paths:
+  #     - '**'
+  #     - '!*.md'
+  # pull_request:
+  #   paths:
+  #     - '**'
+  #     - '!*.md'
 jobs:
   phpunit:
     name: PHPUnit

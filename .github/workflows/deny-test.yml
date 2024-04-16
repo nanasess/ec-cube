@@ -1,17 +1,19 @@
 name: Deny check for EC-CUBE
 on:
-  push:
-    branches:
-      - '*'
-    tags:
-      - '*'
-    paths:
-      - '**'
-      - '!*.md'
-  pull_request:
-    paths:
-      - '**'
-      - '!*.md'
+  workflow_call:
+# on:
+#   push:
+#     branches:
+#       - '*'
+#     tags:
+#       - '*'
+#     paths:
+#       - '**'
+#       - '!*.md'
+#   pull_request:
+#     paths:
+#       - '**'
+#       - '!*.md'
 jobs:
   deploy:
     name: Deny check

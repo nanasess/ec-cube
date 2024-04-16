@@ -1,35 +1,49 @@
 name: PHPStan
-on:
-  push:
-    branches:
-      - '*'
-    tags:
-      - '*'
-    paths:
-      - '**'
-      - '!*.md'
-  pull_request:
-    paths:
-      - '**'
-      - '!*.md'
+run-name: PHPStan
 
+on:
+  workflow_call:
+    inputs:
+      ref_name:
+        required: false
+        type: string
+      base_ref:
+        required: false
+        type: string
+      event_name:
+        required: true
+        type: string
+      owner:
+        required: true
+        type: string
 jobs:
   phpstan:
     name: PHPStan
-
     runs-on: ubuntu-latest
-
     steps:
     - name: "Checkout"
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
-    - name: Setup PHP
-      uses: nanasess/setup-php@master
+    - name: Build docker image
+      uses: ./.github/actions/dockerbuild
       with:
-        php-version: '8.1'
+        php-version: '8.3'
 
-    - name: Initialize Composer
-      uses: ./.github/actions/composer
-
-    - name: PHPStan
-      run: vendor/bin/phpstan analyze src/ --error-format=github
+    - name: Setup environment
+      env:
+        REF_NAME: ${{ inputs.ref_name }}
+        BASE_REF: ${{ inputs.base_ref }}
+        EVENT_NAME: ${{ inputs.event_name }}
+        OWNER: ${{ inputs.owner }}
+      run: |
+        echo "COMPOSE_FILE=docker-compose.yml:docker-compose.pgsql.yml:docker-compose.dev.yml" >> $GITHUB_ENV
+        echo "IMAGE_NAME=${OWNER,,}/ec-cube-php" >> $GITHUB_ENV
+        if [ $EVENT_NAME = "pull_request" ]; then
+          echo "TAG=8.3-apache-${BASE_REF}" >> $GITHUB_ENV
+        else
+          echo "TAG=8.3-apache-${REF_NAME}" >> $GITHUB_ENV
+        fi
+    - run: |
+        docker compose up -d --wait
+        docker compose exec -T ec-cube composer install
+    - run: docker compose exec -T ec-cube php vendor/bin/phpstan --no-progress analyze src/ --error-format=github

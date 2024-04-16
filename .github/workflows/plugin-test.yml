@@ -1,17 +1,19 @@
 name: Plugin test for EC-CUBE
 on:
-  push:
-    branches:
-      - '*'
-    tags:
-      - '*'
-    paths:
-      - '**'
-      - '!*.md'
-  pull_request:
-    paths:
-      - '**'
-      - '!*.md'
+  workflow_call:
+# on:
+#   push:
+#     branches:
+#       - '*'
+#     tags:
+#       - '*'
+#     paths:
+#       - '**'
+#       - '!*.md'
+#   pull_request:
+#     paths:
+#       - '**'
+#       - '!*.md'
 jobs:
   plugin-install:
     name: Plugin install
