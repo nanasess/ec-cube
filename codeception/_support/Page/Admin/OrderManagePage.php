@@ -146,6 +146,8 @@ class OrderManagePage extends AbstractAdminPageStyleGuide
     public function 一覧_編集($rowNum)
     {
         $this->tester->click("#search_result > tbody > tr:nth-child(${rowNum}) a.action-edit");
+
+        return $this;
     }
 
     public function 一覧_削除()
@@ -318,5 +320,34 @@ class OrderManagePage extends AbstractAdminPageStyleGuide
         }
 
         $this->tester->assertEquals($expect, $values);
+    }
+
+    public function 遷移_メールを作成()
+    {
+        // メール履歴が多いと、フッターに隠れるため
+        $this->tester->wait(1);
+        $this->tester->scrollTo('#mailHistory > div > div > a');
+        $this->tester->wait(1);
+        $this->tester->seeElement('#mailHistory > div > div > a');
+        $this->tester->click('#mailHistory > div > div > a');
+        $this->tester->wait(1);
+        $this->tester->click('#confirmFormChangeModal > div > div > div.modal-footer > a.btn.btn-ec-sub');
+
+        return $this;
+    }
+
+    public function 選択_メールテンプレート($value)
+    {
+        $this->tester->selectOption('#template-change', $value);
+
+        return $this;
+    }
+
+    public function メール送信()
+    {
+        $this->tester->click("#order-mail-form > div.c-conversionArea > div > div > div:nth-child(2) > div > div > button");
+        $this->tester->click("#order-mail-form > div > div.c-conversionArea > div > div > div:nth-child(2) > div > div > button");
+
+        return $this;
     }
 }

@@ -46,7 +46,7 @@ class NewsManagePage extends AbstractAdminPage
 
     public function 一覧_編集($rowNum)
     {
-        $this->tester->click(".c-contentsArea .list-group > li:nth-child(${rowNum}) a[data-bs-original-title=編集]");
+        $this->tester->click(".c-contentsArea .list-group > li:nth-child({$rowNum}) a[data-bs-original-title=編集]");
 
         return $this;
     }

@@ -60,26 +60,26 @@ class FileManagePage extends AbstractAdminPageStyleGuide
 
     public function ファイル名($rowNum)
     {
-        return "#fileList table > tbody > tr:nth-child(${rowNum}) > td:nth-child(2)";
+        return "#fileList table > tbody > tr:nth-child({$rowNum}) > td:nth-child(2)";
     }
 
     public function 一覧_ダウンロード($rowNum)
     {
-        $this->tester->click("#fileList table > tbody > tr:nth-child(${rowNum}) > td:nth-child(5) a.action-download");
+        $this->tester->click("#fileList table > tbody > tr:nth-child({$rowNum}) > td:nth-child(5) a.action-download");
 
         return $this;
     }
 
     public function 一覧_表示($rowNum)
     {
-        $this->tester->click("#fileList table > tbody > tr:nth-child(${rowNum}) > td:nth-child(5) a.action-view");
+        $this->tester->click("#fileList table > tbody > tr:nth-child({$rowNum}) > td:nth-child(5) a.action-view");
 
         return $this;
     }
 
     public function 一覧_パスをコピー($rowNum)
     {
-        $this->tester->click("#fileList table > tbody > tr:nth-child(${rowNum}) > td:nth-child(5) a.action-copy");
+        $this->tester->click("#fileList table > tbody > tr:nth-child({$rowNum}) > td:nth-child(5) a.action-copy");
 
         return $this;
     }

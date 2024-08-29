@@ -55,7 +55,9 @@ class EA08SysteminfoCest
         $I->see('WEBサーバー', '#server_info_box__body_inner > div:nth-child(4) > div:first-child');
         $I->see('PHP', '#server_info_box__body_inner > div:nth-child(5) > div:first-child');
         $I->see('User Agent', '#server_info_box__body_inner > div:nth-child(6) > div:first-child');
-        $I->see('PHP情報', '#php_info_box__header > div > span');
+        if ($config['eccube_phpinfo_enabled'] == 1) {
+            $I->see('PHP情報', '#php_info_box__header > div > span');
+        }
 
         $I->expect('session.save_path をチェックします');
         $I->amOnPage('/'.$config['eccube_admin_route'].'/setting/system/system/phpinfo');
@@ -390,7 +392,7 @@ class EA08SysteminfoCest
 
         // URL直でもアクセスできないことを確認
         $config = Fixtures::get('config');
-        $I->amOnPage("/${config['eccube_admin_route']}/setting/system/member");
+        $I->amOnPage("/{$config['eccube_admin_route']}/setting/system/member");
         $I->seeInTitle('アクセスできません');
 
         // 設定を削除
@@ -410,7 +412,7 @@ class EA08SysteminfoCest
         $I->wait(1);
         $I->see('システム設定', '#nav-setting');
 
-        $I->amOnPage("/${config['eccube_admin_route']}/setting/system/member");
+        $I->amOnPage("/{$config['eccube_admin_route']}/setting/system/member");
         $I->seeInTitle('メンバー管理');
     }
 
@@ -433,7 +435,7 @@ class EA08SysteminfoCest
 
         // アクセスして確認
         $config = Fixtures::get('config');
-        $I->amOnPage("/${config['eccube_admin_route']}/content/news");
+        $I->amOnPage("/{$config['eccube_admin_route']}/content/news");
         $I->seeInTitle('アクセスできません');
     }
 
@@ -455,7 +457,7 @@ class EA08SysteminfoCest
 
         // アクセスして確認
         $config = Fixtures::get('config');
-        $I->amOnPage("/${config['eccube_admin_route']}/content/news");
+        $I->amOnPage("/{$config['eccube_admin_route']}/content/news");
         $I->seeInTitle('コンテンツ管理');
     }
 
