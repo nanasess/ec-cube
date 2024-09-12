@@ -500,9 +500,10 @@ class EA10PluginCest
             ->有効化()
             ->検証();
         $I->expect('Entity拡張したマスタデータが選択できることを確認します。');
-        MasterDataManagePage::go($I)->選択('mtb_device_type');
+        MasterDataManagePage::go($I)->選択('mtb_device_type')
+            ->保存();
         $I->see('保存しました', '.c-contentsArea .alert-success');
-
+        PluginLocalInstallPage::go($I);
         $MasterEntityExtension
             ->無効化()
             ->削除();
