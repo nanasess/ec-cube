@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ ubuntu-22.04 ]
+        operating-system: [ ubuntu-24.04 ]
         php: [ '8.1' ]
         db: [ pgsql, mysql ]
         method:
@@ -159,7 +159,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ ubuntu-22.04 ]
+        operating-system: [ ubuntu-24.04 ]
         php: [ '8.1' ]
         db: [ pgsql, mysql ]
         method:
@@ -308,7 +308,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ ubuntu-22.04 ]
+        operating-system: [ ubuntu-24.04 ]
         php: [ '8.1' ]
         db: [ pgsql, mysql ]
         method:
@@ -457,7 +457,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ ubuntu-22.04 ]
+        operating-system: [ ubuntu-24.04 ]
         php: [ '8.1' ]
         db: [ pgsql, mysql ]
         method:
