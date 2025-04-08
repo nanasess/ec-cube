@@ -108,9 +108,15 @@ jobs:
           bin/console doctrine:database:create --env=dev
           bin/console doctrine:schema:create --env=dev
           bin/console eccube:fixtures:load --env=dev
-
+      - run: |
+           curl -O https://storage.googleapis.com/chrome-for-testing-public/129.0.6616.0/linux64/chrome-linux64.zip
+           unzip chrome-linux64.zip
+           rm -rf /opt/google/chrome
+           mv chrome-linux64 /opt/google/chrome
       - name: setup-chromedriver
         uses: nanasess/setup-chromedriver@master
+        with:
+          chromedriver-version: 129.0.6616.0
 
       - name: Install fonts
         run: sudo apt install fonts-ipafont fonts-ipaexfont
