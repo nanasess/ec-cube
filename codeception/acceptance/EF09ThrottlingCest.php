@@ -14,9 +14,10 @@
 use Codeception\Util\Fixtures;
 use Page\Front\CartPage;
 use Page\Front\CustomerAddressAddPage;
+use Page\Front\CustomerAddressChangePage;
 use Page\Front\CustomerAddressEditPage;
 use Page\Front\CustomerAddressListPage;
-use Page\Front\CustomerAddressChangePage;
+use Page\Front\EntryPage;
 use Page\Front\MultipleShippingPage;
 use Page\Front\MyPage;
 use Page\Front\ProductDetailPage;
@@ -24,8 +25,6 @@ use Page\Front\ShoppingConfirmPage;
 use Page\Front\ShoppingLoginPage;
 use Page\Front\ShoppingNonmemberPage;
 use Page\Front\ShoppingPage;
-use Page\Front\EntryPage;
-
 
 /**
  * @group throttling
@@ -164,6 +163,7 @@ class EF09ThrottlingCest
             $this->contact($I);
             $this->contactConfirm($I);
             $this->contactComplete($I);
+            $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
             $I->see('お問い合わせ(完了)', 'div.ec-pageHeader h1');
         }
 
@@ -214,6 +214,7 @@ class EF09ThrottlingCest
             $I->amOnPage('/forgot');
             $I->fillField('login_email', 'test@example.com');
             $I->click('次へ');
+            $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
             $I->see('パスワードの再発行(メール送信)', 'div.ec-pageHeader h1');
         }
 
@@ -240,6 +241,7 @@ class EF09ThrottlingCest
             $ShoppingPage = ShoppingLoginPage::at($I)->ゲスト購入();
             $this->inputGuestInfo($ShoppingPage)->次へ();
             // 注文確認画面へ
+            $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
             ShoppingPage::at($I)->確認する();
             // 注文完了
             ShoppingConfirmPage::at($I)->注文する();
@@ -292,6 +294,7 @@ class EF09ThrottlingCest
             // レジに進む
             CartPage::go($I)->レジに進む();
             // 注文確認画面へ
+            $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
             ShoppingPage::at($I)->確認する();
             // 注文完了
             ShoppingConfirmPage::at($I)->注文する();
@@ -313,6 +316,7 @@ class EF09ThrottlingCest
      * confirmでの制限に引っかかるため、confirmLimiterの上限値を変更してから実施してください。
      *
      * @param AcceptanceTester $I
+     *
      * @return void
      */
     public function 注文完了_非会員購入(AcceptanceTester $I)
@@ -331,6 +335,7 @@ class EF09ThrottlingCest
             $ShoppingPage = ShoppingLoginPage::at($I)->ゲスト購入();
             $this->inputGuestInfo($ShoppingPage)->次へ();
             // 注文確認画面へ
+            $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
             ShoppingPage::at($I)->確認する();
             // 注文完了
             ShoppingConfirmPage::at($I)->注文する();
@@ -357,6 +362,7 @@ class EF09ThrottlingCest
      * confirmでの制限に引っかかるため、confirmLimiterの上限値を変更してから実施してください。
      *
      * @param AcceptanceTester $I
+     *
      * @return void
      */
     public function 注文完了_会員購入(AcceptanceTester $I)
@@ -374,6 +380,7 @@ class EF09ThrottlingCest
             // レジに進む
             CartPage::go($I)->レジに進む();
             // 注文確認画面へ
+            $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
             ShoppingPage::at($I)->確認する();
             // 注文完了
             ShoppingConfirmPage::at($I)->注文する();
@@ -394,6 +401,7 @@ class EF09ThrottlingCest
 
     /**
      * @param AcceptanceTester $I
+     *
      * @return void
      */
     public function 会員情報編集(AcceptanceTester $I)
@@ -427,6 +435,7 @@ class EF09ThrottlingCest
 
     /**
      * @param AcceptanceTester $I
+     *
      * @return void
      */
     public function 配送先情報_追加(AcceptanceTester $I)
@@ -485,6 +494,7 @@ class EF09ThrottlingCest
 
     /**
      * @param AcceptanceTester $I
+     *
      * @return void
      */
     public function 配送先情報_編集(AcceptanceTester $I)
@@ -532,7 +542,7 @@ class EF09ThrottlingCest
                 ->入力_番地_ビル名('梅田2-4-9 ブリーゼタワー13F')
                 ->入力_電話番号('111-111-111')
                 ->登録する();
-            }
+        }
 
         $I->expect('試行回数上限を超過します');
         $I->wait(10);
@@ -564,6 +574,7 @@ class EF09ThrottlingCest
      * customer_delivery_newでの制限に引っかかるため、customer_delivery_newのlimiter上限値を変更してから実施してください。
      *
      * @param AcceptanceTester $I
+     *
      * @return void
      */
     public function 配送先情報_削除(AcceptanceTester $I)
@@ -591,7 +602,7 @@ class EF09ThrottlingCest
                 ->入力_番地_ビル名('梅田2-4-9 ブリーゼタワー13F')
                 ->入力_電話番号('111-111-111')
                 ->登録する();
-         }
+        }
 
         for ($i = 0; $i < 10; $i++) {
             $I->expect('お届け先を削除します。：'.$i);
@@ -628,6 +639,7 @@ class EF09ThrottlingCest
 
     /**
      * @param AcceptanceTester $I
+     *
      * @return void
      */
     public function order_お届け先追加(AcceptanceTester $I)
@@ -693,6 +705,7 @@ class EF09ThrottlingCest
 
     /**
      * @param AcceptanceTester $I
+     *
      * @return void
      */
     public function order_お届け先変更(AcceptanceTester $I)
@@ -779,9 +792,10 @@ class EF09ThrottlingCest
         // 二段階認証を有効にしてメンバーを新規作成
         $config = Fixtures::get('config');
         $I->amOnPage('/'.$config['eccube_admin_route'].'/setting/system/member/new');
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->see('メンバー登録システム設定', '.c-pageTitle');
 
-        $login_id = 'admin_'.\Eccube\Util\StringUtil::random(6);
+        $login_id = 'admin_'.Eccube\Util\StringUtil::random(6);
         $password = 'password1234';
         $I->fillField(['id' => 'admin_member_name'], '管理者');
         $I->fillField(['id' => 'admin_member_department'], 'admin_throttling');
@@ -804,10 +818,11 @@ class EF09ThrottlingCest
 
         // 二段階認証のセットアップ
         $secret = $I->executeJS('return $("#admin_two_factor_auth_auth_key").val();');
-        $tfa = new \RobThree\Auth\TwoFactorAuth();
+        $tfa = new RobThree\Auth\TwoFactorAuth();
         $code = $tfa->getCode($secret);
         $I->fillField(['id' => 'admin_two_factor_auth_device_token'], $code);
         $I->click('登録');
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->see('ホーム', '.c-contentsArea .c-pageTitle > .c-pageTitle__titles');
 
         // ログアウトし、二段階認証を試行する

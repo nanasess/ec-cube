@@ -33,6 +33,9 @@ abstract class AbstractAdminPage extends AbstractPage
         $this->tester->amOnPage($adminUrl);
 
         if ($pageTitle) {
+            // XXX amOnPage() をコールした直後に selector を参照すると遷移が完了しない場合があるので wait() を入れる
+            $this->tester->wait(3);
+
             return $this->atPage($pageTitle);
         } else {
             $this->tester->wait(5);
