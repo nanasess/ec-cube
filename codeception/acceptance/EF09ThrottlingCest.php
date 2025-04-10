@@ -170,6 +170,7 @@ class EF09ThrottlingCest
         $I->expect('試行回数上限を超過します');
         $this->contact($I);
         $this->contactConfirm($I);
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $this->contactComplete($I);
         $I->see('試行回数の上限を超過しました。しばらくお待ちいただき、再度お試しください。', 'p.ec-reportDescription');
     }
@@ -257,6 +258,7 @@ class EF09ThrottlingCest
         $ShoppingPage = ShoppingLoginPage::at($I)->ゲスト購入();
         $this->inputGuestInfo($ShoppingPage)->次へ();
         // 注文確認画面へ
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         ShoppingPage::at($I)->確認する();
         $I->see('試行回数の上限を超過しました。しばらくお待ちいただき、再度お試しください。', 'p.ec-reportDescription');
     }
@@ -839,13 +841,14 @@ class EF09ThrottlingCest
         for ($i = 0; $i < 5; $i++) {
             $I->fillField(['id' => 'admin_two_factor_auth_device_token'], 'aaaaa'.$i);
             $I->click('認証');
+            $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
             $I->waitForText('トークンに誤りがあります。再度入力してください。');
         }
 
         // トークン入力の試行回数制限を超過
         $I->fillField(['id' => 'admin_two_factor_auth_device_token'], 'aaaaaa');
         $I->click('認証');
-
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->see('試行回数の上限を超過しました。しばらくお待ちいただき、再度お試しください。', 'p');
     }
 }
