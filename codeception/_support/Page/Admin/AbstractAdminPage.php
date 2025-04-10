@@ -14,7 +14,6 @@
 namespace Page\Admin;
 
 use Codeception\Util\Fixtures;
-use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Page\AbstractPage;
 
 abstract class AbstractAdminPage extends AbstractPage
@@ -46,9 +45,9 @@ abstract class AbstractAdminPage extends AbstractPage
                     $this->tester->waitForJS("return location.pathname + location.search == '{$adminUrl}'");
                 }
                 break;
-            } catch (StaleElementReferenceException $e) {
+            } catch (\Exception $e) {
                 $attempts++;
-                $this->tester->expect('StaleElementReferenceException が発生したためリトライします('.$attempts.'/'.$maxAttempts.')');
+                $this->tester->expect('StaleElementReferenceException が発生したためリトライします('.$attempts.'/'.$maxAttempts.'): '.$e->getMessage());
                 $this->tester->wait(1);
             }
         }
