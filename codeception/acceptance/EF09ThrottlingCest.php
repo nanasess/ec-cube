@@ -353,6 +353,7 @@ class EF09ThrottlingCest
         $ShoppingPage = ShoppingLoginPage::at($I)->ゲスト購入();
         $this->inputGuestInfo($ShoppingPage)->次へ();
         // 注文確認画面へ
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         ShoppingPage::at($I)->確認する();
         // 注文完了
         ShoppingConfirmPage::at($I)->注文する();
@@ -608,6 +609,7 @@ class EF09ThrottlingCest
 
         for ($i = 0; $i < 10; $i++) {
             $I->expect('お届け先を削除します。：'.$i);
+            $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
             CustomerAddressListPage::at($I)
                 ->削除(1);
         }
