@@ -14,6 +14,7 @@
 namespace Page\Admin;
 
 use Codeception\Util\Fixtures;
+use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Page\AbstractPage;
 
 abstract class AbstractAdminPage extends AbstractPage
@@ -30,16 +31,26 @@ abstract class AbstractAdminPage extends AbstractPage
     {
         $config = Fixtures::get('config');
         $adminUrl = '/'.$config['eccube_admin_route'].$url;
-        $this->tester->amOnPage($adminUrl);
 
-        if ($pageTitle) {
-            // XXX amOnPage() をコールした直後に selector を参照すると遷移が完了しない場合があるので wait() を入れる
-            $this->tester->wait(3);
+        // XXX amOnPage() をコール直後に selector を参照すると、遷移しない場合があるためリトライする
+        $attempts = 0;
+        $maxAttempts = 10;
+        while ($attempts < $maxAttempts) {
+            try {
+                $this->tester->amOnPage($adminUrl);
 
-            return $this->atPage($pageTitle);
-        } else {
-            $this->tester->wait(5);
-            $this->tester->waitForJS("return location.pathname + location.search == '{$adminUrl}'");
+                if ($pageTitle) {
+                    return $this->atPage($pageTitle);
+                } else {
+                    $this->tester->wait(5);
+                    $this->tester->waitForJS("return location.pathname + location.search == '{$adminUrl}'");
+                }
+                break;
+            } catch (StaleElementReferenceException $e) {
+                $attempts++;
+                $this->tester->expect('StaleElementReferenceException が発生したためリトライします('.$attempts.'/'.$maxAttempts.')');
+                $this->tester->wait(1);
+            }
         }
 
         return $this;
