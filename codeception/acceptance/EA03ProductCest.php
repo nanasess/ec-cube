@@ -632,6 +632,9 @@ class EA03ProductCest
         $I->see('削除しました', ClassNameManagePage::$登録完了メッセージ);
     }
 
+    /**
+     * @group change-display-order
+     */
     public function product_規格表示順の変更(AcceptanceTester $I)
     {
         $I->wantTo('EA0303-UC04-T01 規格表示順の変更');
@@ -659,6 +662,9 @@ class EA03ProductCest
         $I->assertTrue(file_exists($file));
     }
 
+    /**
+     * @group change-display-order
+     */
     public function product_分類表示順の変更(AcceptanceTester $I)
     {
         $I->wantTo('EA0311-UC01-T01 分類表示順の変更');
@@ -799,6 +805,9 @@ class EA03ProductCest
             ->acceptModal();
     }
 
+    /**
+     * @group change-display-order
+     */
     public function product_カテゴリ表示順の変更(AcceptanceTester $I)
     {
         $I->wantTo('EA0305-UC03-T01 カテゴリ表示順の変更');
