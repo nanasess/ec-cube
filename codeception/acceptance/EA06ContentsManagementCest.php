@@ -145,6 +145,7 @@ class EA06ContentsManagementCest
             FileManagePage::go($I)
                 ->一覧_削除(1)
                 ->一覧_削除_accept(1);
+            $I->wait(0.1); // XXX 画面遷移直後は selector の参照に失敗するため wait を入れる
             $I->dontSee('folder1', $FileManagePage->ファイル名(1));
         } finally {
             $fs->mirror($backupDir, $user_data);
@@ -409,6 +410,7 @@ class EA06ContentsManagementCest
             ->ポップアップを受け入れます();
 
         $I->amOnPage('/');
+        $this->wait(3); // XXX 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->dontSeeElement(['id' => $block]);
     }
 
@@ -450,7 +452,6 @@ class EA06ContentsManagementCest
             ->登録();
         $I->amOnPage('/');
         $I->reloadPage();
-        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->waitForText('お気に入り', 10, '.ec-headerNaviRole');
     }
 
@@ -482,13 +483,11 @@ class EA06ContentsManagementCest
         )->登録();
         $I->amOnPage('/');
         $I->reloadPage();
-        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->waitForText($test_text, 10, '.ec-headerNaviRole');
 
         JavaScriptManagePage::go($I)->入力('/* */')->登録();
         $I->amOnPage('/');
         $I->reloadPage();
-        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->dontSee($test_text, '.ec-headerNaviRole');
     }
 
