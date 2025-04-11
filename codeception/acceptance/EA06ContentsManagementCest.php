@@ -86,6 +86,7 @@ class EA06ContentsManagementCest
     /**
      * @env firefox
      * @env chrome
+     *
      * @group vaddy
      */
     public function contentsmanagement_ファイル管理(AcceptanceTester $I)
@@ -283,7 +284,6 @@ class EA06ContentsManagementCest
         $I->waitForText('この機能は管理者によって制限されています。');
     }
 
-
     public function contentsmanagement_レイアウト管理(AcceptanceTester $I)
     {
         $I->wantTo('EA0605-UC01-T01 (& UC01-T02 / UC01-T03) レイアウト管理（新規作成・編集・削除）');
@@ -433,7 +433,6 @@ class EA06ContentsManagementCest
         $I->waitForText('この機能は管理者によって制限されています。');
     }
 
-
     public function contentsmanagement_CSS管理(AcceptanceTester $I)
     {
         $I->wantTo('EA0606-UC01-T01_CSS管理');
@@ -443,6 +442,7 @@ class EA06ContentsManagementCest
         )->登録();
         $I->amOnPage('/');
         $I->reloadPage();
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->dontSee('お気に入り', '.ec-headerNaviRole');
 
         CssManagePage::go($I)
@@ -450,6 +450,7 @@ class EA06ContentsManagementCest
             ->登録();
         $I->amOnPage('/');
         $I->reloadPage();
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->waitForText('お気に入り', 10, '.ec-headerNaviRole');
     }
 
@@ -481,11 +482,13 @@ class EA06ContentsManagementCest
         )->登録();
         $I->amOnPage('/');
         $I->reloadPage();
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->waitForText($test_text, 10, '.ec-headerNaviRole');
 
         JavaScriptManagePage::go($I)->入力('/* */')->登録();
         $I->amOnPage('/');
         $I->reloadPage();
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->dontSee($test_text, '.ec-headerNaviRole');
     }
 
@@ -506,7 +509,6 @@ class EA06ContentsManagementCest
         $I->waitForText('この機能は管理者によって制限されています。');
     }
 
-
     public function contentsmanagement_メンテナンス管理(AcceptanceTester $I)
     {
         $I->wantTo('EA0607-UC08-T01_メンテナンス管理');
@@ -518,7 +520,7 @@ class EA06ContentsManagementCest
 
         $I->expect('トップページを確認します');
         $I->amOnPage('/');
-        $I->waitForText('メンテナンスモードが有効になっています。',  10,'#page_homepage > div.ec-maintenanceAlert > div');
+        $I->waitForText('メンテナンスモードが有効になっています。', 10, '#page_homepage > div.ec-maintenanceAlert > div');
         $I->waitForText('全ての商品', 10, TopPage::$検索_カテゴリ選択);
 
         $I->expect('ログアウトします');

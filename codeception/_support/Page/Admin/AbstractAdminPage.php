@@ -30,10 +30,23 @@ abstract class AbstractAdminPage extends AbstractPage
     {
         $config = Fixtures::get('config');
         $adminUrl = '/'.$config['eccube_admin_route'].$url;
-        $this->tester->amOnPage($adminUrl);
 
         if ($pageTitle) {
-            return $this->atPage($pageTitle);
+            // XXX amOnPage() をコール直後に selector を参照すると、遷移しない場合があるためリトライする
+            $attempts = 0;
+            $maxAttempts = 10;
+            while ($attempts < $maxAttempts) {
+                $this->tester->amOnPage($adminUrl);
+                $title = $this->tester->grabTextFrom('.c-pageTitle');
+
+                if ($title != $pageTitle) {
+                    $attempts++;
+                    $this->tester->expect('遷移に失敗したためリトライします('.$attempts.'/'.$maxAttempts.')');
+                    $this->tester->wait(1);
+                } else {
+                    return $this->atPage($pageTitle);
+                }
+            }
         } else {
             $this->tester->wait(5);
             $this->tester->waitForJS("return location.pathname + location.search == '{$adminUrl}'");

@@ -15,10 +15,10 @@ use Codeception\Util\Fixtures;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Page\Admin\CategoryCsvUploadPage;
-use Page\Admin\ClassNameCsvUploadPage;
-use Page\Admin\ClassCategoryCsvUploadPage;
 use Page\Admin\CategoryManagePage;
+use Page\Admin\ClassCategoryCsvUploadPage;
 use Page\Admin\ClassCategoryManagePage;
+use Page\Admin\ClassNameCsvUploadPage;
 use Page\Admin\ClassNameManagePage;
 use Page\Admin\CsvSettingsPage;
 use Page\Admin\ProductClassEditPage;
@@ -41,8 +41,8 @@ class EA03ProductCest
     /** @var Connection */
     private Connection $conn;
 
-    const ページタイトル = '#main .page-header';
-    const ページタイトルStyleGuide = '.c-pageTitle';
+    public const ページタイトル = '#main .page-header';
+    public const ページタイトルStyleGuide = '.c-pageTitle';
 
     public function _before(AcceptanceTester $I)
     {
@@ -82,9 +82,9 @@ class EA03ProductCest
         $I->wantTo('EA0301-UC01-T03 商品検索 エラー');
 
         // バリデーションエラーが発生するフォーム項目がないため, ダミーのステータスを作っておく
-        /** @var \Doctrine\ORM\EntityManager $em */
+        /** @var EntityManager $em */
         $em = Fixtures::get('entityManager');
-        $ProductStatus = new \Eccube\Entity\Master\ProductStatus();
+        $ProductStatus = new Eccube\Entity\Master\ProductStatus();
         $ProductStatus->setName('ダミー');
         $ProductStatus->setSortNo(999);
         $ProductStatus->setId(999);
@@ -142,6 +142,7 @@ class EA03ProductCest
     /**
      * @env firefox
      * @env chrome
+     *
      * @group vaddy
      */
     public function product_CSV出力(AcceptanceTester $I)
@@ -239,7 +240,7 @@ class EA03ProductCest
         ProductClassEditPage::at($I)
             ->規格設定();
 
-        $I->seeElement(['css' => '#product_class_matrix_class_name1:invalid']); //規格1がエラー
+        $I->seeElement(['css' => '#product_class_matrix_class_name1:invalid']); // 規格1がエラー
         $I->dontSeeElement(ProductClassEditPage::$規格一覧); // 規格編集行が表示されていない
     }
 
@@ -296,6 +297,7 @@ class EA03ProductCest
         ProductClassEditPage::at($I)
             ->登録();
 
+        $I->waitForElement(ProductClassEditPage::$登録完了メッセージ);
         $I->see('保存しました', ProductClassEditPage::$登録完了メッセージ);
     }
 
@@ -339,6 +341,7 @@ class EA03ProductCest
             ->入力_公開()
             ->登録();
 
+        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
 
         ProductManagePage::go($I)
@@ -412,6 +415,7 @@ class EA03ProductCest
             ->入力_カテゴリ(1)
             ->登録();
 
+        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
     }
 
@@ -426,6 +430,7 @@ class EA03ProductCest
             ->入力_公開()
             ->登録();
 
+        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
     }
 
@@ -443,6 +448,7 @@ class EA03ProductCest
             ->入力_カテゴリ(2)
             ->登録();
 
+        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
     }
 
@@ -481,6 +487,8 @@ class EA03ProductCest
         ]);
 
         $ProductEditPage->登録();
+
+        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
     }
 
@@ -496,6 +504,8 @@ class EA03ProductCest
             ->クリックして選択タグ(3)
             ->クリックして選択タグ(4)
             ->登録();
+
+        $I->waitForElement('div.c-container > div.c-contentsArea > div.alert');
         $I->see('保存しました', 'div.c-container > div.c-contentsArea > div.alert');
 
         $I->seeElement(['xpath' => '//*[@id="tag"]/div/div[1]/button']);
@@ -581,6 +591,7 @@ class EA03ProductCest
             ->入力_表示名('display test class1')
             ->規格作成();
 
+        $I->waitForElement(ClassNameManagePage::$登録完了メッセージ);
         $I->see('保存しました', ClassNameManagePage::$登録完了メッセージ);
     }
 
@@ -598,6 +609,7 @@ class EA03ProductCest
 
         $ProductClassPage->規格編集(3);
 
+        $I->waitForElement(ClassNameManagePage::$登録完了メッセージ);
         $I->see('保存しました', ClassNameManagePage::$登録完了メッセージ);
         // remove added class
         ClassNameManagePage::go($I)->一覧_削除(2)
@@ -689,6 +701,7 @@ class EA03ProductCest
             ->入力_表示名('test class2')
             ->規格作成();
 
+        $I->waitForElement(ClassNameManagePage::$登録完了メッセージ);
         $I->see('保存しました', ClassNameManagePage::$登録完了メッセージ);
 
         $ProductClassPage->一覧_分類登録(3);
@@ -699,6 +712,7 @@ class EA03ProductCest
             ->入力_分類名('test class2 category1')
             ->分類作成();
 
+        $I->waitForElement(ClassCategoryManagePage::$登録完了メッセージ);
         $I->see('保存しました', ClassCategoryManagePage::$登録完了メッセージ);
         $I->see('test class2 category1', $ProductClassCategoryPage->一覧_名称(3));
 
@@ -707,6 +721,7 @@ class EA03ProductCest
             ->一覧_入力_分類名(3, 'edit class category')
             ->一覧_分類作成(3);
 
+        $I->waitForElement(ClassCategoryManagePage::$登録完了メッセージ);
         $I->see('保存しました', ClassCategoryManagePage::$登録完了メッセージ);
         $I->see('edit class category', $ProductClassCategoryPage->一覧_名称(3));
 
@@ -736,6 +751,7 @@ class EA03ProductCest
             ->入力_カテゴリ名('test category1')
             ->カテゴリ作成();
 
+        $I->waitForElement(CategoryManagePage::$登録完了メッセージ);
         $I->see('保存しました', CategoryManagePage::$登録完了メッセージ);
 
         $CategoryPage->一覧_編集(3);
@@ -745,6 +761,7 @@ class EA03ProductCest
         $CategoryPage->一覧_インライン編集_カテゴリ名(3, 'test category11')
             ->一覧_インライン編集_決定(3);
 
+        $I->waitForElement(CategoryManagePage::$登録完了メッセージ);
         $I->see('保存しました', CategoryManagePage::$登録完了メッセージ);
 
         // csv EA0305-UC04-T01
@@ -769,6 +786,8 @@ class EA03ProductCest
         $CategoryPage
             ->入力_カテゴリ名('test category11-1')
             ->カテゴリ作成();
+
+        $I->waitForElement(CategoryManagePage::$登録完了メッセージ);
         $I->see('保存しました', CategoryManagePage::$登録完了メッセージ);
 
         // カテゴリ削除 (children)
@@ -878,6 +897,8 @@ class EA03ProductCest
         CategoryCsvUploadPage::go($I)
             ->入力_CSVファイル('product.csv')
             ->CSVアップロード();
+
+        $I->waitForElement('#upload-form');
         $I->see('CSVのフォーマットが一致しません', '#upload-form');
     }
 
@@ -918,6 +939,8 @@ class EA03ProductCest
         ClassNameCsvUploadPage::go($I)
             ->入力_CSVファイル('product.csv')
             ->CSVアップロード();
+
+        $I->waitForElement('#upload-form');
         $I->see('CSVのフォーマットが一致しません', '#upload-form');
     }
 
@@ -964,6 +987,8 @@ class EA03ProductCest
         ClassCategoryCsvUploadPage::go($I)
             ->入力_CSVファイル('product.csv')
             ->CSVアップロード();
+
+        $I->waitForElement('#upload-form');
         $I->see('CSVのフォーマットが一致しません', '#upload-form');
     }
 
@@ -989,6 +1014,7 @@ class EA03ProductCest
             ->入力_タグ名('')
             ->新規作成();
 
+        $I->wait(0.1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         // タグが作成されていないことを確認
         $I->dontSee('保存しました', ProductTagPage::$アラートメッセージ);
 
@@ -998,6 +1024,7 @@ class EA03ProductCest
             ->入力_タグ名($tagName)
             ->新規作成();
 
+        $I->waitForElement(ProductTagPage::$アラートメッセージ);
         $I->see('保存しました', ProductTagPage::$アラートメッセージ);
         $I->see($tagName, ProductTagPage::$タグ一覧);
     }
@@ -1013,6 +1040,7 @@ class EA03ProductCest
             ->タグ編集_入力(1, $tagName)
             ->タグ編集_決定(1);
 
+        $I->waitForElement(ProductTagPage::$アラートメッセージ);
         $I->see('保存しました', ProductTagPage::$アラートメッセージ);
         $I->see($tagName, ProductTagPage::$タグ一覧);
     }
@@ -1028,6 +1056,7 @@ class EA03ProductCest
         $page->タグ削除(1)
             ->タグ削除_決定();
 
+        $I->waitForElement(ProductTagPage::$アラートメッセージ);
         $I->see('削除しました', ProductTagPage::$アラートメッセージ);
         $I->dontSee($tagName, ProductTagPage::$タグ一覧);
     }
@@ -1085,7 +1114,7 @@ class EA03ProductCest
         $name = uniqid();
         $entityManager = Fixtures::get('entityManager');
         $createProduct = Fixtures::get('createProduct');
-        /** @var \Eccube\Entity\Product $Product */
+        /** @var Eccube\Entity\Product $Product */
         $Product = $createProduct($name);
         foreach ($Product->getProductTag() as $ProductTag) {
             $Product->removeProductTag($ProductTag);
@@ -1115,6 +1144,7 @@ class EA03ProductCest
             ->クリックして選択タグ(4)
             ->登録();
 
+        $I->waitForElement('div.c-container > div.c-contentsArea > div.alert');
         $I->see('保存しました', 'div.c-container > div.c-contentsArea > div.alert');
 
         // タグを指定して検索 -> 1件
@@ -1124,16 +1154,17 @@ class EA03ProductCest
             ->詳細検索_入力_タグ(1)
             ->検索を実行();
 
+        $I->waitForElement(ProductManagePage::$検索結果_メッセージ);
         $I->see('検索結果：1件が該当しました', ProductManagePage::$検索結果_メッセージ);
     }
 
     /**
      * @see https://github.com/EC-CUBE/ec-cube/pull/6029
      *
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
-     * @throws \Doctrine\ORM\Exception\ORMException
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Doctrine\ORM\OptimisticLockException
+     * @throws Doctrine\ORM\TransactionRequiredException
+     * @throws Doctrine\ORM\Exception\ORMException
+     * @throws Doctrine\DBAL\Exception
      */
     public function product_一覧からの規格編集_規格あり_重複在庫の修正(AcceptanceTester $I)
     {
@@ -1174,6 +1205,7 @@ class EA03ProductCest
             ->入力_販売価格(1, 5000)
             ->登録();
 
+        $I->waitForElement(ProductClassEditPage::$登録完了メッセージ);
         $I->see('保存しました', ProductClassEditPage::$登録完了メッセージ);
 
         /** 重複して在庫が登録されていないのかチェック **/
