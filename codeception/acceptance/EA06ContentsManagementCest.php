@@ -140,6 +140,7 @@ class EA06ContentsManagementCest
             $I->waitForText('folder1', 10, $FileManagePage->パンくず(2));
 
             $config = Fixtures::get('config');
+            $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
             $I->amOnPage('/'.$config['eccube_admin_route'].'/content/file_manager');
             $I->waitForText('ファイル管理コンテンツ管理', 10, '.c-pageTitle');
 
@@ -177,6 +178,7 @@ class EA06ContentsManagementCest
             $I->getScenario()->skip('ECCUBE_RESTRICT_FILE_UPLOAD=0 のためスキップします');
         }
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/content/file_manager');
         $I->waitForText('この機能は管理者によって制限されています。');
     }
@@ -204,6 +206,7 @@ class EA06ContentsManagementCest
             ->登録();
         $I->waitForText('保存しました', 10, PageEditPage::$登録完了メッセージ);
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/user_data/'.$page);
         $I->waitForText($page, 10, 'body');
 
@@ -214,6 +217,7 @@ class EA06ContentsManagementCest
             ->登録();
         $I->waitForText('保存しました', 10, PageEditPage::$登録完了メッセージ);
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/user_data/'.$page);
         $config = Fixtures::get('config');
         $I->seeElement('footer.ec-layoutRole__footer');
@@ -225,6 +229,8 @@ class EA06ContentsManagementCest
             ->登録();
 
         $I->waitForText('保存しました', 10, LayoutEditPage::$登録完了メッセージ);
+
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/user_data/'.$page);
         $I->waitForText('新着情報', 10, '.ec-newsRole');
 
@@ -262,6 +268,8 @@ class EA06ContentsManagementCest
         /* 削除 */
         PageManagePage::go($I)->削除($page);
         $I->waitForText('削除しました', 10, PageEditPage::$登録完了メッセージ);
+
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/user_data/'.$page);
         $I->seeInTitle('ページがみつかりません');
     }
@@ -279,9 +287,11 @@ class EA06ContentsManagementCest
             $I->getScenario()->skip('ECCUBE_RESTRICT_FILE_UPLOAD=0 のためスキップします');
         }
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/content/page/new');
         $I->waitForText('この機能は管理者によって制限されています。');
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/content/page/1/edit');
         $I->waitForText('この機能は管理者によって制限されています。');
     }
@@ -321,6 +331,7 @@ class EA06ContentsManagementCest
         $I->waitForText('保存しました', 10, PageEditPage::$登録完了メッセージ);
 
         // 作成したページの表示確認 (新着情報がヘッダエリアに表示されていることを確認)
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/user_data/'.$pageName);
         $I->seeElement('.ec-layoutRole__header .ec-newsRole');
 
@@ -332,6 +343,7 @@ class EA06ContentsManagementCest
         $I->waitForText('保存しました', 10, LayoutEditPage::$登録完了メッセージ);
 
         // 編集したページの表示確認 (新着情報がフッタエリアに表示されていることを確認)
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/user_data/'.$pageName);
         $I->seeElement('.ec-layoutRole__footer .ec-newsRole');
         $I->dontSeeElement('.ec-layoutRole__header .ec-newsRole');
@@ -393,8 +405,9 @@ class EA06ContentsManagementCest
             ->ブロックを移動($block, '#position_3')
             ->登録();
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
-        $this->wait(3);
+        $I->wait(3);
         $I->waitForText('block1', 10, ['id' => $block]);
 
         BlockManagePage::go($I)->編集(1);
@@ -403,8 +416,9 @@ class EA06ContentsManagementCest
             ->登録();
         $I->waitForText('保存しました', 10, BlockEditPage::$登録完了メッセージ);
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
-        $this->wait(3);
+        $I->wait(3);
         $I->waitForText('welcome', 10, ['id' => $block]);
 
         // EA0604-UC01-T03_ブロック管理（削除）
@@ -412,6 +426,7 @@ class EA06ContentsManagementCest
             ->削除(1)
             ->ポップアップを受け入れます();
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->wait(3);
         $I->dontSeeElement(['id' => $block]);
@@ -430,10 +445,12 @@ class EA06ContentsManagementCest
             $I->getScenario()->skip('ECCUBE_RESTRICT_FILE_UPLOAD=0 のためスキップします');
         }
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/content/block/new');
         $I->waitForText('この機能は管理者によって制限されています。');
 
         $config = Fixtures::get('config');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/content/block/1/edit');
         $I->waitForText('この機能は管理者によって制限されています。');
     }
@@ -474,6 +491,7 @@ class EA06ContentsManagementCest
             $I->getScenario()->skip('ECCUBE_RESTRICT_FILE_UPLOAD=0 のためスキップします');
         }
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/content/css');
         $I->waitForText('この機能は管理者によって制限されています。');
     }
@@ -514,6 +532,7 @@ class EA06ContentsManagementCest
             $I->getScenario()->skip('ECCUBE_RESTRICT_FILE_UPLOAD=0 のためスキップします');
         }
 
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/content/js');
         $I->waitForText('この機能は管理者によって制限されています。');
     }
@@ -528,21 +547,25 @@ class EA06ContentsManagementCest
         $I->waitForText('メンテナンスモードを有効にしました。', 10, MaintenanceManagePage::$完了メッセージ);
 
         $I->expect('トップページを確認します');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->waitForText('メンテナンスモードが有効になっています。', 10, '#page_homepage > div.ec-maintenanceAlert > div');
         $I->waitForText('全ての商品', 10, TopPage::$検索_カテゴリ選択);
 
         $I->expect('ログアウトします');
         $config = Fixtures::get('config');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/logout');
 
         $I->expect('トップページを確認します');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->dontSee('メンテナンスモードが有効になっています。', '#page_homepage > div.ec-maintenanceAlert > div');
         $I->waitForText('ただいまメンテナンス中です。', 10, 'body > div > div > div > div > p.ec-404Role__title.ec-reportHeading');
 
         // 画面遷移がスムーズにいかない場合があるため、ログイン画面に遷移させておく
         $account = Fixtures::get('admin_account');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/'.$config['eccube_admin_route'].'/login');
         $I->submitForm('#form1', [
             'login_id' => $account['member'],
@@ -556,6 +579,7 @@ class EA06ContentsManagementCest
         $I->waitForText('メンテナンスモードを無効にしました。', 10, MaintenanceManagePage::$完了メッセージ);
 
         $I->expect('トップページを確認します');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->dontSee('メンテナンスモードが有効になっています。', '#page_homepage > div.ec-maintenanceAlert > div');
         $I->waitForText('全ての商品', 10, TopPage::$検索_カテゴリ選択);
@@ -566,11 +590,13 @@ class EA06ContentsManagementCest
         $I->wantTo('EA0608-UC01-T01_キャッシュ管理');
 
         $I->expect('トップページを確認します');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->waitForText('EC-CUBE SHOP', 10, 'h1');
 
         $I->expect('キャッシュを削除します');
         $config = Fixtures::get('config');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage("/{$config['eccube_admin_route']}/content/cache");
 
         $I->click('.c-contentsArea .btn-ec-conversion');
@@ -578,6 +604,7 @@ class EA06ContentsManagementCest
         $I->waitForText('削除しました', 10, '.alert');
 
         $I->expect('トップページを確認します');
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->waitForText('EC-CUBE SHOP', 10, 'h1');
     }
