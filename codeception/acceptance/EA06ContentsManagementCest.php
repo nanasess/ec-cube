@@ -413,7 +413,7 @@ class EA06ContentsManagementCest
             ->ポップアップを受け入れます();
 
         $I->amOnPage('/');
-        $this->wait(3);
+        $I->wait(3);
         $I->dontSeeElement(['id' => $block]);
     }
 
