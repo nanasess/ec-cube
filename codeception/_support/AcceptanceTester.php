@@ -89,6 +89,7 @@ class AcceptanceTester extends Codeception\Actor
     public function loginAsMember($email = '', $password = '')
     {
         $I = $this;
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/mypage/login');
         $I->wait(3); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->submitForm('#login_mypage', [
@@ -102,6 +103,7 @@ class AcceptanceTester extends Codeception\Actor
     public function logoutAsMember()
     {
         $I = $this;
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->wait(3); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->waitForElement('.ec-headerNaviRole .ec-headerNav .ec-headerNav__item:nth-child(3) a');

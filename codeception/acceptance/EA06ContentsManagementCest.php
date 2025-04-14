@@ -475,7 +475,7 @@ class EA06ContentsManagementCest
         $I->amOnPage('/');
         $I->reloadPage();
         $I->wait(3);
-        $I->waitForText('お気に入り', 10, '.ec-headerNaviRole');
+        $I->see('お気に入り', '.ec-headerNaviRole');
     }
 
     /**
@@ -509,7 +509,7 @@ class EA06ContentsManagementCest
         $I->amOnPage('/');
         $I->reloadPage();
         $I->wait(3);
-        $I->waitForText($test_text, 10, '.ec-headerNaviRole');
+        $I->see($test_text, '.ec-headerNaviRole');
 
         JavaScriptManagePage::go($I)->入力('/* */')->登録();
         $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
