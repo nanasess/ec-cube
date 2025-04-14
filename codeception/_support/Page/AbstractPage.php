@@ -35,7 +35,9 @@ abstract class AbstractPage
      */
     protected function goPage($url, $pageTitle = '')
     {
+        $this->tester->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $this->tester->amOnPage($url);
+        $this->tester->wait(3); // XXX ページ遷移後に wait を入れないと画面遷移しない
         $this->tester->waitForJS("return location.pathname + location.search == '{$url}'", 30);
 
         return $this;

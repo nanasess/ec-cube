@@ -304,6 +304,7 @@ class EF06OtherCest
         $topPageLoc = '<loc>'.$I->getBaseUrl().'/</loc>';
 
         // 表示確認
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage($sitemapUrl);
         $I->wait(10);
         $I->see($topPageLoc);
@@ -311,6 +312,7 @@ class EF06OtherCest
         // メタ設定 → robots noindex → 非表示になる
         PageManagePage::go($I)->ページ編集('TOPページ');
         PageEditPage::at($I)->入力_メタ_robot('noindex')->登録();
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage($sitemapUrl);
         $I->wait(10);
         $I->dontSee($topPageLoc);
@@ -318,6 +320,7 @@ class EF06OtherCest
         // メタ設定 → robots none → 非表示になる
         PageManagePage::go($I)->ページ編集('TOPページ');
         PageEditPage::at($I)->入力_メタ_robot('none')->登録();
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage($sitemapUrl);
         $I->wait(10);
         $I->dontSee($topPageLoc);
@@ -325,6 +328,7 @@ class EF06OtherCest
         // メタ設定 → robots 解除 → 表示される
         PageManagePage::go($I)->ページ編集('TOPページ');
         PageEditPage::at($I)->入力_メタ_robot('')->登録();
+        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage($sitemapUrl);
         $I->wait(10);
         $I->see($topPageLoc);
