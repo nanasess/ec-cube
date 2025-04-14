@@ -90,6 +90,7 @@ class AcceptanceTester extends Codeception\Actor
     {
         $I = $this;
         $I->amOnPage('/mypage/login');
+        $I->wait(1); // 画面遷移直後は selector の参照に失敗するため wait を入れる
         $I->submitForm('#login_mypage', [
             'login_email' => $email,
             'login_pass' => $password,
