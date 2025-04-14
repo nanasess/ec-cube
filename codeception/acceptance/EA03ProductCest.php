@@ -341,7 +341,7 @@ class EA03ProductCest
             ->入力_公開()
             ->登録();
 
-        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
+        $I->waitForElement(ProductEditPage::$登録結果メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
 
         ProductManagePage::go($I)
@@ -415,7 +415,7 @@ class EA03ProductCest
             ->入力_カテゴリ(1)
             ->登録();
 
-        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
+        $I->waitForElement(ProductEditPage::$登録結果メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
     }
 
@@ -430,7 +430,7 @@ class EA03ProductCest
             ->入力_公開()
             ->登録();
 
-        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
+        $I->waitForElement(ProductEditPage::$登録結果メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
     }
 
@@ -448,7 +448,7 @@ class EA03ProductCest
             ->入力_カテゴリ(2)
             ->登録();
 
-        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
+        $I->waitForElement(ProductEditPage::$登録結果メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
     }
 
@@ -488,7 +488,7 @@ class EA03ProductCest
 
         $ProductEditPage->登録();
 
-        $I->waitForElement(ProductEditPage::$登録完了メッセージ);
+        $I->waitForElement(ProductEditPage::$登録結果メッセージ);
         $I->see('保存しました', ProductEditPage::$登録結果メッセージ);
     }
 
