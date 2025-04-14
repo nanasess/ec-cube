@@ -132,7 +132,7 @@ jobs:
           SYMFONY_DEPRECATIONS_HELPER: weak
         run: |
           sed -i "s|%GITHUB_WORKSPACE%|${GITHUB_WORKSPACE}|g" codeception/_envs/github_action.yml
-          vendor/bin/codecept -vvv run acceptance --env chrome,github_action -g ${GROUP} --skip-group restrict-file-upload,change-display-order --html report.html
+          vendor/bin/codecept -vvv run acceptance --env chrome,github_action -g ${GROUP} --skip-group restrict-file-upload --skip-group change-display-order --html report.html
 
       - name: Codeception with ${{ matrix.group }}
         if: |
