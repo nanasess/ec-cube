@@ -464,6 +464,7 @@ class EA06ContentsManagementCest
         )->登録();
         $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
+        $I->wait(1);
         $I->reloadPage();
         $I->wait(3);
         $I->dontSee('お気に入り', '.ec-headerNaviRole');
@@ -473,6 +474,7 @@ class EA06ContentsManagementCest
             ->登録();
         $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
+        $I->wait(1);
         $I->reloadPage();
         $I->wait(3);
         $I->see('お気に入り', '.ec-headerNaviRole');
@@ -507,6 +509,7 @@ class EA06ContentsManagementCest
         )->登録();
         $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
+        $I->wait(1);
         $I->reloadPage();
         $I->wait(3);
         $I->see($test_text, '.ec-headerNaviRole');
@@ -514,6 +517,7 @@ class EA06ContentsManagementCest
         JavaScriptManagePage::go($I)->入力('/* */')->登録();
         $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
+        $I->wait(1);
         $I->reloadPage();
         $I->wait(3);
         $I->dontSee($test_text, '.ec-headerNaviRole');
