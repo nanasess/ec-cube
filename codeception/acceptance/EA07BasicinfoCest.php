@@ -215,7 +215,9 @@ class EA07BasicinfoCest
             ->入力_チェックボックス(ShopSettingPage::$チェックボックス_自動ログイン機能, true)
             ->登録();
 
+        $I->wait(5); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/mypage/login');
+        $I->wait(1);
         $I->waitForText('次回から自動的にログインする', 10, '#login_mypage');
         $I->checkOption('#login_memory');
         $I->submitForm('#login_mypage', [

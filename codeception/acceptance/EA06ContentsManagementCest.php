@@ -462,7 +462,7 @@ class EA06ContentsManagementCest
         CssManagePage::go($I)->入力(
             '.ec-headerNaviRole { display: none; }'
         )->登録();
-        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
+        $I->wait(5); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->wait(1);
         $I->reloadPage();
@@ -472,7 +472,7 @@ class EA06ContentsManagementCest
         CssManagePage::go($I)
             ->入力('.ec-headerNaviRole { }')
             ->登録();
-        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
+        $I->wait(5); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->wait(1);
         $I->reloadPage();
@@ -507,7 +507,7 @@ class EA06ContentsManagementCest
         JavaScriptManagePage::go($I)->入力(
             "$('.ec-headerNaviRole').append('{$test_text}');"
         )->登録();
-        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
+        $I->wait(5); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->wait(1);
         $I->reloadPage();
@@ -515,7 +515,7 @@ class EA06ContentsManagementCest
         $I->see($test_text, '.ec-headerNaviRole');
 
         JavaScriptManagePage::go($I)->入力('/* */')->登録();
-        $I->wait(1); // XXX amOnPage() の前に wait を入れないと画面遷移しない
+        $I->wait(5); // XXX amOnPage() の前に wait を入れないと画面遷移しない
         $I->amOnPage('/');
         $I->wait(1);
         $I->reloadPage();

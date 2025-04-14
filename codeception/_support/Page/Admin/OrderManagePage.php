@@ -49,6 +49,7 @@ class OrderManagePage extends AbstractAdminPageStyleGuide
         $this->tester->scrollTo('#search_submit', 0, -100);
         $this->tester->wait(1);
         $this->tester->click('#search_form #search_submit');
+        $this->tester->wait(1);
 
         return $this;
     }
