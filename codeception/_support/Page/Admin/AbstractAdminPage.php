@@ -37,6 +37,7 @@ abstract class AbstractAdminPage extends AbstractPage
             $maxAttempts = 10;
             while ($attempts < $maxAttempts) {
                 $this->tester->amOnPage($adminUrl);
+                $this->tester->wait(1); // XXX 画面遷移直後は selector の参照に失敗するため wait を入れる
                 $title = $this->tester->grabTextFrom('.c-pageTitle');
 
                 if ($title != $pageTitle) {

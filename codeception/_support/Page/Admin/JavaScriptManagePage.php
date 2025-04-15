@@ -34,6 +34,7 @@ class JavaScriptManagePage extends AbstractAdminPageStyleGuide
 
     public function 入力($value)
     {
+        $this->tester->wait(3); // XXX 確実に画面遷移してから入力するため wait を入れる
         $this->tester->click('.ace_content');
         $this->tester->sendKeys([WebDriverKeys::CONTROL, 'a']);
         $this->tester->sendKeys(WebDriverKeys::DELETE);
