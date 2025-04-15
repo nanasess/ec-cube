@@ -463,6 +463,7 @@ class EA06ContentsManagementCest
             '.ec-headerNaviRole { display: none; }'
         )->登録();
         $I->wait(10); // XXX amOnPage() の前に wait を入れないと画面遷移しない
+        var_dump(file_get_contents(__DIR__.'/../../html/user_data/assets/css/customize.css'));
         $I->amOnPage('/');
         $I->wait(1);
         $I->reloadPage();
@@ -473,6 +474,7 @@ class EA06ContentsManagementCest
             ->入力('.ec-headerNaviRole { }')
             ->登録();
         $I->wait(10); // XXX amOnPage() の前に wait を入れないと画面遷移しない
+        var_dump(file_get_contents(__DIR__.'/../../html/user_data/assets/css/customize.css'));
         $I->amOnPage('/');
         $I->wait(1);
         $I->reloadPage();
