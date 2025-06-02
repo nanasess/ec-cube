@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Annotation\FormAppend;
 use Eccube\Annotation\FormExtension;
+use Eccube\Attribute\FormAppend as FormAppendAttribute;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -74,6 +75,7 @@ class DoctrineOrmExtension extends AbstractTypeExtension
                 /** @var \ReflectionProperty[] $props */
                 $props = $meta->getReflectionProperties();
                 foreach ($props as $prop) {
+                    // Annotation による処理
                     $anno = $this->reader->getPropertyAnnotation($prop, FormAppend::class);
                     if ($anno) {
                         $options = is_null($anno->options) ? [] : $anno->options;
@@ -84,6 +86,23 @@ class DoctrineOrmExtension extends AbstractTypeExtension
                         ];
                         if (!isset($form[$prop->getName()])) {
                             $form->add($prop->getName(), $anno->type, $options);
+                        }
+                    }
+
+                    // Attribute による処理（PHP 8.0以降）
+                    if (PHP_VERSION_ID >= 80000) {
+                        $attributes = $prop->getAttributes(FormAppendAttribute::class);
+                        if (!empty($attributes)) {
+                            $attr = $attributes[0]->newInstance();
+                            $options = is_null($attr->options) ? [] : $attr->options;
+                            $options['eccube_form_options'] = [
+                                'auto_render' => (true === $attr->auto_render),
+                                'form_theme' => $attr->form_theme,
+                                'style_class' => $attr->style_class ? $attr->style_class : 'ec-select',
+                            ];
+                            if (!isset($form[$prop->getName()])) {
+                                $form->add($prop->getName(), $attr->type, $options);
+                            }
                         }
                     }
                 }

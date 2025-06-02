@@ -13,17 +13,9 @@
 
 namespace Eccube\Annotation;
 
-use Doctrine\Common\Annotations\Annotation\Target;
-use Doctrine\ORM\Mapping\Annotation;
+use Eccube\Attribute\EntityExtension as AttributeEntityExtension;
 
 /**
- * @Annotation
- * @Target("CLASS")
+ * @deprecated Use Eccube\Attribute\EntityExtension instead
  */
-final class EntityExtension implements Annotation
-{
-    /**
-     * @var string
-     */
-    public $value;
-}
+class_alias(AttributeEntityExtension::class, EntityExtension::class);

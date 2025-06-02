@@ -13,13 +13,9 @@
 
 namespace Eccube\Annotation;
 
-use Doctrine\Common\Annotations\Annotation\Target;
-use Doctrine\ORM\Mapping\Annotation;
+use Eccube\Attribute\OrderFlow as AttributeOrderFlow;
 
 /**
- * @Annotation
- * @Target("CLASS")
+ * @deprecated Use Eccube\Attribute\OrderFlow instead
  */
-final class OrderFlow implements Annotation
-{
-}
+class_alias(AttributeOrderFlow::class, OrderFlow::class);

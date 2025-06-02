@@ -18,6 +18,9 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Eccube\Annotation\CartFlow;
 use Eccube\Annotation\OrderFlow;
 use Eccube\Annotation\ShoppingFlow;
+use Eccube\Attribute\CartFlow as CartFlowAttribute;
+use Eccube\Attribute\OrderFlow as OrderFlowAttribute;
+use Eccube\Attribute\ShoppingFlow as ShoppingFlowAttribute;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\PriorityTaggedServiceTrait;
@@ -86,6 +89,12 @@ class PurchaseFlowPass implements CompilerPassInterface
             OrderFlow::class => $container->findDefinition('eccube.purchase.flow.order'),
         ];
 
+        $attributeFlowDefs = [
+            CartFlowAttribute::class => $container->findDefinition('eccube.purchase.flow.cart'),
+            ShoppingFlowAttribute::class => $container->findDefinition('eccube.purchase.flow.shopping'),
+            OrderFlowAttribute::class => $container->findDefinition('eccube.purchase.flow.order'),
+        ];
+
         // TODO doctrine/anntationsをv2へアップデート。影響がある場合は要調査。
         //AnnotationRegistry::registerAutoloadNamespace('Eccube\Annotation', __DIR__ . '/../../../../src');
         $reader = new AnnotationReader();
@@ -97,15 +106,33 @@ class PurchaseFlowPass implements CompilerPassInterface
             /** @var Reference $id */
             foreach ($this->findAndSortTaggedServices($tag, $container) as $id) {
                 $def = $container->getDefinition($id);
+                $reflectionClass = new \ReflectionClass($def->getClass());
+
+                // Annotation による処理
                 /**
                  * @var string $annotationName
                  * @var Definition $purchaseFlowDef
                  */
                 foreach ($flowDefs as $annotationName => $purchaseFlowDef) {
-                    $anno = $reader->getClassAnnotation(new \ReflectionClass($def->getClass()), $annotationName);
+                    $anno = $reader->getClassAnnotation($reflectionClass, $annotationName);
                     if ($anno) {
                         $purchaseFlowDef->addMethodCall($methodName, [$id]);
                         $purchaseFlowDef->setPublic(true);
+                    }
+                }
+
+                // Attribute による処理（PHP 8.0以降）
+                if (PHP_VERSION_ID >= 80000) {
+                    /**
+                     * @var string $attributeName
+                     * @var Definition $purchaseFlowDef
+                     */
+                    foreach ($attributeFlowDefs as $attributeName => $purchaseFlowDef) {
+                        $attributes = $reflectionClass->getAttributes($attributeName);
+                        if (!empty($attributes)) {
+                            $purchaseFlowDef->addMethodCall($methodName, [$id]);
+                            $purchaseFlowDef->setPublic(true);
+                        }
                     }
                 }
             }

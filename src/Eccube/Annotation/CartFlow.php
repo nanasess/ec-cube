@@ -13,13 +13,9 @@
 
 namespace Eccube\Annotation;
 
-use Doctrine\Common\Annotations\Annotation\Target;
-use Doctrine\ORM\Mapping\Annotation;
+use Eccube\Attribute\CartFlow as AttributeCartFlow;
 
 /**
- * @Annotation
- * @Target("CLASS")
+ * @deprecated Use Eccube\Attribute\CartFlow instead
  */
-final class CartFlow implements Annotation
-{
-}
+class_alias(AttributeCartFlow::class, CartFlow::class);

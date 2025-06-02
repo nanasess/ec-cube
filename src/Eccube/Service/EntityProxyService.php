@@ -16,6 +16,7 @@ namespace Eccube\Service;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Annotation\EntityExtension;
+use Eccube\Attribute\EntityExtension as EntityExtensionAttribute;
 use Eccube\Common\EccubeConfig;
 use PhpCsFixer\Tokenizer\CT;
 use PhpCsFixer\Tokenizer\Token;
@@ -189,10 +190,29 @@ class EntityProxyService
         foreach ($traitSets as $traits) {
             $proxies = [];
             foreach ($traits as $trait) {
-                $anno = $reader->getClassAnnotation(new \ReflectionClass($trait), EntityExtension::class);
-                if ($anno) {
-                    $class = str_replace('\\\\', '\\', $anno->value);
-                    $class = ltrim($class, '\\');
+                $reflectionClass = new \ReflectionClass($trait);
+                $class = null;
+                
+                // PHP 8+ Attribute サポート
+                if (PHP_VERSION_ID >= 80000 && method_exists($reflectionClass, 'getAttributes')) {
+                    $attributes = $reflectionClass->getAttributes(EntityExtensionAttribute::class);
+                    if (!empty($attributes)) {
+                        $attribute = $attributes[0]->newInstance();
+                        $class = str_replace('\\\\', '\\', $attribute->value);
+                        $class = ltrim($class, '\\');
+                    }
+                }
+                
+                // 従来のアノテーション処理（Attributeが見つからない場合の fallback）
+                if ($class === null) {
+                    $anno = $reader->getClassAnnotation($reflectionClass, EntityExtension::class);
+                    if ($anno) {
+                        $class = str_replace('\\\\', '\\', $anno->value);
+                        $class = ltrim($class, '\\');
+                    }
+                }
+                
+                if ($class !== null) {
                     $proxies[$class][] = $trait;
                 }
             }

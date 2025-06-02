@@ -11,11 +11,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Eccube\Annotation;
+namespace Eccube\Attribute;
 
-use Eccube\Attribute\ShoppingFlow as AttributeShoppingFlow;
+use Attribute;
 
-/**
- * @deprecated Use Eccube\Attribute\ShoppingFlow instead
- */
-class_alias(AttributeShoppingFlow::class, ShoppingFlow::class);
+#[Attribute(Attribute::TARGET_CLASS)]
+final class ShoppingFlow
+{
+}
