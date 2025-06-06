@@ -25,7 +25,6 @@ npm ci
 
 ``` bash
 # Docker 環境の起動(PostgreSQL)
-export USER_ID=${UID} GROUP_ID=${GID}
 docker compose -f docker-compose.yml -f docker-compose.pgsql.yml -f docker-compose.dev.yml up -d
 ```
 
