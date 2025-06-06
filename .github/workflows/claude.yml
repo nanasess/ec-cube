@@ -30,7 +30,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                   fetch-depth: 1
-
+            - run: chmod -R o+w .
             - name: Run Claude Code
               id: claude
               uses: nanasess/claude-code-action@main
