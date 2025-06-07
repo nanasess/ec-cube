@@ -13,17 +13,38 @@
 
 namespace Eccube\Controller;
 
+use Eccube\Repository\ProductRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TopController extends AbstractController
 {
     /**
+     * @var ProductRepository
+     */
+    protected $productRepository;
+
+    /**
+     * TopController constructor.
+     *
+     * @param ProductRepository $productRepository
+     */
+    public function __construct(ProductRepository $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
+
+    /**
      * @Route("/", name="homepage", methods={"GET"})
      * @Template("index.twig")
      */
     public function index()
     {
-        return [];
+        // 売上上位5商品を取得
+        $bestSellingProducts = $this->productRepository->findBestSellingProducts(5);
+
+        return [
+            'best_selling_products' => $bestSellingProducts,
+        ];
     }
 }
