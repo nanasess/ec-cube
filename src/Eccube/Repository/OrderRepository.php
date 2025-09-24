@@ -410,7 +410,7 @@ class OrderRepository extends AbstractRepository
     }
 
     /**
-     * @param  \Eccube\Entity\Customer $Customer
+     * @param  Customer $Customer
      *
      * @return QueryBuilder
      */
@@ -429,11 +429,11 @@ class OrderRepository extends AbstractRepository
     /**
      * ステータスごとの受注件数を取得する.
      *
-     * @param integer $OrderStatusOrId
+     * @param int $OrderStatusOrId
      *
      * @return int
      *
-     * @throws \Doctrine\ORM\NoResultException
+     * @throws NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function countByOrderStatus($OrderStatusOrId)
@@ -476,9 +476,8 @@ class OrderRepository extends AbstractRepository
 
         $FirstOrder = $this->find(['id' => $result['first_order_id']]);
         $LastOrder = $this->find(['id' => $result['last_order_id']]);
-
         $Customer->setBuyTimes($result['buy_times']);
-        $Customer->setBuyTotal($result['buy_total']);
+        $Customer->setBuyTotal((string) $result['buy_total']); // buy_totalはdecimal(12,2)のためstring
         $Customer->setFirstBuyDate($FirstOrder->getOrderDate());
         $Customer->setLastBuyDate($LastOrder->getOrderDate());
     }

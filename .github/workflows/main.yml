@@ -16,8 +16,10 @@ on:
 jobs:
   phpstan:
     uses: ./.github/workflows/phpstan.yml
+  php-cs-fixer:
+    uses: ./.github/workflows/php-cs-fixer.yml
   unit-test:
-    needs: [ phpstan ]
+    needs: [ phpstan, php-cs-fixer ]
     uses: ./.github/workflows/unit-test.yml
   e2e-test:
     needs: [ unit-test ]
@@ -39,4 +41,5 @@ jobs:
         run: echo "::notice::success!"
   coverage:
     needs: [ e2e-test-throttling, deny-test ]
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
     uses: ./.github/workflows/coverage.yml

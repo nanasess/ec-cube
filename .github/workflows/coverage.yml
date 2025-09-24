@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: nanasess/setup-php@master
@@ -211,8 +211,8 @@ jobs:
     needs: [ phpunit, codeception ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+        uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           path: reports
       - run: |
@@ -225,13 +225,15 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           files: ./reports/phpunit-reports/coverage1.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
           flags: Unit
           fail_ci_if_error: true
+        env:
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload E2E coverage
         uses: codecov/codecov-action@v5
         with:
           files: ./reports/acceptance.admin01.coverage.xml,./reports/acceptance.admin02.coverage.xml,./reports/acceptance.admin03.coverage.xml,./reports/acceptance.front.coverage.xml,./reports/acceptance.installer.coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
           flags: E2E
           fail_ci_if_error: true
+        env:
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
