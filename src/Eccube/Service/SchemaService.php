@@ -35,7 +35,6 @@ class SchemaService
 
     private EccubeConfig $eccubeConfig;
 
-
     /**
      * SchemaService constructor.
      *
@@ -65,7 +64,7 @@ class SchemaService
     {
         $createOutputDir = false;
         if (is_null($outputDir)) {
-            $outputDir = sys_get_temp_dir() . '/metadata_' . StringUtil::random(12);
+            $outputDir = sys_get_temp_dir().'/metadata_'.StringUtil::random(12);
             mkdir($outputDir);
             $createOutputDir = true;
         }
@@ -74,13 +73,14 @@ class SchemaService
             $chain = $this->entityManager->getConfiguration()->getMetadataDriverImpl()->getDriver();
             $paths = $chain->getPaths();
             foreach ($paths as $path) {
-                if ('Eccube\Entity' === $path || preg_match('/^Plugin\\\\.*\\\\Entity$/', (string)$path)) {
+                if ('Eccube\Entity' === $path || preg_match('/^Plugin\\\\.*\\\\Entity$/', (string) $path)) {
                     // Setup to AttributeDriver
                     $paths = array_map(function ($pathOrNamespace) use ($path) {
                         // すでにパス形式ならそのまま返す
                         if (is_dir($pathOrNamespace)) {
                             return $pathOrNamespace;
                         }
+
                         // namespace形式 → 実パスに変換
                         return $this->convertNamespaceToPath($path);
                     }, $chain->getPaths());
@@ -159,6 +159,6 @@ class SchemaService
     private function convertNamespaceToPath(string $namespace): string
     {
         // ベースディレクトリからの相対パスを構築
-        return $this->eccubeConfig->get('kernel.project_dir') . '/src/' . str_replace('\\', '/', $namespace);
+        return $this->eccubeConfig->get('kernel.project_dir').'/src/'.str_replace('\\', '/', $namespace);
     }
 }
