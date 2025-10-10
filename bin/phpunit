@@ -1,12 +1,17 @@
 #!/usr/bin/env php
 <?php
 
-if (!file_exists(dirname(__DIR__).'/vendor/symfony/phpunit-bridge/bin/simple-phpunit')) {
-    echo "Unable to find the `simple-phpunit` script in `vendor/symfony/phpunit-bridge/bin/`.\n";
+// Use vendor/bin/phpunit directly (PHPUnit 11)
+$phpunitBin = dirname(__DIR__).'/vendor/bin/phpunit';
+
+if (!file_exists($phpunitBin)) {
+    echo "Unable to find PHPUnit in vendor/bin/phpunit.\n";
     exit(1);
 }
-if (false === getenv('SYMFONY_PHPUNIT_DIR')) {
-    putenv('SYMFONY_PHPUNIT_DIR='.__DIR__.'/.phpunit');
-}
 
-require dirname(__DIR__).'/vendor/symfony/phpunit-bridge/bin/simple-phpunit';
+// Pass through all arguments
+$args = array_slice($argv, 1);
+$command = escapeshellcmd($phpunitBin) . ' ' . implode(' ', array_map('escapeshellarg', $args));
+
+passthru($command, $exitCode);
+exit($exitCode);
