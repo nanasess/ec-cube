@@ -15,6 +15,7 @@ namespace Eccube\Doctrine\Common\CsvDataFixtures;
 
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 
 /**
@@ -41,10 +42,16 @@ class CsvFixture implements FixtureInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     #[\Override]
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
+        if ($manager instanceof EntityManagerInterface === false) {
+            return;
+        }
+
         // 日本語windowsの場合はインストール時にエラーとなるので英語のロケールをセット
         // ロケールがミスマッチしてSplFileObject::READ_CSVができないのを回避
         if ('\\' === DIRECTORY_SEPARATOR) {
@@ -57,7 +64,6 @@ class CsvFixture implements FixtureInterface
         // ヘッダ行を取得
         $headers = $this->file->current();
         $this->file->next();
-
         // ファイル名からテーブル名を取得
         $table_name = str_replace('.'.$this->file->getExtension(), '', $this->file->getFilename());
         $sql = $this->getSql($table_name, $headers);
@@ -84,10 +90,7 @@ class CsvFixture implements FixtureInterface
             $prepare->execute();
             $this->file->next();
             // 大きなサイズのCSVを扱えるようタイムアウトを延長する
-            $seconds
-                = is_numeric(ini_get('max_execution_time'))
-                ? intval(ini_get('max_execution_time'))
-                : intval(get_cfg_var('max_execution_time'));
+            $seconds = intval(ini_get('max_execution_time'));
             set_time_limit($seconds);
         }
         $Connection->commit();
@@ -138,11 +141,11 @@ class CsvFixture implements FixtureInterface
      * INSERT を生成する.
      *
      * @param string $table_name テーブル名
-     * @param array $headers カラム名の配列
+     * @param array<int, string> $headers カラム名の配列
      *
      * @return string INSERT 文
      */
-    public function getSql($table_name, array $headers)
+    public function getSql($table_name, array $headers): string
     {
         return 'INSERT INTO '.$table_name.' ('.implode(', ', $headers).') VALUES ('.implode(', ', array_fill(0, count($headers), '?')).')';
     }
@@ -152,7 +155,7 @@ class CsvFixture implements FixtureInterface
      *
      * @return \SplFileObject
      */
-    public function getFile()
+    public function getFile(): \SplFileObject
     {
         return $this->file;
     }

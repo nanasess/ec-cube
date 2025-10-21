@@ -13,6 +13,7 @@
 
 namespace Eccube\Controller\Mypage;
 
+use Doctrine\ORM\NonUniqueResultException;
 use Eccube\Controller\AbstractController;
 use Eccube\Entity\Customer;
 use Eccube\Event\EccubeEvents;
@@ -22,16 +23,21 @@ use Eccube\Repository\BaseInfoRepository;
 use Eccube\Repository\CustomerRepository;
 use Eccube\Service\MailService;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class ChangeController extends AbstractController
 {
     /**
-     * @var TokenStorage
+     * @var TokenStorageInterface
      */
     protected $tokenStorage;
 
@@ -73,16 +79,23 @@ class ChangeController extends AbstractController
 
     /**
      * 会員情報編集画面.
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse|array<string, mixed>
+     *
+     * @throws LoaderError|RuntimeError|SyntaxError
+     * @throws NonUniqueResultException
      */
-    #[Route('/mypage/change', name: 'mypage_change', methods: ['GET', 'POST'])]
-    #[Template('Mypage/change.twig')]
-    public function index(Request $request)
+    #[Route(path: '/mypage/change', name: 'mypage_change', methods: ['GET', 'POST'])]
+    #[Template(template: 'Mypage/change.twig')]
+    public function index(Request $request): RedirectResponse|array
     {
         /** @var Customer $Customer */
         $Customer = $this->getUser();
         $Customer->setPlainPassword($this->eccubeConfig['eccube_default_password']);
 
-        /** @var \Symfony\Component\Form\FormBuilderInterface $builder */
+        /** @var FormBuilderInterface $builder */
         $builder = $this->formFactory->createBuilder(EntryType::class, $Customer);
 
         $event = new EventArgs(
@@ -94,7 +107,7 @@ class ChangeController extends AbstractController
         );
         $this->eventDispatcher->dispatch($event, EccubeEvents::FRONT_MYPAGE_CHANGE_INDEX_INITIALIZE);
 
-        /** @var \Symfony\Component\Form\FormInterface $form */
+        /** @var FormInterface $form */
         $form = $builder->getForm();
         $form->handleRequest($request);
 
@@ -149,10 +162,14 @@ class ChangeController extends AbstractController
 
     /**
      * 会員情報編集完了画面.
+     *
+     * @param Request $request
+     *
+     * @return array<empty>
      */
-    #[Route('/mypage/change_complete', name: 'mypage_change_complete', methods: ['GET'])]
-    #[Template('Mypage/change_complete.twig')]
-    public function complete(Request $request)
+    #[Route(path: '/mypage/change_complete', name: 'mypage_change_complete', methods: ['GET'])]
+    #[Template(template: 'Mypage/change_complete.twig')]
+    public function complete(Request $request): array
     {
         return [];
     }

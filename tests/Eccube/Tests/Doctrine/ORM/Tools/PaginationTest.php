@@ -17,9 +17,10 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Eccube\Entity\Member;
 use Eccube\Entity\Product;
 use Eccube\Entity\ProductTag;
@@ -73,27 +74,20 @@ class PaginationTest extends EccubeTestCase
         $this->tagRepository = $this->entityManager->getRepository(Tag::class);
         $this->memberRepository = $this->entityManager->getRepository(Member::class);
 
-        // mysqlの場合, トランザクション中にcreate tableを行うと暗黙的にcommitされてしまい, テストデータをロールバックできない
-        // そのため, create tableを行った後に, 再度トランザクションを開始するようにしている
+        // TEMPORARY テーブルを作成（暗黙的コミットを引き起こさない）
         /** @var EntityManager $em */
         $em = $this->entityManager;
         $conn = $em->getConnection();
         if (!$conn->isConnected()) {
             $conn->connect();
         }
-        if ($conn->isTransactionActive()) {
-            $conn->rollback();
-        }
 
-        $this->dropTable($conn->getWrappedConnection());
         $this->createTable($conn->getWrappedConnection());
-        $conn->beginTransaction();
 
         // テスト用のエンティティを用意
         $config = $em->getConfiguration();
-        $driver = $config->newDefaultAnnotationDriver(__DIR__, false);
-        $chain = $config->getMetadataDriverImpl()->getDriver();
-        $chain->addDriver($driver, __NAMESPACE__);
+        $driver = new AttributeDriver([__DIR__]);
+        $config->setMetadataDriverImpl($driver);
 
         // 初期データより大きい値を指定
         $price02 = $this->getFaker()->randomNumber(9);
@@ -105,20 +99,20 @@ class PaginationTest extends EccubeTestCase
             foreach ($ProductClasses as $ProductClass) {
                 // product.idの昇順になるよう, product_class.price02を設定する
                 $ProductClass->setPrice02($price02 - $i);
-                $em->flush($ProductClass);
+                $em->flush();
             }
         }
     }
 
     protected function tearDown(): void
     {
+        // TEMPORARY テーブルを明示的に削除
         /** @var EntityManager $em */
         $em = $this->entityManager;
         if ($em) {
             $conn = $em->getConnection();
-            $conn->rollback();
-            $this->dropTable($conn->getWrappedConnection());
-            $conn->beginTransaction();
+            $platform = $conn->getDatabasePlatform()->getName();
+            $this->dropTable($conn->getWrappedConnection(), $platform);
         }
 
         parent::tearDown();
@@ -126,14 +120,19 @@ class PaginationTest extends EccubeTestCase
 
     protected function createTable(Connection $conn)
     {
-        $sql = 'CREATE TABLE test_entity(id INT, col INT, PRIMARY KEY(id));';
+        $sql = 'CREATE TEMPORARY TABLE test_entity(id INT, col INT, PRIMARY KEY(id));';
         $stmt = $conn->prepare($sql);
         $stmt->execute();
     }
 
-    protected function dropTable(Connection $conn)
+    protected function dropTable(Connection $conn, string $platform)
     {
-        $sql = 'DROP TABLE IF EXISTS test_entity;';
+        // MySQLでは DROP TEMPORARY TABLE、SQLite/PostgreSQLでは DROP TABLE を使用
+        $sql = match ($platform) {
+            'mysql' => 'DROP TEMPORARY TABLE IF EXISTS test_entity;',
+            default => 'DROP TABLE IF EXISTS test_entity;',
+        };
+
         $stmt = $conn->prepare($sql);
         $stmt->execute();
     }
@@ -344,25 +343,17 @@ class PaginationTest extends EccubeTestCase
 
 /**
  * テスト用のエンティティ
- *
- * @ORM\Entity(repositoryClass="Eccube\Tests\Doctrine\ORM\Tools\TestRepository")
- *
- * @ORM\Table(name="test_entity")
  */
+#[ORM\Table(name: 'test_entity')]
+#[ORM\Entity(repositoryClass: TestRepository::class)]
 class TestEntity
 {
-    /**
-     * @ORM\Id
-     *
-     * @ORM\Column(type="integer")
-     *
-     * @ORM\GeneratedValue(strategy="NONE")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer')]
+    #[ORM\GeneratedValue(strategy: 'NONE')]
     public $id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     public $col;
 }
 

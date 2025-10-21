@@ -14,6 +14,7 @@
 namespace Eccube\EventListener;
 
 use Detection\MobileDetect;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\AuthorityRole;
@@ -32,6 +33,7 @@ use Eccube\Repository\PageRepository;
 use Eccube\Request\Context;
 use Eccube\Service\SystemService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -143,10 +145,14 @@ class TwigInitializeListener implements EventSubscriberInterface
     }
 
     /**
+     * @param RequestEvent $event
+     *
+     * @return void
+     *
      * @throws NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NonUniqueResultException
      */
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         if ($this->initialized) {
             return;
@@ -164,12 +170,16 @@ class TwigInitializeListener implements EventSubscriberInterface
     }
 
     /**
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @param RequestEvent $event
+     *
+     * @return void
+     *
+     * @throws NonUniqueResultException
      */
-    public function setFrontVariables(RequestEvent $event)
+    public function setFrontVariables(RequestEvent $event): void
     {
         $request = $event->getRequest();
-        /** @var \Symfony\Component\HttpFoundation\ParameterBag $attributes */
+        /** @var ParameterBag $attributes */
         $attributes = $request->attributes;
         $route = $attributes->get('_route');
         if ($route == 'user_data') {
@@ -238,7 +248,12 @@ class TwigInitializeListener implements EventSubscriberInterface
         $this->twig->addGlobal('isDebugMode', env('APP_DEBUG'));
     }
 
-    public function setAdminGlobals(RequestEvent $event)
+    /**
+     * @param RequestEvent $event
+     *
+     * @return void
+     */
+    public function setAdminGlobals(RequestEvent $event): void
     {
         // メニュー表示用配列.
         $menus = [];
@@ -261,13 +276,13 @@ class TwigInitializeListener implements EventSubscriberInterface
     /**
      * URLに対する権限有無チェックして表示するNavを返す
      *
-     * @param array $parentNav
+     * @param array<string, array<string, mixed>> $parentNav
      * @param AuthorityRole[] $AuthorityRoles
      * @param string $baseUrl
      *
-     * @return array
+     * @return array<string, array<string, mixed>>
      */
-    private function getDisplayEccubeNav($parentNav, $AuthorityRoles, $baseUrl)
+    private function getDisplayEccubeNav($parentNav, $AuthorityRoles, $baseUrl): array
     {
         $restrictUrls = $this->eccubeConfig['eccube_restrict_file_upload_urls'];
 
@@ -306,7 +321,7 @@ class TwigInitializeListener implements EventSubscriberInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => [

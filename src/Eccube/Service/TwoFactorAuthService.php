@@ -14,12 +14,12 @@
 namespace Eccube\Service;
 
 use Eccube\Common\EccubeConfig;
+use Eccube\Entity\Member;
 use RobThree\Auth\TwoFactorAuth;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class TwoFactorAuthService
 {
@@ -49,7 +49,7 @@ class TwoFactorAuthService
     protected $requestStack;
 
     /**
-     * @var Request
+     * @var Request|null
      */
     protected $request;
 
@@ -72,7 +72,8 @@ class TwoFactorAuthService
      * constructor.
      *
      * @param EccubeConfig $eccubeConfig
-     * @param UserPasswordHasherInterface $passwordHasher
+     * @param PasswordHasherFactoryInterface $passwordHasherFactory
+     * @param RequestStack $requestStack
      */
     public function __construct(
         EccubeConfig $eccubeConfig,
@@ -96,11 +97,11 @@ class TwoFactorAuthService
     }
 
     /**
-     * @param Eccube\Entity\Member
+     * @param Member $Member
      *
      * @return bool
      */
-    public function isAuth($Member)
+    public function isAuth($Member): bool
     {
         if ($json = $this->request->cookies->get($this->cookieName)) {
             $configs = json_decode($json);
@@ -125,11 +126,11 @@ class TwoFactorAuthService
     }
 
     /**
-     * @param Eccube\Entity\Member
+     * @param Member $Member
      *
      * @return Cookie
      */
-    public function createAuthedCookie($Member)
+    public function createAuthedCookie($Member): Cookie
     {
         $hasher = $this->passwordHasherFactory->getPasswordHasher($Member);
         $encodedString = $hasher->hash($Member->getId().$Member->getTwoFactorAuthKey());
@@ -159,12 +160,12 @@ class TwoFactorAuthService
     }
 
     /**
-     * @param Eccube\Entity\Member
-     * @param string
+     * @param string $authKey
+     * @param string $token
      *
      * @return bool
      */
-    public function verifyCode($authKey, $token)
+    public function verifyCode($authKey, $token): bool
     {
         return $this->tfa->verifyCode($authKey, $token, 2);
     }
@@ -172,7 +173,7 @@ class TwoFactorAuthService
     /**
      * @return string
      */
-    public function createSecret()
+    public function createSecret(): string
     {
         return $this->tfa->createSecret();
     }
@@ -180,7 +181,7 @@ class TwoFactorAuthService
     /**
      * @return bool
      */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         $enabled = $this->eccubeConfig->get('eccube_2fa_enabled');
         if (is_string($enabled) && $enabled === '0' || $enabled === false) {

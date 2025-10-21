@@ -32,7 +32,9 @@ use Symfony\Component\HttpKernel\KernelInterface;
 class CacheUtil implements EventSubscriberInterface
 {
     public const DOCTRINE_APP_CACHE_KEY = 'doctrine.app_cache_pool';
-
+    /**
+     * @var mixed
+     */
     private $clearCacheAfterResponse = false;
 
     /**
@@ -58,16 +60,25 @@ class CacheUtil implements EventSubscriberInterface
 
     /**
      * @param string $env
+     *
+     * @return void
      */
-    public function clearCache($env = null)
+    public function clearCache($env = null): void
     {
         $this->clearCacheAfterResponse = $env;
     }
 
-    public function forceClearCache(TerminateEvent $event)
+    /**
+     * @param TerminateEvent $event
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function forceClearCache(TerminateEvent $event): string
     {
         if ($this->clearCacheAfterResponse === false) {
-            return;
+            return '';
         }
 
         $console = new Application($this->kernel);
@@ -115,7 +126,7 @@ class CacheUtil implements EventSubscriberInterface
      *
      * @throws \Exception
      */
-    public function clearDoctrineCache()
+    public function clearDoctrineCache(): ?string
     {
         /** @var Psr6CacheClearer $poolClearer */
         $poolClearer = $this->container->get('cache.global_clearer');
@@ -146,8 +157,10 @@ class CacheUtil implements EventSubscriberInterface
 
     /**
      * Twigキャッシュを削除します.
+     *
+     * @return void
      */
-    public function clearTwigCache()
+    public function clearTwigCache(): void
     {
         $cacheDir = $this->kernel->getCacheDir().'/twig';
         $fs = new Filesystem();
@@ -168,7 +181,7 @@ class CacheUtil implements EventSubscriberInterface
      *
      * @deprecated CacheUtil::clearCacheを利用すること
      */
-    public static function clear($app, $isAll, $isTwig = false)
+    public static function clear($app, $isAll, $isTwig = false): bool
     {
         $cacheDir = $app['config']['root_dir'].'/app/cache';
 
@@ -221,7 +234,7 @@ class CacheUtil implements EventSubscriberInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [KernelEvents::TERMINATE => 'forceClearCache'];
     }

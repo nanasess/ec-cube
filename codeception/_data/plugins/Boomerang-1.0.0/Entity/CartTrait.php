@@ -14,27 +14,22 @@
 namespace Plugin\Boomerang\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Eccube\Annotation\EntityExtension;
+use Eccube\Attribute\EntityExtension;
+use Eccube\Entity\Cart;
 
-#[EntityExtension(\Eccube\Entity\Cart::class)]
+#[EntityExtension(Cart::class)]
 trait CartTrait
 {
     /**
      * @var bool
-     *
-     * @ORM\Column(name="is_boomerang", type="boolean", options={"default":false}, nullable=true)
      */
+    #[ORM\Column(name: 'is_boomerang', type: 'boolean', nullable: true, options: ['default' => false])]
     public $is_boomerang;
 
     /**
      * @var Bar
-     *
-     * @ORM\ManyToOne(targetEntity="Plugin\Boomerang\Entity\Bar")
-     *
-     * @ORM\JoinColumns({
-     *
-     *     @ORM\JoinColumn(name="bar_id", referencedColumnName="id")
-     * })
      */
+    #[ORM\ManyToOne(targetEntity: Bar::class)]
+    #[ORM\JoinColumn(name: 'bar_id', referencedColumnName: 'id')]
     public $bar;
 }

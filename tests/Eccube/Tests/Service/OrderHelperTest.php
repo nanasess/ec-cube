@@ -19,6 +19,7 @@ use Eccube\Entity\Master\TaxDisplayType;
 use Eccube\Entity\Order;
 use Eccube\Service\OrderHelper;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class OrderHelperTest extends EccubeTestCase
 {
@@ -75,8 +76,10 @@ class OrderHelperTest extends EccubeTestCase
     /**
      * 税表示区分が問題ないかを確認する
      *
-     * @dataProvider taxDisplayTypeProvider
+     * @param mixed $OrderItemType
+     * @param mixed $TaxDisplayType
      */
+    #[DataProvider(methodName: 'taxDisplayTypeProvider')]
     public function testTaxDisplayType($OrderItemType, $TaxDisplayType)
     {
         $TaxDisplayType = $this->entityManager->find(TaxDisplayType::class, $TaxDisplayType);
@@ -84,7 +87,7 @@ class OrderHelperTest extends EccubeTestCase
         self::assertSame($this->helper->getTaxDisplayType($OrderItemType), $TaxDisplayType);
     }
 
-    public function taxDisplayTypeProvider()
+    public static function taxDisplayTypeProvider()
     {
         // - 商品: 税抜
         // - 送料: 税込

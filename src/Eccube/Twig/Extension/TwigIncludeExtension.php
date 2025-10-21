@@ -13,20 +13,25 @@
 
 namespace Eccube\Twig\Extension;
 
+use Twig\Environment;
 use Twig\Extension\AbstractExtension;
+use Twig\TemplateWrapper;
 use Twig\TwigFunction;
 
 class TwigIncludeExtension extends AbstractExtension
 {
+    /**
+     * @var Environment
+     */
     protected $twig;
 
-    public function __construct(\Twig\Environment $twig)
+    public function __construct(Environment $twig)
     {
         $this->twig = $twig;
     }
 
     #[\Override]
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('include_dispatch', $this->include_dispatch(...),
@@ -34,7 +39,16 @@ class TwigIncludeExtension extends AbstractExtension
         ];
     }
 
-    public function include_dispatch($context, $template, $variables = [])
+    /**
+     * 指定したテンプレートをレンダリングして返す
+     *
+     * @param array<mixed> $context 現在のコンテキスト
+     * @param string|TemplateWrapper $template レンダリングするテンプレート名
+     * @param array<mixed> $variables テンプレートに渡す変数
+     *
+     * @return string レンダリング結果
+     */
+    public function include_dispatch($context, $template, $variables = []): string
     {
         if (!empty($variables)) {
             $context = array_merge($context, $variables);

@@ -44,9 +44,14 @@ class NonMemberType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', NameType::class, [
@@ -79,7 +84,7 @@ class NonMemberType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'nonmember';
     }

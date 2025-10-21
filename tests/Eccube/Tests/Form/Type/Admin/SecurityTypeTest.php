@@ -15,6 +15,7 @@ namespace Eccube\Tests\Form\Type\Admin;
 
 use Eccube\Form\Type\Admin\SecurityType;
 use Eccube\Tests\Form\Type\AbstractTypeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\FormInterface;
 
 class SecurityTypeTest extends AbstractTypeTestCase
@@ -105,8 +106,10 @@ class SecurityTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider adminRouteDirParams
+     * @param mixed $rootDir
+     * @param mixed $valid
      */
+    #[DataProvider(methodName: 'adminRouteDirParams')]
     public function testAdminRouteDir($rootDir, $valid)
     {
         $this->formData['admin_route_dir'] = $rootDir;
@@ -114,7 +117,7 @@ class SecurityTypeTest extends AbstractTypeTestCase
         $this->assertEquals($valid, $this->form->isValid());
     }
 
-    public function adminRouteDirParams()
+    public static function adminRouteDirParams()
     {
         return [
             ['admin', true],
@@ -305,7 +308,7 @@ class SecurityTypeTest extends AbstractTypeTestCase
         $this->assertTrue($this->form->isValid());
     }
 
-    public function ipAddressParams()
+    public static function ipAddressParams()
     {
         return [
             // 正常系（適切なIPアドレス表記として認める）
@@ -327,8 +330,10 @@ class SecurityTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider ipAddressParams
+     * @param mixed $ip
+     * @param mixed $valid
      */
+    #[DataProvider(methodName: 'ipAddressParams')]
     public function testFrontAllowHost($ip, $valid)
     {
         $this->formData['front_allow_hosts'] = $ip;
@@ -337,8 +342,10 @@ class SecurityTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider ipAddressParams
+     * @param mixed $ip
+     * @param mixed $valid
      */
+    #[DataProvider(methodName: 'ipAddressParams')]
     public function testFrontDenyHost($ip, $valid)
     {
         $this->formData['front_deny_hosts'] = $ip;
@@ -347,8 +354,10 @@ class SecurityTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider ipAddressParams
+     * @param mixed $ip
+     * @param mixed $valid
      */
+    #[DataProvider(methodName: 'ipAddressParams')]
     public function testAdminAllowHost($ip, $valid)
     {
         $this->formData['admin_allow_hosts'] = $ip;
@@ -357,8 +366,10 @@ class SecurityTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider ipAddressParams
+     * @param mixed $ip
+     * @param mixed $valid
      */
+    #[DataProvider(methodName: 'ipAddressParams')]
     public function testAdminDenyHost($ip, $valid)
     {
         $this->formData['admin_deny_hosts'] = $ip;

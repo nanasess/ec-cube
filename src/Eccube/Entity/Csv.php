@@ -14,112 +14,89 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Entity\Master\CsvType;
+use Eccube\Repository\CsvRepository;
 
 if (!class_exists(Csv::class)) {
     /**
      * Csv
-     *
-     * @ORM\Table(name="dtb_csv")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\CsvRepository")
      */
+    #[ORM\Table(name: 'dtb_csv')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: CsvRepository::class)]
     class Csv extends AbstractEntity
     {
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="entity_name", type="string", length=255)
          */
+        #[ORM\Column(name: 'entity_name', type: 'string', length: 255)]
         private $entity_name;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="field_name", type="string", length=255)
          */
+        #[ORM\Column(name: 'field_name', type: 'string', length: 255)]
         private $field_name;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="reference_field_name", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'reference_field_name', type: 'string', length: 255, nullable: true)]
         private $reference_field_name;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="disp_name", type="string", length=255)
          */
+        #[ORM\Column(name: 'disp_name', type: 'string', length: 255)]
         private $disp_name;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="sort_no", type="smallint", options={"unsigned":true})
          */
+        #[ORM\Column(name: 'sort_no', type: 'smallint', options: ['unsigned' => true])]
         private $sort_no;
 
         /**
          * @var bool
-         *
-         * @ORM\Column(name="enabled", type="boolean", options={"default":true})
          */
+        #[ORM\Column(name: 'enabled', type: 'boolean', options: ['default' => true])]
         private $enabled = true;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
-         * @var Master\CsvType
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\CsvType")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="csv_type_id", referencedColumnName="id")
-         * })
+         * @var CsvType|null
          */
+        #[ORM\ManyToOne(targetEntity: CsvType::class)]
+        #[ORM\JoinColumn(name: 'csv_type_id', referencedColumnName: 'id')]
         private $CsvType;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id')]
         private $Creator;
 
         /**
@@ -127,7 +104,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return int
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -139,7 +116,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setEntityName($entityName)
+        public function setEntityName($entityName): Csv
         {
             $this->entity_name = $entityName;
 
@@ -151,7 +128,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return string
          */
-        public function getEntityName()
+        public function getEntityName(): string
         {
             return $this->entity_name;
         }
@@ -163,7 +140,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setFieldName($fieldName)
+        public function setFieldName($fieldName): Csv
         {
             $this->field_name = $fieldName;
 
@@ -175,7 +152,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return string
          */
-        public function getFieldName()
+        public function getFieldName(): string
         {
             return $this->field_name;
         }
@@ -187,7 +164,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setReferenceFieldName($referenceFieldName = null)
+        public function setReferenceFieldName($referenceFieldName = null): Csv
         {
             $this->reference_field_name = $referenceFieldName;
 
@@ -199,7 +176,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return string|null
          */
-        public function getReferenceFieldName()
+        public function getReferenceFieldName(): ?string
         {
             return $this->reference_field_name;
         }
@@ -211,7 +188,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setDispName($dispName)
+        public function setDispName($dispName): Csv
         {
             $this->disp_name = $dispName;
 
@@ -223,7 +200,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return string
          */
-        public function getDispName()
+        public function getDispName(): string
         {
             return $this->disp_name;
         }
@@ -235,7 +212,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setSortNo($sortNo)
+        public function setSortNo($sortNo): Csv
         {
             $this->sort_no = $sortNo;
 
@@ -247,7 +224,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return int
          */
-        public function getSortNo()
+        public function getSortNo(): int
         {
             return $this->sort_no;
         }
@@ -259,7 +236,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setEnabled($enabled)
+        public function setEnabled($enabled): Csv
         {
             $this->enabled = $enabled;
 
@@ -271,7 +248,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return bool
          */
-        public function isEnabled()
+        public function isEnabled(): bool
         {
             return $this->enabled;
         }
@@ -283,7 +260,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): Csv
         {
             $this->create_date = $createDate;
 
@@ -293,9 +270,9 @@ if (!class_exists(Csv::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -307,7 +284,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): Csv
         {
             $this->update_date = $updateDate;
 
@@ -317,9 +294,9 @@ if (!class_exists(Csv::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -327,11 +304,11 @@ if (!class_exists(Csv::class)) {
         /**
          * Set csvType.
          *
-         * @param Master\CsvType|null $csvType
+         * @param CsvType|null $csvType
          *
          * @return Csv
          */
-        public function setCsvType(?Master\CsvType $csvType = null)
+        public function setCsvType(?CsvType $csvType = null): Csv
         {
             $this->CsvType = $csvType;
 
@@ -341,9 +318,9 @@ if (!class_exists(Csv::class)) {
         /**
          * Get csvType.
          *
-         * @return Master\CsvType|null
+         * @return CsvType|null
          */
-        public function getCsvType()
+        public function getCsvType(): ?CsvType
         {
             return $this->CsvType;
         }
@@ -355,7 +332,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Csv
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): Csv
         {
             $this->Creator = $creator;
 
@@ -367,7 +344,7 @@ if (!class_exists(Csv::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }

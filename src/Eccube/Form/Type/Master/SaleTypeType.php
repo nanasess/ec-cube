@@ -13,6 +13,7 @@
 
 namespace Eccube\Form\Type\Master;
 
+use Eccube\Entity\Master\SaleType;
 use Eccube\Form\Type\MasterType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -24,12 +25,16 @@ class SaleTypeType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'class' => \Eccube\Entity\Master\SaleType::class,
+            'class' => SaleType::class,
             'label' => 'salestype.label.sales_type',
         ]);
     }
@@ -38,7 +43,7 @@ class SaleTypeType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sale_type';
     }
@@ -47,7 +52,7 @@ class SaleTypeType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getParent()
+    public function getParent(): ?string
     {
         return MasterType::class;
     }

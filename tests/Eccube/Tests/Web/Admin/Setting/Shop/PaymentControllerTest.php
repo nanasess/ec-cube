@@ -16,6 +16,7 @@ namespace Eccube\Tests\Web\Admin\Setting\Shop;
 use Eccube\Entity\Payment;
 use Eccube\Repository\PaymentRepository;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Filesystem\Filesystem;
 
 class PaymentControllerTest extends AbstractAdminWebTestCase
@@ -68,9 +69,8 @@ class PaymentControllerTest extends AbstractAdminWebTestCase
     /**
      * @param $isSuccess
      * @param $expected
-     *
-     * @dataProvider dataSubmitProvider
      */
+    #[DataProvider(methodName: 'dataSubmitProvider')]
     public function testNew($isSuccess, $expected)
     {
         $formData = $this->createFormData();
@@ -100,9 +100,8 @@ class PaymentControllerTest extends AbstractAdminWebTestCase
     /**
      * @param $isSuccess
      * @param $expected
-     *
-     * @dataProvider dataSubmitProvider
      */
+    #[DataProvider(methodName: 'dataSubmitProvider')]
     public function testEdit($isSuccess, $expected)
     {
         $formData = $this->createFormData();
@@ -292,7 +291,7 @@ class PaymentControllerTest extends AbstractAdminWebTestCase
         ];
     }
 
-    public function dataSubmitProvider()
+    public static function dataSubmitProvider()
     {
         return [
             [false, false],

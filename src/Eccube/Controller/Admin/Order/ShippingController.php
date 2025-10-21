@@ -35,9 +35,10 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ShippingController extends AbstractController
@@ -124,10 +125,17 @@ class ShippingController extends AbstractController
 
     /**
      * 出荷登録/編集画面.
+     *
+     * @param Request $request
+     * @param Order $Order
+     *
+     * @return RedirectResponse|array<string, mixed>
+     *
+     * @throws \Exception
      */
-    #[Route('/%eccube_admin_route%/shipping/{id}/edit', requirements: ['id' => '\d+'], name: 'admin_shipping_edit', methods: ['GET', 'POST'])]
-    #[Template('@admin/Order/shipping.twig')]
-    public function index(Request $request, Order $Order)
+    #[Route(path: '/%eccube_admin_route%/shipping/{id}/edit', name: 'admin_shipping_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Order/shipping.twig')]
+    public function index(Request $request, Order $Order): RedirectResponse|array
     {
         $OriginOrder = clone $Order;
         $purchaseContext = new PurchaseContext($OriginOrder, $OriginOrder->getCustomer());
@@ -135,7 +143,9 @@ class ShippingController extends AbstractController
         $TargetShippings = $Order->getShippings();
 
         // 編集前の受注情報を保持
+        /** @var ArrayCollection<int, Shipping> $OriginShippings */
         $OriginShippings = new ArrayCollection();
+        /** @var array<int, ArrayCollection<int, OrderItem>> $OriginOrderItems */
         $OriginOrderItems = [];
 
         foreach ($TargetShippings as $key => $TargetShipping) {
@@ -184,12 +194,10 @@ class ShippingController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // 削除された項目の削除
-            /** @var Shipping $OriginShipping */
             foreach ($OriginShippings as $key => $OriginShipping) {
                 if (false === $TargetShippings->contains($OriginShipping)) {
                     // お届け先自体が削除された場合
                     // 削除されたお届け先に紐づく明細の削除
-                    /** @var OrderItem $OriginOrderItem */
                     foreach ($OriginOrderItems[$key] as $OriginOrderItem) {
                         $Order->removeOrderItem($OriginOrderItem);
                         $this->entityManager->remove($OriginOrderItem);
@@ -200,7 +208,6 @@ class ShippingController extends AbstractController
                 } else {
                     // お届け先は削除されていない場合
                     // 削除された明細の削除
-                    /** @var OrderItem $OriginOrderItem */
                     foreach ($OriginOrderItems[$key] as $OriginOrderItem) {
                         if (false === $TargetShippings[$key]->getOrderItems()->contains($OriginOrderItem)) {
                             $Order->removeOrderItem($OriginOrderItem);
@@ -213,12 +220,13 @@ class ShippingController extends AbstractController
             // 追加された項目の追加
             foreach ($TargetShippings as $TargetShipping) {
                 // 追加された明細の追加
-                /** @var OrderItem $OrderItem */
                 foreach ($TargetShipping->getOrderItems() as $OrderItem) {
-                    $OrderItem->setShipping($TargetShipping);
-                    if (is_null($OrderItem->getOrder())) {
-                        $OrderItem->setOrder($Order);
-                        $Order->addOrderItem($OrderItem);
+                    if ($OrderItem instanceof OrderItem) {
+                        $OrderItem->setShipping($TargetShipping);
+                        if (is_null($OrderItem->getOrder())) {
+                            $OrderItem->setOrder($Order);
+                            $Order->addOrderItem($OrderItem);
+                        }
                     }
                 }
 
@@ -295,11 +303,9 @@ class ShippingController extends AbstractController
      * @param Shipping $Shipping
      *
      * @return Response
-     *
-     * @throws \Twig_Error
      */
-    #[Route('/%eccube_admin_route%/shipping/preview_notify_mail/{id}', requirements: ['id' => '\d+'], name: 'admin_shipping_preview_notify_mail', methods: ['GET'])]
-    public function previewShippingNotifyMail(Shipping $Shipping)
+    #[Route(path: '/%eccube_admin_route%/shipping/preview_notify_mail/{id}', name: 'admin_shipping_preview_notify_mail', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function previewShippingNotifyMail(Shipping $Shipping): Response
     {
         return new Response($this->mailService->getShippingNotifyMailBody($Shipping, $Shipping->getOrder(), null, true));
     }
@@ -308,11 +314,9 @@ class ShippingController extends AbstractController
      * @param Shipping $Shipping
      *
      * @return JsonResponse
-     *
-     * @throws \Twig_Error
      */
-    #[Route('/%eccube_admin_route%/shipping/notify_mail/{id}', name: 'admin_shipping_notify_mail', requirements: ['id' => '\d+'], methods: ['PUT'])]
-    public function notifyMail(Shipping $Shipping)
+    #[Route(path: '/%eccube_admin_route%/shipping/notify_mail/{id}', name: 'admin_shipping_notify_mail', requirements: ['id' => '\d+'], methods: ['PUT'])]
+    public function notifyMail(Shipping $Shipping): JsonResponse
     {
         $this->isTokenValid();
 

@@ -20,8 +20,9 @@ use Eccube\Repository\Master\OrderStatusColorRepository;
 use Eccube\Repository\Master\OrderStatusRepository;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class OrderStatusController extends AbstractController
 {
@@ -52,10 +53,14 @@ class OrderStatusController extends AbstractController
 
     /**
      * 受注ステータス編集画面.
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse|array<string, mixed>
      */
-    #[Route('/%eccube_admin_route%/setting/shop/order_status', name: 'admin_setting_shop_order_status', methods: ['GET', 'POST'])]
-    #[Template('@admin/Setting/Shop/order_status.twig')]
-    public function index(Request $request)
+    #[Route(path: '/%eccube_admin_route%/setting/shop/order_status', name: 'admin_setting_shop_order_status', methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Setting/Shop/order_status.twig')]
+    public function index(Request $request): RedirectResponse|array
     {
         $OrderStatuses = $this->orderStatusRepository->findBy([], ['sort_no' => 'ASC']);
         $builder = $this->formFactory->createBuilder();

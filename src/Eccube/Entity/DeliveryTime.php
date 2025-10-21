@@ -14,21 +14,17 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\DeliveryTimeRepository;
 
 if (!class_exists(DeliveryTime::class)) {
     /**
      * DeliveryTime
-     *
-     * @ORM\Table(name="dtb_delivery_time")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\DeliveryTimeRepository")
      */
+    #[ORM\Table(name: 'dtb_delivery_time')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: DeliveryTimeRepository::class)]
     class DeliveryTime extends AbstractEntity implements \Stringable
     {
         #[\Override]
@@ -39,60 +35,48 @@ if (!class_exists(DeliveryTime::class)) {
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="delivery_time", type="string", length=255)
          */
+        #[ORM\Column(name: 'delivery_time', type: 'string', length: 255)]
         private $delivery_time;
 
         /**
-         * @var Delivery
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Delivery", inversedBy="DeliveryTimes")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="delivery_id", referencedColumnName="id")
-         * })
+         * @var Delivery|null
          */
+        #[ORM\ManyToOne(targetEntity: Delivery::class, inversedBy: 'DeliveryTimes')]
+        #[ORM\JoinColumn(name: 'delivery_id', referencedColumnName: 'id')]
         private $Delivery;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="sort_no", type="smallint", options={"unsigned":true})
          */
+        #[ORM\Column(name: 'sort_no', type: 'smallint', options: ['unsigned' => true])]
         protected $sort_no;
 
         /**
          * @var bool
-         *
-         * @ORM\Column(name="visible", type="boolean", options={"default":true})
          */
+        #[ORM\Column(name: 'visible', type: 'boolean', options: ['default' => true])]
         private $visible;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
@@ -100,7 +84,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return int
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -112,7 +96,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return DeliveryTime
          */
-        public function setDeliveryTime($deliveryTime)
+        public function setDeliveryTime($deliveryTime): DeliveryTime
         {
             $this->delivery_time = $deliveryTime;
 
@@ -124,7 +108,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return string
          */
-        public function getDeliveryTime()
+        public function getDeliveryTime(): string
         {
             return $this->delivery_time;
         }
@@ -136,7 +120,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return DeliveryTime
          */
-        public function setDelivery(?Delivery $delivery = null)
+        public function setDelivery(?Delivery $delivery = null): DeliveryTime
         {
             $this->Delivery = $delivery;
 
@@ -148,7 +132,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return Delivery|null
          */
-        public function getDelivery()
+        public function getDelivery(): ?Delivery
         {
             return $this->Delivery;
         }
@@ -160,7 +144,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return $this
          */
-        public function setSortNo($sort_no)
+        public function setSortNo($sort_no): static
         {
             $this->sort_no = $sort_no;
 
@@ -172,7 +156,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return int
          */
-        public function getSortNo()
+        public function getSortNo(): int
         {
             return $this->sort_no;
         }
@@ -184,7 +168,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return DeliveryTime
          */
-        public function setVisible($visible)
+        public function setVisible($visible): DeliveryTime
         {
             $this->visible = $visible;
 
@@ -196,7 +180,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return bool
          */
-        public function isVisible()
+        public function isVisible(): bool
         {
             return $this->visible;
         }
@@ -208,7 +192,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return DeliveryTime
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): DeliveryTime
         {
             $this->create_date = $createDate;
 
@@ -218,9 +202,9 @@ if (!class_exists(DeliveryTime::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -232,7 +216,7 @@ if (!class_exists(DeliveryTime::class)) {
          *
          * @return DeliveryTime
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): DeliveryTime
         {
             $this->update_date = $updateDate;
 
@@ -242,9 +226,9 @@ if (!class_exists(DeliveryTime::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }

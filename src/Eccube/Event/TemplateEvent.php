@@ -32,7 +32,7 @@ class TemplateEvent extends Event
     private $source;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     private $parameters;
 
@@ -42,12 +42,12 @@ class TemplateEvent extends Event
     private $response;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     private $assets = [];
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     private $snippets = [];
 
@@ -56,7 +56,7 @@ class TemplateEvent extends Event
      *
      * @param string $view
      * @param string $source
-     * @param array $parameters
+     * @param array<mixed> $parameters
      * @param Response|null $response
      */
     public function __construct($view, $source, array $parameters = [], ?Response $response = null)
@@ -68,78 +68,86 @@ class TemplateEvent extends Event
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getView()
+    public function getView(): ?string
     {
         return $this->view;
     }
 
     /**
      * @param string $view
+     *
+     * @return void
      */
-    public function setView($view)
+    public function setView($view): void
     {
         $this->view = $view;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSource()
+    public function getSource(): ?string
     {
         return $this->source;
     }
 
     /**
      * @param string $source
+     *
+     * @return void
      */
-    public function setSource($source)
+    public function setSource($source): void
     {
         $this->source = $source;
     }
 
     /**
-     * @param $key
+     * @param string $key
      *
      * @return mixed
      */
-    public function getParameter($key)
+    public function getParameter($key): mixed
     {
         return $this->parameters[$key];
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return void
      */
-    public function setParameter($key, $value)
+    public function setParameter($key, $value): void
     {
         $this->parameters[$key] = $value;
     }
 
     /**
-     * @param $key
+     * @param string $key
      *
      * @return bool
      */
-    public function hasParameter($key)
+    public function hasParameter($key): bool
     {
         return isset($this->parameters[$key]);
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         return $this->parameters;
     }
 
     /**
-     * @param array $parameters
+     * @param array<mixed> $parameters
+     *
+     * @return void
      */
-    public function setParameters($parameters)
+    public function setParameters($parameters): void
     {
         $this->parameters = $parameters;
     }
@@ -147,15 +155,17 @@ class TemplateEvent extends Event
     /**
      * @return Response|null
      */
-    public function getResponse()
+    public function getResponse(): ?Response
     {
         return $this->response;
     }
 
     /**
      * @param Response|null $response
+     *
+     * @return void
      */
-    public function setResponse($response)
+    public function setResponse($response): void
     {
         $this->response = $response;
     }
@@ -166,12 +176,12 @@ class TemplateEvent extends Event
      * ここで追加したコードは, <head></head>内に出力される
      * javascriptの読み込みやcssの読み込みに利用する.
      *
-     * @param $asset
+     * @param string $asset
      * @param bool $include twigファイルとしてincludeするかどうか
      *
      * @return $this
      */
-    public function addAsset($asset, $include = true)
+    public function addAsset($asset, $include = true): static
     {
         $this->assets[$asset] = $include;
 
@@ -185,12 +195,12 @@ class TemplateEvent extends Event
      *
      * ここで追加したコードは, </body>タグ直前に出力される
      *
-     * @param $snippet
+     * @param string $snippet
      * @param bool $include twigファイルとしてincludeするかどうか
      *
      * @return $this
      */
-    public function addSnippet($snippet, $include = true)
+    public function addSnippet($snippet, $include = true): static
     {
         $this->snippets[$snippet] = $include;
 

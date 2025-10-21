@@ -21,6 +21,7 @@ use Eccube\Entity\ProductClass;
 use Eccube\Entity\Shipping;
 use Eccube\Service\OrderStateMachine;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class OrderStateMachineTest extends EccubeTestCase
 {
@@ -34,12 +35,11 @@ class OrderStateMachineTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider canProvider
-     *
      * @param $fromId
      * @param $toId
      * @param $expected
      */
+    #[DataProvider(methodName: 'canProvider')]
     public function testCan($fromId, $toId, $expected)
     {
         $fromStatus = $this->statusOf($fromId);
@@ -51,7 +51,7 @@ class OrderStateMachineTest extends EccubeTestCase
         self::assertEquals($expected, $this->stateMachine->can($Order, $toStatus));
     }
 
-    public function canProvider()
+    public static function canProvider()
     {
         return [
             [OrderStatus::NEW,          OrderStatus::NEW,           false],
@@ -157,10 +157,10 @@ class OrderStateMachineTest extends EccubeTestCase
 
         $this->stateMachine->apply($Order, $this->statusOf(OrderStatus::CANCEL));
 
-        self::assertSame(1100, $Customer->getPoint(), '受注取り消しなら会員の保有ポイントが戻る');
+        self::assertSame('1100', $Customer->getPoint(), '受注取り消しなら会員の保有ポイントが戻る');
 
-        self::assertSame(15, $ProductClass1->getStock(), '受注取り消しなら在庫が戻る');
-        self::assertSame(30, $ProductClass2->getStock(), '受注取り消しなら在庫が戻る');
+        self::assertSame('15', $ProductClass1->getStock(), '受注取り消しなら在庫が戻る');
+        self::assertSame('30', $ProductClass2->getStock(), '受注取り消しなら在庫が戻る');
     }
 
     public function testTransitionBackToInProgress()
@@ -211,10 +211,10 @@ class OrderStateMachineTest extends EccubeTestCase
 
         $this->stateMachine->apply($Order, $this->statusOf(OrderStatus::IN_PROGRESS));
 
-        self::assertSame(900, $Customer->getPoint(), '対応中に戻るなら会員の保有ポイントが減る');
+        self::assertSame('900', $Customer->getPoint(), '対応中に戻るなら会員の保有ポイントが減る');
 
-        self::assertSame(5, $ProductClass1->getStock(), '対応中に戻るなら在庫が減る');
-        self::assertSame(10, $ProductClass2->getStock(), '対応中に戻るなら在庫が減る');
+        self::assertSame('5', $ProductClass1->getStock(), '対応中に戻るなら在庫が減る');
+        self::assertSame('10', $ProductClass2->getStock(), '対応中に戻るなら在庫が減る');
     }
 
     public function testTransitionShip()
@@ -240,7 +240,7 @@ class OrderStateMachineTest extends EccubeTestCase
 
         $this->stateMachine->apply($Order, $this->statusOf(OrderStatus::DELIVERED));
 
-        self::assertSame(1100, $Customer->getPoint(), '発送済みになれば加算ポイントが会員に付与されているはず');
+        self::assertSame('1100', $Customer->getPoint(), '発送済みになれば加算ポイントが会員に付与されているはず');
     }
 
     public function testTransitionReturn()
@@ -266,7 +266,8 @@ class OrderStateMachineTest extends EccubeTestCase
 
         $this->stateMachine->apply($Order, $this->statusOf(OrderStatus::RETURNED));
 
-        self::assertSame(1000 + 10 - 100, $Customer->getPoint(), '返品になれば利用ポイント分が戻され、加算ポイント分は引かれるはず');
+        // 1000 + 10 - 100 = 910
+        self::assertSame('910', $Customer->getPoint(), '返品になれば利用ポイント分が戻され、加算ポイント分は引かれるはず');
     }
 
     public function testTransitionCancelReturn()
@@ -295,7 +296,8 @@ class OrderStateMachineTest extends EccubeTestCase
 
         $this->stateMachine->apply($Order, $this->statusOf(OrderStatus::DELIVERED));
 
-        self::assertSame(1000 - 10 + 100, $Customer->getPoint(), '返品キャンセルになれば利用ポイント分が減らされ、加算ポイント分が増えるはず');
+        // 1000 - 10 + 100 = 1090
+        self::assertSame('1090', $Customer->getPoint(), '返品キャンセルになれば利用ポイント分が減らされ、加算ポイント分が増えるはず');
     }
 
     /**

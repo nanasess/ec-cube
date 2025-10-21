@@ -41,7 +41,7 @@ class ValidatableItemProcessorTest extends EccubeTestCase
         $this->assertFalse($validator->handleCalled);
     }
 
-    public function testValidateCartFail()
+    public function testValidateCartFail(): never
     {
         // TODO: FIXME
         $this->markTestIncomplete(__METHOD__.'may be not implement');
@@ -77,11 +77,11 @@ class ItemValidatorTest_NormalValidator extends ItemValidator
 {
     public $handleCalled = false;
 
-    protected function validate(ItemInterface $item, PurchaseContext $context)
+    protected function validate(ItemInterface $item, PurchaseContext $context): void
     {
     }
 
-    protected function handle(ItemInterface $item, PurchaseContext $context)
+    protected function handle(ItemInterface $item, PurchaseContext $context): void
     {
         $this->handleCalled = true;
     }
@@ -91,12 +91,12 @@ class ItemValidatorTest_FailValidator extends ItemValidator
 {
     public $handleCalled = false;
 
-    protected function validate(ItemInterface $item, PurchaseContext $context): never
+    protected function validate(ItemInterface $item, PurchaseContext $context): void
     {
         throw new InvalidItemException();
     }
 
-    protected function handle(ItemInterface $item, PurchaseContext $context)
+    protected function handle(ItemInterface $item, PurchaseContext $context): void
     {
         $this->handleCalled = true;
     }

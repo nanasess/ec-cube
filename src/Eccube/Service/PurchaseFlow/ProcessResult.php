@@ -19,10 +19,19 @@ class ProcessResult
     public const WARNING = 'WARNING';
     public const SUCCESS = 'SUCCESS';
 
+    /**
+     * @var string
+     */
     protected $type;
 
+    /**
+     * @var string|null
+     */
     protected $message;
 
+    /**
+     * @var string|null
+     */
     protected $class;
 
     /**
@@ -43,7 +52,7 @@ class ProcessResult
      *
      * @return ProcessResult
      */
-    public static function warn($message = null, $class = null)
+    public static function warn($message = null, $class = null): ProcessResult
     {
         return new self(self::WARNING, $message, $class);
     }
@@ -54,7 +63,7 @@ class ProcessResult
      *
      * @return ProcessResult
      */
-    public static function error($message = null, $class = null)
+    public static function error($message = null, $class = null): ProcessResult
     {
         return new self(self::ERROR, $message, $class);
     }
@@ -65,27 +74,39 @@ class ProcessResult
      *
      * @return ProcessResult
      */
-    public static function success($message = null, $class = null)
+    public static function success($message = null, $class = null): ProcessResult
     {
         return new self(self::SUCCESS, $message, $class);
     }
 
-    public function isError()
+    /**
+     * @return bool
+     */
+    public function isError(): bool
     {
         return $this->type === self::ERROR;
     }
 
-    public function isWarning()
+    /**
+     * @return bool
+     */
+    public function isWarning(): bool
     {
         return $this->type === self::WARNING;
     }
 
-    public function isSuccess()
+    /**
+     * @return bool
+     */
+    public function isSuccess(): bool
     {
         return $this->type === self::SUCCESS;
     }
 
-    public function getMessage()
+    /**
+     * @return string|null
+     */
+    public function getMessage(): ?string
     {
         return $this->message;
     }

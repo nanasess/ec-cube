@@ -18,13 +18,20 @@ namespace Eccube\Doctrine\Query;
  */
 class OrderByClause
 {
+    /**
+     * @var string
+     */
     private $sort;
+
+    /**
+     * @var string
+     */
     private $order;
 
     /**
      * OrderByClause constructor.
      *
-     * @param $sort
+     * @param string $sort
      * @param string $order
      */
     public function __construct($sort, $order = 'asc')
@@ -36,7 +43,7 @@ class OrderByClause
     /**
      * @return string
      */
-    public function getSort()
+    public function getSort(): string
     {
         return $this->sort;
     }
@@ -44,7 +51,7 @@ class OrderByClause
     /**
      * @return string
      */
-    public function getOrder()
+    public function getOrder(): string
     {
         return $this->order;
     }

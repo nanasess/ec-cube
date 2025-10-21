@@ -15,6 +15,7 @@ namespace Eccube\Tests\Web\Admin\Store;
 
 use Eccube\Entity\BaseInfo;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * @group cache-clear
@@ -54,8 +55,11 @@ class PluginControllerTest extends AbstractAdminWebTestCase
     /**
      * 異常系を確認。正常系のインストールはE2Eテストの方で実施
      *
-     * @dataProvider OwnerStoreInstallParam
+     * @param mixed $param1
+     * @param mixed $param2
+     * @param mixed $message
      */
+    #[DataProvider(methodName: 'OwnerStoreInstallParam')]
     public function testFailureInstall($param1, $param2, $message)
     {
         $form = [
@@ -81,8 +85,11 @@ class PluginControllerTest extends AbstractAdminWebTestCase
     /**
      * 異常系を確認。正常系のアップデートはE2Eテストの方で実施
      *
-     * @dataProvider OwnerStoreUpgradeParam
+     * @param mixed $param1
+     * @param mixed $param2
+     * @param mixed $message
      */
+    #[DataProvider(methodName: 'OwnerStoreUpgradeParam')]
     public function testFailureUpgrade($param1, $param2, $message)
     {
         $form = [
@@ -109,7 +116,7 @@ class PluginControllerTest extends AbstractAdminWebTestCase
     /**
      * 異常系のテストケース
      */
-    public function OwnerStoreInstallParam()
+    public static function OwnerStoreInstallParam()
     {
         return [
             ['api42+symfony/yaml:5.3', '4.3.0', '無効な値です。'],
@@ -120,7 +127,7 @@ class PluginControllerTest extends AbstractAdminWebTestCase
     /**
      * 異常系のテストケース
      */
-    public function OwnerStoreUpgradeParam()
+    public static function OwnerStoreUpgradeParam()
     {
         return [
             ['api42+symfony/yaml:5.3', '4.3.0', '無効な値です。'],

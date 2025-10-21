@@ -14,21 +14,20 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Entity\Master\Country;
+use Eccube\Entity\Master\Pref;
+use Eccube\Entity\Master\RoundingType;
+use Eccube\Repository\TaxRuleRepository;
 
 if (!class_exists(TaxRule::class)) {
     /**
      * TaxRule
-     *
-     * @ORM\Table(name="dtb_tax_rule")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\TaxRuleRepository")
      */
+    #[ORM\Table(name: 'dtb_tax_rule')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: TaxRuleRepository::class)]
     class TaxRule extends AbstractEntity
     {
         /**
@@ -46,7 +45,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return bool
          */
-        public function isDefaultTaxRule()
+        public function isDefaultTaxRule(): bool
         {
             return self::DEFAULT_TAX_RULE_ID === $this->getId();
         }
@@ -58,7 +57,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setSortNo($sortNo)
+        public function setSortNo($sortNo): TaxRule
         {
             $this->sort_no = $sortNo;
 
@@ -70,135 +69,98 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return int
          */
-        public function getSortNo()
+        public function getSortNo(): int
         {
             return $this->sort_no;
         }
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /** @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="tax_rate", type="decimal", precision=10, scale=0, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'tax_rate', type: 'decimal', precision: 10, scale: 0, options: ['unsigned' => true, 'default' => 0])]
         private $tax_rate = '0';
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="tax_adjust", type="decimal", precision=10, scale=0, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'tax_adjust', type: 'decimal', precision: 10, scale: 0, options: ['unsigned' => true, 'default' => 0])]
         private $tax_adjust = '0';
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="apply_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'apply_date', type: 'datetimetz')]
         private $apply_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
-         * @var ProductClass
-         *
-         * @ORM\OneToOne(targetEntity="Eccube\Entity\ProductClass", inversedBy="TaxRule")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="product_class_id", referencedColumnName="id")
-         * })
+         * @var ProductClass|null
          */
+        #[ORM\OneToOne(targetEntity: ProductClass::class, inversedBy: 'TaxRule')]
+        #[ORM\JoinColumn(name: 'product_class_id', referencedColumnName: 'id')]
         private $ProductClass;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id')]
         private $Creator;
 
         /**
-         * @var Master\Country
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Country")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="country_id", referencedColumnName="id")
-         * })
+         * @var Country|null
          */
+        #[ORM\ManyToOne(targetEntity: Country::class)]
+        #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
         private $Country;
 
         /**
-         * @var Master\Pref
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Pref")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="pref_id", referencedColumnName="id")
-         * })
+         * @var Pref|null
          */
+        #[ORM\ManyToOne(targetEntity: Pref::class)]
+        #[ORM\JoinColumn(name: 'pref_id', referencedColumnName: 'id')]
         private $Pref;
 
         /**
-         * @var Product
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Product")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="product_id", referencedColumnName="id")
-         * })
+         * @var Product|null
          */
+        #[ORM\ManyToOne(targetEntity: Product::class)]
+        #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id')]
         private $Product;
 
         /**
-         * @var Master\RoundingType
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\RoundingType")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="rounding_type_id", referencedColumnName="id")
-         * })
+         * @var RoundingType|null
          */
+        #[ORM\ManyToOne(targetEntity: RoundingType::class)]
+        #[ORM\JoinColumn(name: 'rounding_type_id', referencedColumnName: 'id')]
         private $RoundingType;
 
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -210,7 +172,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setTaxRate($taxRate)
+        public function setTaxRate($taxRate): TaxRule
         {
             $this->tax_rate = $taxRate;
 
@@ -222,7 +184,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return string
          */
-        public function getTaxRate()
+        public function getTaxRate(): string
         {
             return $this->tax_rate;
         }
@@ -234,7 +196,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setTaxAdjust($taxAdjust)
+        public function setTaxAdjust($taxAdjust): TaxRule
         {
             $this->tax_adjust = $taxAdjust;
 
@@ -246,7 +208,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return string
          */
-        public function getTaxAdjust()
+        public function getTaxAdjust(): string
         {
             return $this->tax_adjust;
         }
@@ -258,7 +220,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setApplyDate($applyDate)
+        public function setApplyDate($applyDate): TaxRule
         {
             $this->apply_date = $applyDate;
 
@@ -268,9 +230,9 @@ if (!class_exists(TaxRule::class)) {
         /**
          * Get applyDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getApplyDate()
+        public function getApplyDate(): ?\DateTime
         {
             return $this->apply_date;
         }
@@ -282,7 +244,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): TaxRule
         {
             $this->create_date = $createDate;
 
@@ -292,9 +254,9 @@ if (!class_exists(TaxRule::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -306,7 +268,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): TaxRule
         {
             $this->update_date = $updateDate;
 
@@ -316,9 +278,9 @@ if (!class_exists(TaxRule::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -330,7 +292,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setProductClass(?ProductClass $productClass = null)
+        public function setProductClass(?ProductClass $productClass = null): TaxRule
         {
             $this->ProductClass = $productClass;
 
@@ -342,7 +304,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return ProductClass|null
          */
-        public function getProductClass()
+        public function getProductClass(): ?ProductClass
         {
             return $this->ProductClass;
         }
@@ -354,7 +316,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): TaxRule
         {
             $this->Creator = $creator;
 
@@ -366,7 +328,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }
@@ -374,11 +336,11 @@ if (!class_exists(TaxRule::class)) {
         /**
          * Set country.
          *
-         * @param Master\Country|null $country
+         * @param Country|null $country
          *
          * @return TaxRule
          */
-        public function setCountry(?Master\Country $country = null)
+        public function setCountry(?Country $country = null): TaxRule
         {
             $this->Country = $country;
 
@@ -388,9 +350,9 @@ if (!class_exists(TaxRule::class)) {
         /**
          * Get country.
          *
-         * @return Master\Country|null
+         * @return Country|null
          */
-        public function getCountry()
+        public function getCountry(): ?Country
         {
             return $this->Country;
         }
@@ -398,11 +360,11 @@ if (!class_exists(TaxRule::class)) {
         /**
          * Set pref.
          *
-         * @param Master\Pref|null $pref
+         * @param Pref|null $pref
          *
          * @return TaxRule
          */
-        public function setPref(?Master\Pref $pref = null)
+        public function setPref(?Pref $pref = null): TaxRule
         {
             $this->Pref = $pref;
 
@@ -412,9 +374,9 @@ if (!class_exists(TaxRule::class)) {
         /**
          * Get pref.
          *
-         * @return Master\Pref|null
+         * @return Pref|null
          */
-        public function getPref()
+        public function getPref(): ?Pref
         {
             return $this->Pref;
         }
@@ -426,7 +388,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setProduct(?Product $product = null)
+        public function setProduct(?Product $product = null): TaxRule
         {
             $this->Product = $product;
 
@@ -438,7 +400,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return Product|null
          */
-        public function getProduct()
+        public function getProduct(): ?Product
         {
             return $this->Product;
         }
@@ -448,7 +410,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return TaxRule
          */
-        public function setRoundingType(?Master\RoundingType $RoundingType = null)
+        public function setRoundingType(?RoundingType $RoundingType = null): TaxRule
         {
             $this->RoundingType = $RoundingType;
 
@@ -458,9 +420,9 @@ if (!class_exists(TaxRule::class)) {
         /**
          * Get roundingType.
          *
-         * @return Master\RoundingType|null
+         * @return RoundingType|null
          */
-        public function getRoundingType()
+        public function getRoundingType(): ?RoundingType
         {
             return $this->RoundingType;
         }
@@ -484,7 +446,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return int
          */
-        public function compareTo(TaxRule $Target)
+        public function compareTo(TaxRule $Target): int
         {
             if ($this->isProductTaxRule() && !$Target->isProductTaxRule()) {
                 return -1;
@@ -515,7 +477,7 @@ if (!class_exists(TaxRule::class)) {
          *
          * @return bool 商品別税率が適用されている場合 true
          */
-        public function isProductTaxRule()
+        public function isProductTaxRule(): bool
         {
             return $this->getProductClass() !== null || $this->getProduct() !== null;
         }

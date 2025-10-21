@@ -41,9 +41,13 @@ class PriceType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $currency = $this->eccubeConfig->get('currency');
         $scale = Currencies::getFractionDigits($currency);
@@ -84,7 +88,7 @@ class PriceType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getParent()
+    public function getParent(): ?string
     {
         return MoneyType::class;
     }
@@ -93,7 +97,7 @@ class PriceType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'price';
     }

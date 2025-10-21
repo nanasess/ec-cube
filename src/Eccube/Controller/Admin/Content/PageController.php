@@ -26,8 +26,9 @@ use Eccube\Util\CacheUtil;
 use Eccube\Util\StringUtil;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 
@@ -64,9 +65,12 @@ class PageController extends AbstractController
         $this->deviceTypeRepository = $deviceTypeRepository;
     }
 
-    #[Route('/%eccube_admin_route%/content/page', name: 'admin_content_page', methods: ['GET'])]
-    #[Template('@admin/Content/page.twig')]
-    public function index(Request $request, RouterInterface $router)
+    /**
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/%eccube_admin_route%/content/page', name: 'admin_content_page', methods: ['GET'])]
+    #[Template(template: '@admin/Content/page.twig')]
+    public function index(Request $request, RouterInterface $router): array
     {
         $Pages = $this->pageRepository->getPageList();
 
@@ -84,10 +88,15 @@ class PageController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/content/page/new', name: 'admin_content_page_new', methods: ['GET', 'POST'])]
-    #[Route('/%eccube_admin_route%/content/page/{id}/edit', requirements: ['id' => '\d+'], name: 'admin_content_page_edit', methods: ['GET', 'POST'])]
-    #[Template('@admin/Content/page_edit.twig')]
-    public function edit(Request $request, Environment $twig, RouterInterface $router, CacheUtil $cacheUtil, $id = null)
+    /**
+     * @param string|null $id
+     *
+     * @return RedirectResponse|array<string, mixed>
+     */
+    #[Route(path: '/%eccube_admin_route%/content/page/new', name: 'admin_content_page_new', methods: ['GET', 'POST'])]
+    #[Route(path: '/%eccube_admin_route%/content/page/{id}/edit', name: 'admin_content_page_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Content/page_edit.twig')]
+    public function edit(Request $request, Environment $twig, RouterInterface $router, CacheUtil $cacheUtil, $id = null): RedirectResponse|array
     {
         $this->addInfoOnce('admin.common.restrict_file_upload_info', 'admin');
 
@@ -249,8 +258,13 @@ class PageController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/content/page/{id}/delete', name: 'admin_content_page_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(Request $request, CacheUtil $cacheUtil, $id = null)
+    /**
+     * @param string|null $id
+     *
+     * @return RedirectResponse
+     */
+    #[Route(path: '/%eccube_admin_route%/content/page/{id}/delete', name: 'admin_content_page_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(Request $request, CacheUtil $cacheUtil, $id = null): RedirectResponse
     {
         $this->isTokenValid();
 

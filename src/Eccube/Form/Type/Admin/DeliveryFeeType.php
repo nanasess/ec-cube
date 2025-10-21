@@ -13,6 +13,7 @@
 
 namespace Eccube\Form\Type\Admin;
 
+use Eccube\Entity\DeliveryFee;
 use Eccube\Form\Type\PriceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,9 +23,14 @@ class DeliveryFeeType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('fee', PriceType::class, [
@@ -35,12 +41,16 @@ class DeliveryFeeType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => \Eccube\Entity\DeliveryFee::class,
+            'data_class' => DeliveryFee::class,
         ]);
     }
 
@@ -48,7 +58,7 @@ class DeliveryFeeType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'delivery_fee';
     }

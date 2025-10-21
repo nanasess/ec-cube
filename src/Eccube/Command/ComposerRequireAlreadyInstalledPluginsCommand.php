@@ -18,16 +18,16 @@ use Eccube\Common\Constant;
 use Eccube\Repository\PluginRepository;
 use Eccube\Service\Composer\ComposerApiService;
 use Eccube\Service\PluginApiService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'eccube:composer:require-already-installed')]
 class ComposerRequireAlreadyInstalledPluginsCommand extends Command
 {
-    protected static $defaultName = 'eccube:composer:require-already-installed';
-
     /**
      * @var ComposerApiService
      */
@@ -59,14 +59,20 @@ class ComposerRequireAlreadyInstalledPluginsCommand extends Command
         $this->pluginRepository = $pluginRepository;
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
+     * @return void
+     */
     #[\Override]
-    public function initialize(InputInterface $input, OutputInterface $output)
+    public function initialize(InputInterface $input, OutputInterface $output): void
     {
         $this->io = new SymfonyStyle($input, $output);
     }
 
     #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $packageNames = [];
         $unSupportedPlugins = [];
@@ -92,7 +98,7 @@ class ComposerRequireAlreadyInstalledPluginsCommand extends Command
             ]);
             $question = new ConfirmationQuestion($message);
             if (!$this->io->askQuestion($question)) {
-                return 1;
+                return 0;
             }
         }
 

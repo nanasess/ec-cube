@@ -17,6 +17,7 @@ use Eccube\Entity\LoginHistory;
 use Eccube\Entity\Master\LoginHistoryStatus;
 use Eccube\Repository\LoginHistoryRepository;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * LoginHistoryRepository test cases.
@@ -96,11 +97,10 @@ class LoginHistoryRepositoryGetQueryBuilderBySearchDataAdminTest extends EccubeT
     }
 
     /**
-     * @dataProvider dataStatusProvider
-     *
      * @param $status
      * @param $expected
      */
+    #[DataProvider(methodName: 'dataStatusProvider')]
     public function testStatus($status, $expected)
     {
         $this->searchData = [
@@ -116,7 +116,7 @@ class LoginHistoryRepositoryGetQueryBuilderBySearchDataAdminTest extends EccubeT
     /**
      * @return array[]
      */
-    public function dataStatusProvider()
+    public static function dataStatusProvider()
     {
         return [
             [[LoginHistoryStatus::SUCCESS], 1],
@@ -125,9 +125,7 @@ class LoginHistoryRepositoryGetQueryBuilderBySearchDataAdminTest extends EccubeT
         ];
     }
 
-    /**
-     * @dataProvider dataFormDateProvider
-     */
+    #[DataProvider(methodName: 'dataFormDateProvider')]
     public function testDate(string $formName, string $time, int $expected)
     {
         $this->searchData = [
@@ -151,7 +149,7 @@ class LoginHistoryRepositoryGetQueryBuilderBySearchDataAdminTest extends EccubeT
      *
      * @return array
      */
-    public function dataFormDateProvider()
+    public static function dataFormDateProvider()
     {
         return [
             ['create_date_start', 'today', 3],
@@ -161,9 +159,7 @@ class LoginHistoryRepositoryGetQueryBuilderBySearchDataAdminTest extends EccubeT
         ];
     }
 
-    /**
-     * @dataProvider dataFormDateTimeProvider
-     */
+    #[DataProvider(methodName: 'dataFormDateTimeProvider')]
     public function testDateTime(string $formName, string $time, int $expected)
     {
         $this->searchData = [
@@ -182,7 +178,7 @@ class LoginHistoryRepositoryGetQueryBuilderBySearchDataAdminTest extends EccubeT
      *
      * @return array
      */
-    public function dataFormDateTimeProvider()
+    public static function dataFormDateTimeProvider()
     {
         return [
             ['create_datetime_start', '- 1 hour', 3],

@@ -14,6 +14,7 @@
 namespace Eccube\Tests\Form\Type;
 
 use Eccube\Form\Type\PriceType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormInterface;
 
@@ -31,7 +32,7 @@ class PriceTypeTest extends AbstractTypeTestCase
      *
      * @return array
      */
-    public function getValidTestData()
+    public static function getValidTestData()
     {
         return [
             ['data' => 0],
@@ -50,8 +51,9 @@ class PriceTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider getValidTestData
+     * @param mixed $data
      */
+    #[DataProvider(methodName: 'getValidTestData')]
     public function testValidData($data)
     {
         $this->form->submit($data);

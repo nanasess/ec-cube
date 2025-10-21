@@ -33,7 +33,12 @@ class PurchaseFlowResult
         $this->itemHolder = $itemHolder;
     }
 
-    public function addProcessResult(ProcessResult $processResult)
+    /**
+     * @param ProcessResult $processResult
+     *
+     * @return void
+     */
+    public function addProcessResult(ProcessResult $processResult): void
     {
         $this->processResults[] = $processResult;
     }
@@ -41,7 +46,7 @@ class PurchaseFlowResult
     /**
      * @return array|ProcessResult[]
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return array_filter($this->processResults, function (ProcessResult $processResult) {
             return $processResult->isError();
@@ -51,20 +56,34 @@ class PurchaseFlowResult
     /**
      * @return array|ProcessResult[]
      */
-    public function getWarning()
+    public function getWarning(): array
     {
         return array_filter($this->processResults, function (ProcessResult $processResult) {
             return $processResult->isWarning();
         });
     }
 
-    public function hasError()
+    /**
+     * @return bool
+     */
+    public function hasError(): bool
     {
         return !empty($this->getErrors());
     }
 
-    public function hasWarning()
+    /**
+     * @return bool
+     */
+    public function hasWarning(): bool
     {
         return !empty($this->getWarning());
+    }
+
+    /**
+     * @return ItemHolderInterface
+     */
+    public function getItemHolder(): ItemHolderInterface
+    {
+        return $this->itemHolder;
     }
 }

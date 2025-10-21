@@ -22,9 +22,9 @@ class FormUtil
      *
      * @param FormInterface $form
      *
-     * @return array
+     * @return mixed
      */
-    public static function getViewData(FormInterface $form)
+    public static function getViewData(FormInterface $form): mixed
     {
         $viewData = [];
         $forms = $form->all();
@@ -49,11 +49,11 @@ class FormUtil
      * formオブジェクトにviewdataをsubmitし, マッピングした結果を返す.
      *
      * @param FormInterface $form
-     * @param $viewData
+     * @param mixed $viewData
      *
      * @return mixed
      */
-    public static function submitAndGetData(FormInterface $form, $viewData)
+    public static function submitAndGetData(FormInterface $form, $viewData): mixed
     {
         $form->submit($viewData);
 

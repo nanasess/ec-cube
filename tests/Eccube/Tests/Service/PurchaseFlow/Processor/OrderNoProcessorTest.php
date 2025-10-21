@@ -18,17 +18,17 @@ use Eccube\Entity\Order;
 use Eccube\Service\PurchaseFlow\Processor\OrderNoProcessor;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class OrderNoProcessorTest extends EccubeTestCase
 {
     /**
-     * @dataProvider processDataProvider
-     *
      * @param $orderNoFormat
      * @param $expected
      *
      * @throws \ReflectionException
      */
+    #[DataProvider(methodName: 'processDataProvider')]
     public function testProcess($orderNoFormat, $expected)
     {
         $Order = new Order();
@@ -49,7 +49,7 @@ class OrderNoProcessorTest extends EccubeTestCase
         self::assertMatchesRegularExpression($expected, (string) $Order->getOrderNo());
     }
 
-    public function processDataProvider()
+    public static function processDataProvider()
     {
         return [
             ['', '/^123$/'],

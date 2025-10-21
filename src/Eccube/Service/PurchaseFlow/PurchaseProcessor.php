@@ -28,9 +28,12 @@ interface PurchaseProcessor
      * @param ItemHolderInterface $target
      * @param PurchaseContext $context
      *
+     * @return void
+     * @return void
+     *
      * @throws PurchaseException
      */
-    public function prepare(ItemHolderInterface $target, PurchaseContext $context);
+    public function prepare(ItemHolderInterface $target, PurchaseContext $context): void;
 
     /**
      * 受注の確定処理を行います。
@@ -38,15 +41,20 @@ interface PurchaseProcessor
      * @param ItemHolderInterface $target
      * @param PurchaseContext     $context
      *
+     * @return void
+     * @return void
+     *
      * @throws PurchaseException
      */
-    public function commit(ItemHolderInterface $target, PurchaseContext $context);
+    public function commit(ItemHolderInterface $target, PurchaseContext $context): void;
 
     /**
      * 仮確定した受注データの取り消し処理を行います。
      *
      * @param ItemHolderInterface $itemHolder
      * @param PurchaseContext     $context
+     *
+     * @return void
      */
-    public function rollback(ItemHolderInterface $itemHolder, PurchaseContext $context);
+    public function rollback(ItemHolderInterface $itemHolder, PurchaseContext $context): void;
 }

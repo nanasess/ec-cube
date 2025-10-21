@@ -17,7 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\ClassCategory;
 use Eccube\Entity\ProductClass;
-use Eccube\Form\DataTransformer;
+use Eccube\Form\DataTransformer\EntityToIdTransformer;
 use Eccube\Form\Type\Master\DeliveryDurationType;
 use Eccube\Form\Type\Master\SaleTypeType;
 use Eccube\Form\Type\PriceType;
@@ -81,9 +81,14 @@ class ProductClassEditType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('checked', CheckboxType::class, [
@@ -130,7 +135,7 @@ class ProductClassEditType extends AbstractType
                 'placeholder' => 'common.select__unspecified',
             ]);
 
-        $transformer = new DataTransformer\EntityToIdTransformer($this->entityManager, ClassCategory::class);
+        $transformer = new EntityToIdTransformer($this->entityManager, ClassCategory::class);
         $builder
             ->add($builder->create('ClassCategory1', HiddenType::class)
                 ->addModelTransformer($transformer)
@@ -151,9 +156,13 @@ class ProductClassEditType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => ProductClass::class,
@@ -164,8 +173,10 @@ class ProductClassEditType extends AbstractType
      * 各行の個別税率設定の制御.
      *
      * @param FormBuilderInterface $builder
+     *
+     * @return void
      */
-    protected function setTaxRate(FormBuilderInterface $builder)
+    protected function setTaxRate(FormBuilderInterface $builder): void
     {
         if (!$this->baseInfoRepository->get()->isOptionProductTaxRule()) {
             return;
@@ -186,8 +197,10 @@ class ProductClassEditType extends AbstractType
      * 各行の登録チェックボックスの制御.
      *
      * @param FormBuilderInterface $builder
+     *
+     * @return void
      */
-    protected function setCheckbox(FormBuilderInterface $builder)
+    protected function setCheckbox(FormBuilderInterface $builder): void
     {
         $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
             $data = $event->getData();
@@ -207,7 +220,12 @@ class ProductClassEditType extends AbstractType
         });
     }
 
-    protected function addValidations(FormBuilderInterface $builder)
+    /**
+     * @param FormBuilderInterface $builder
+     *
+     * @return void
+     */
+    protected function addValidations(FormBuilderInterface $builder): void
     {
         $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             $form = $event->getForm();
@@ -272,7 +290,14 @@ class ProductClassEditType extends AbstractType
         });
     }
 
-    protected function addErrors($key, FormInterface $form, ConstraintViolationListInterface $errors)
+    /**
+     * @param string $key
+     * @param FormInterface $form
+     * @param ConstraintViolationListInterface $errors
+     *
+     * @return void
+     */
+    protected function addErrors($key, FormInterface $form, ConstraintViolationListInterface $errors): void
     {
         foreach ($errors as $error) {
             $form[$key]->addError(new FormError($error->getMessage()));

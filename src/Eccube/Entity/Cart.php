@@ -14,63 +14,47 @@
 namespace Eccube\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\CartRepository;
 use Eccube\Service\PurchaseFlow\InvalidItemException;
 use Eccube\Service\PurchaseFlow\ItemCollection;
 
 if (!class_exists(Cart::class)) {
     /**
      * Cart
-     *
-     * @ORM\Table(name="dtb_cart", indexes={
-     *
-     *     @ORM\Index(name="dtb_cart_update_date_idx", columns={"update_date"})
-     *  },
-     *  uniqueConstraints={
-     *
-     *     @ORM\UniqueConstraint(name="dtb_cart_pre_order_id_idx", columns={"pre_order_id"})
-     *  }))
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\CartRepository")
      */
+    #[ORM\Table(name: 'dtb_cart')]
+    #[ORM\Index(columns: ['update_date'], name: 'dtb_cart_update_date_idx')]
+    #[ORM\UniqueConstraint(name: 'dtb_cart_pre_order_id_idx', columns: ['pre_order_id'])]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: CartRepository::class)]
     class Cart extends AbstractEntity implements PurchaseInterface, ItemHolderInterface
     {
         use PointTrait;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /** @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
-         * @var string
-         *
-         * @ORM\Column(name="cart_key", type="string", nullable=true)
+         * @var string|null
          */
+        #[ORM\Column(name: 'cart_key', type: 'string', nullable: true)]
         private $cart_key;
 
         /**
-         * @var Customer
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Customer")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id")
-         * })
+         * @var Customer|null
          */
+        #[ORM\ManyToOne(targetEntity: Customer::class)]
+        #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id')]
         private $Customer;
 
         /**
@@ -79,59 +63,52 @@ if (!class_exists(Cart::class)) {
         private $lock = false;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection|CartItem[]
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\CartItem", mappedBy="Cart", cascade={"persist"})
-         *
-         * @ORM\OrderBy({"id" = "ASC"})
+         * @var Collection<int, CartItem>
          */
+        #[ORM\OneToMany(targetEntity: CartItem::class, mappedBy: 'Cart', cascade: ['persist'])]
+        #[ORM\OrderBy(['id' => 'ASC'])]
         private $CartItems;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="pre_order_id", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'pre_order_id', type: 'string', length: 255, nullable: true)]
         private $pre_order_id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="total_price", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'total_price', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $total_price;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="delivery_fee_total", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'delivery_fee_total', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $delivery_fee_total;
 
         /**
          * @var int|null
-         *
-         * @ORM\Column(name="sort_no", type="smallint", nullable=true, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'sort_no', type: 'smallint', nullable: true, options: ['unsigned' => true])]
         private $sort_no;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
          * @var InvalidItemException[]
          */
+        /** @phpstan-ignore-next-line */
         private $errors = [];
 
         public function __wakeup()
@@ -147,7 +124,7 @@ if (!class_exists(Cart::class)) {
         /**
          * @return int
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -155,15 +132,17 @@ if (!class_exists(Cart::class)) {
         /**
          * @return string
          */
-        public function getCartKey()
+        public function getCartKey(): string
         {
             return $this->cart_key;
         }
 
         /**
          * @param string $cartKey
+         *
+         * @return Cart
          */
-        public function setCartKey(string $cartKey)
+        public function setCartKey(string $cartKey): Cart
         {
             $this->cart_key = $cartKey;
 
@@ -175,7 +154,7 @@ if (!class_exists(Cart::class)) {
          *
          * @deprecated 使用しないので削除予定
          */
-        public function getLock()
+        public function getLock(): bool
         {
             return $this->lock;
         }
@@ -187,7 +166,7 @@ if (!class_exists(Cart::class)) {
          *
          * @deprecated 使用しないので削除予定
          */
-        public function setLock($lock)
+        public function setLock($lock): Cart
         {
             $this->lock = $lock;
 
@@ -197,17 +176,17 @@ if (!class_exists(Cart::class)) {
         /**
          * @return string|null
          */
-        public function getPreOrderId()
+        public function getPreOrderId(): ?string
         {
             return $this->pre_order_id;
         }
 
         /**
-         * @param  int             $pre_order_id
+         * @param string|null $pre_order_id
          *
          * @return Cart
          */
-        public function setPreOrderId($pre_order_id)
+        public function setPreOrderId($pre_order_id): Cart
         {
             $this->pre_order_id = $pre_order_id;
 
@@ -219,7 +198,7 @@ if (!class_exists(Cart::class)) {
          *
          * @return Cart
          */
-        public function addCartItem(CartItem $CartItem)
+        public function addCartItem(CartItem $CartItem): Cart
         {
             $this->CartItems[] = $CartItem;
 
@@ -227,9 +206,19 @@ if (!class_exists(Cart::class)) {
         }
 
         /**
+         * カートの中に出荷データがないので、空のコレクションを返します。
+         *
+         * @return ArrayCollection<int, Shipping>
+         */
+        public function getShippings(): ArrayCollection
+        {
+            return new ArrayCollection();
+        }
+
+        /**
          * @return Cart
          */
-        public function clearCartItems()
+        public function clearCartItems(): Cart
         {
             $this->CartItems->clear();
 
@@ -237,9 +226,9 @@ if (!class_exists(Cart::class)) {
         }
 
         /**
-         * @return ArrayCollection|CartItem[]
+         * @return Collection<int, CartItem>
          */
-        public function getCartItems()
+        public function getCartItems(): Collection
         {
             return $this->CartItems;
         }
@@ -247,20 +236,20 @@ if (!class_exists(Cart::class)) {
         /**
          * Alias of getCartItems()
          *
-         * @return ItemCollection
+         * @return ItemCollection<int, ItemInterface>
          */
         #[\Override]
-        public function getItems()
+        public function getItems(): ItemCollection
         {
             return (new ItemCollection($this->getCartItems()))->sort();
         }
 
         /**
-         * @param  CartItem[]          $CartItems
+         * @param  Collection<int, CartItem> $CartItems
          *
          * @return Cart
          */
-        public function setCartItems($CartItems)
+        public function setCartItems($CartItems): Cart
         {
             $this->CartItems = $CartItems;
 
@@ -270,11 +259,11 @@ if (!class_exists(Cart::class)) {
         /**
          * Set total.
          *
-         * @param int $total_price
+         * @param string $total_price
          *
-         * @return Cart
+         * @return $this
          */
-        public function setTotalPrice($total_price)
+        public function setTotalPrice($total_price): static
         {
             $this->total_price = $total_price;
 
@@ -284,16 +273,20 @@ if (!class_exists(Cart::class)) {
         /**
          * @return string
          */
-        public function getTotalPrice()
+        public function getTotalPrice(): string
         {
             return $this->total_price;
         }
 
         /**
          * Alias of setTotalPrice.
+         *
+         * @param string $total
+         *
+         * @return $this
          */
         #[\Override]
-        public function setTotal($total)
+        public function setTotal($total): static
         {
             return $this->setTotalPrice($total);
         }
@@ -304,19 +297,19 @@ if (!class_exists(Cart::class)) {
          * @return string
          */
         #[\Override]
-        public function getTotal()
+        public function getTotal(): string
         {
             return $this->getTotalPrice();
         }
 
         /**
-         * @return int
+         * @return string
          */
-        public function getTotalQuantity()
+        public function getTotalQuantity(): string
         {
-            $totalQuantity = 0;
+            $totalQuantity = '0';
             foreach ($this->CartItems as $CartItem) {
-                $totalQuantity += $CartItem->getQuantity();
+                $totalQuantity = bcadd($totalQuantity, $CartItem->getQuantity());
             }
 
             return $totalQuantity;
@@ -324,37 +317,49 @@ if (!class_exists(Cart::class)) {
 
         /**
          * @param ItemInterface $item
+         *
+         * @return void
          */
         #[\Override]
-        public function addItem(ItemInterface $item)
+        public function addItem(ItemInterface $item): void
         {
-            $this->CartItems->add($item);
+            if ($item instanceof CartItem) {
+                $this->CartItems->add($item);
+            }
         }
 
         /**
          * @param ItemInterface $item
+         *
+         * @return void
          */
-        public function removeItem(ItemInterface $item)
+        public function removeItem(ItemInterface $item): void
         {
-            $this->CartItems->removeElement($item);
+            if ($item instanceof CartItem) {
+                $this->CartItems->removeElement($item);
+            }
         }
 
         /**
          * 個数の合計を返します。
          *
-         * @return int
+         * @return string
          */
         #[\Override]
-        public function getQuantity()
+        public function getQuantity(): string
         {
             return $this->getTotalQuantity();
         }
 
         /**
          * {@inheritdoc}
+         *
+         * @param string $total
+         *
+         * @return $this
          */
         #[\Override]
-        public function setDeliveryFeeTotal($total)
+        public function setDeliveryFeeTotal($total): static
         {
             $this->delivery_fee_total = $total;
 
@@ -365,7 +370,7 @@ if (!class_exists(Cart::class)) {
          * {@inheritdoc}
          */
         #[\Override]
-        public function getDeliveryFeeTotal()
+        public function getDeliveryFeeTotal(): string
         {
             return $this->delivery_fee_total;
         }
@@ -379,9 +384,11 @@ if (!class_exists(Cart::class)) {
         }
 
         /**
-         * @param Customer $Customer
+         * @param Customer|null $Customer
+         *
+         * @return Cart
          */
-        public function setCustomer(?Customer $Customer = null)
+        public function setCustomer(?Customer $Customer = null): Cart
         {
             $this->Customer = $Customer;
 
@@ -395,7 +402,7 @@ if (!class_exists(Cart::class)) {
          *
          * @return Cart
          */
-        public function setSortNo($sortNo = null)
+        public function setSortNo($sortNo = null): Cart
         {
             $this->sort_no = $sortNo;
 
@@ -407,7 +414,7 @@ if (!class_exists(Cart::class)) {
          *
          * @return int|null
          */
-        public function getSortNo()
+        public function getSortNo(): ?int
         {
             return $this->sort_no;
         }
@@ -419,7 +426,7 @@ if (!class_exists(Cart::class)) {
          *
          * @return Cart
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): Cart
         {
             $this->create_date = $createDate;
 
@@ -429,9 +436,9 @@ if (!class_exists(Cart::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -443,7 +450,7 @@ if (!class_exists(Cart::class)) {
          *
          * @return Cart
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): Cart
         {
             $this->update_date = $updateDate;
 
@@ -453,40 +460,75 @@ if (!class_exists(Cart::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
 
         /**
          * {@inheritdoc}
+         *
+         * @param string $total
+         *
+         * @return $this
          */
         #[\Override]
-        public function setDiscount($total)
+        public function setDiscount($total): static
         {
-            // TODO quiet
-        }
-
-        /**
-         * {@inheritdoc}
-         */
-        #[\Override]
-        public function setCharge($total)
-        {
-            // TODO quiet
+            // quiet
+            return $this;
         }
 
         /**
          * {@inheritdoc}
          *
+         * @param string $total
+         *
+         * @return $this
+         */
+        #[\Override]
+        public function setCharge($total): static
+        {
+            // quiet
+            return $this;
+        }
+
+        /**
+         * {@inheritdoc}
+         *
+         * @param string $total
+         *
+         * @return $this
+         *
          * @deprecated
          */
         #[\Override]
-        public function setTax($total)
+        public function setTax($total): static
         {
-            // TODO quiet
+            // quiet
+            return $this;
+        }
+
+        /**
+         * 注文ではないので、nullを返します。
+         *
+         * @return null
+         */
+        public function getOrderStatus(): null
+        {
+            return null;
+        }
+
+        /**
+         * {@inheritdoc}
+         *
+         * @return OrderItem[]
+         */
+        public function getProductOrderItems(): array
+        {
+            return [];
         }
     }
 }

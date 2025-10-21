@@ -15,6 +15,7 @@ namespace Eccube\Tests\Form\Type\Admin;
 
 use Eccube\Form\Type\Admin\DeliveryFeeType;
 use Eccube\Tests\Form\Type\AbstractTypeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\FormInterface;
 
 class DeliveryFeeTypeTest extends AbstractTypeTestCase
@@ -29,7 +30,7 @@ class DeliveryFeeTypeTest extends AbstractTypeTestCase
      *
      * @return array
      */
-    public function getValidTestData()
+    public static function getValidTestData()
     {
         return [
             [
@@ -68,8 +69,9 @@ class DeliveryFeeTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider getValidTestData
+     * @param mixed $data
      */
+    #[DataProvider(methodName: 'getValidTestData')]
     public function testValidData($data)
     {
         $this->form->submit($data);

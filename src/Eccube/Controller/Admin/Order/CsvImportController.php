@@ -13,6 +13,7 @@
 
 namespace Eccube\Controller\Admin\Order;
 
+use Doctrine\DBAL\ConnectionException;
 use Eccube\Controller\Admin\AbstractCsvImportController;
 use Eccube\Entity\Master\OrderStatus;
 use Eccube\Entity\Shipping;
@@ -22,7 +23,8 @@ use Eccube\Service\CsvImportService;
 use Eccube\Service\OrderStateMachine;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Routing\Attribute\Route;
 
 class CsvImportController extends AbstractCsvImportController
 {
@@ -47,11 +49,15 @@ class CsvImportController extends AbstractCsvImportController
     /**
      * 出荷CSVアップロード
      *
-     * @throws \Doctrine\DBAL\ConnectionException
+     * @param Request $request
+     *
+     * @return array<string, mixed>
+     *
+     * @throws ConnectionException
      */
-    #[Route('/%eccube_admin_route%/order/shipping_csv_upload', name: 'admin_shipping_csv_import', methods: ['GET', 'POST'])]
-    #[Template('@admin/Order/csv_shipping.twig')]
-    public function csvShipping(Request $request)
+    #[Route(path: '/%eccube_admin_route%/order/shipping_csv_upload', name: 'admin_shipping_csv_import', methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Order/csv_shipping.twig')]
+    public function csvShipping(Request $request): array
     {
         $form = $this->formFactory->createBuilder(CsvImportType::class)->getForm();
         $columnConfig = $this->getColumnConfig();
@@ -93,7 +99,13 @@ class CsvImportController extends AbstractCsvImportController
         ];
     }
 
-    protected function loadCsv(CsvImportService $csv, &$errors)
+    /**
+     * @param CsvImportService<int, mixed>|bool $csv
+     * @param array<int, string> $errors
+     *
+     * @return void
+     */
+    protected function loadCsv($csv, &$errors): void
     {
         $columnConfig = $this->getColumnConfig();
 
@@ -190,16 +202,23 @@ class CsvImportController extends AbstractCsvImportController
 
     /**
      * アップロード用CSV雛形ファイルダウンロード
+     *
+     * @param Request $request
+     *
+     * @return StreamedResponse
      */
-    #[Route('/%eccube_admin_route%/order/csv_template', name: 'admin_shipping_csv_template', methods: ['GET'])]
-    public function csvTemplate(Request $request)
+    #[Route(path: '/%eccube_admin_route%/order/csv_template', name: 'admin_shipping_csv_template', methods: ['GET'])]
+    public function csvTemplate(Request $request): StreamedResponse
     {
         $columns = array_column($this->getColumnConfig(), 'name');
 
         return $this->sendTemplateResponse($request, $columns, 'shipping.csv');
     }
 
-    protected function getColumnConfig()
+    /**
+     * @return array<string, array<string, bool|string>>
+     */
+    protected function getColumnConfig(): array
     {
         return [
             'id' => [

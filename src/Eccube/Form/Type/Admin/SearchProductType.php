@@ -71,9 +71,14 @@ class SearchProductType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('id', TextType::class, [
@@ -303,7 +308,7 @@ class SearchProductType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'admin_search_product';
     }

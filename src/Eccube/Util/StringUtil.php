@@ -48,11 +48,12 @@ class StringUtil
      *
      * @throws \RuntimeException
      */
-    public static function random($length = 16)
+    public static function random($length = 16): string
     {
         if (function_exists('openssl_random_pseudo_bytes')) {
             $bytes = openssl_random_pseudo_bytes($length * 2);
 
+            /** @phpstan-ignore-next-line */
             if ($bytes === false) {
                 throw new \RuntimeException('Unable to generate random string.');
             }
@@ -94,7 +95,7 @@ class StringUtil
      *
      * @return string
      */
-    public static function quickRandom($length = 16)
+    public static function quickRandom($length = 16): string
     {
         $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -104,12 +105,12 @@ class StringUtil
     /**
      * 改行コードの変換
      *
-     * @param $value
+     * @param string|null $value
      * @param string $lf
      *
      * @return string
      */
-    public static function convertLineFeed($value, $lf = "\n")
+    public static function convertLineFeed($value, $lf = "\n"): string
     {
         if (empty($value)) {
             return '';
@@ -122,10 +123,11 @@ class StringUtil
      * 文字コードの判定
      *
      * @param string $value
+     * @param string[] $encoding
      *
-     * @return string
+     * @return string|null
      */
-    public static function characterEncoding($value, $encoding = ['UTF-8', 'SJIS', 'EUC-JP', 'ASCII', 'JIS', 'sjis-win'])
+    public static function characterEncoding($value, $encoding = ['UTF-8', 'SJIS', 'EUC-JP', 'ASCII', 'JIS', 'sjis-win']): ?string
     {
         foreach ($encoding as $encode) {
             if (mb_check_encoding($value, $encode)) {
@@ -146,7 +148,7 @@ class StringUtil
      *
      * @return string
      */
-    public static function ellipsis($value, $length = 100, $end = '...')
+    public static function ellipsis($value, $length = 100, $end = '...'): string
     {
         if (mb_strlen($value) <= $length) {
             return $value;
@@ -158,11 +160,11 @@ class StringUtil
     /**
      * 現在からの経過時間を書式化する.
      *
-     * @param $date
+     * @param string|\DateTimeInterface|null $date
      *
      * @return string
      */
-    public static function timeAgo($date)
+    public static function timeAgo($date): string
     {
         if (empty($date)) {
             return '';
@@ -216,12 +218,12 @@ class StringUtil
      * 引数 $greedy が true の場合は, 全角スペース, ネストした空の配列も
      * 空白と判断する.
      *
-     * @param mixed $value チェック対象の変数. 文字型以外も使用できるが、非推奨.
+     * @param string|int|float|array<mixed>|object $value チェック対象の変数. 文字型以外も使用できるが、非推奨.
      * @param bool $greedy '貧欲'にチェックを行う場合 true, デフォルト false
      *
      * @return bool $value が空白と判断された場合 true
      */
-    public static function isBlank($value, $greedy = false)
+    public static function isBlank($value, $greedy = false): bool
     {
         $deprecated = '\Eccube\Util\StringUtil::isBlank() の第一引数は文字型、数値を使用してください';
         // テストカバレッジを上げるために return の前で trigger_error をスローしている
@@ -280,11 +282,12 @@ class StringUtil
     }
 
     /**
-     * @param $value
+     * @param mixed $value
+     * @param bool $greedy
      *
      * @return bool
      */
-    public static function isNotBlank($value, $greedy = false)
+    public static function isNotBlank($value, $greedy = false): bool
     {
         return !self::isBlank($value, $greedy);
     }
@@ -292,11 +295,11 @@ class StringUtil
     /**
      * 両端にある全角スペース、半角スペースを取り除く
      *
-     * @param $value
+     * @param mixed $value
      *
-     * @return string
+     * @return string|int|null
      */
-    public static function trimAll($value)
+    public static function trimAll($value): string|int|null
     {
         if ($value === '') {
             return '';
@@ -315,11 +318,11 @@ class StringUtil
      * envファイルのコンテンツを更新または追加する.
      *
      * @param string $env
-     * @param array $replacement
+     * @param array<mixed> $replacement
      *
      * @return string
      */
-    public static function replaceOrAddEnv($env, array $replacement)
+    public static function replaceOrAddEnv($env, array $replacement): string
     {
         foreach ($replacement as $key => $value) {
             $pattern = '/^('.$key.')=(.*)/m';

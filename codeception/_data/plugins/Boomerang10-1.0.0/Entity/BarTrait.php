@@ -14,15 +14,15 @@
 namespace Plugin\Boomerang10\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Eccube\Annotation\EntityExtension;
+use Eccube\Attribute\EntityExtension;
+use Plugin\Boomerang\Entity\Bar;
 
-#[EntityExtension(\Plugin\Boomerang\Entity\Bar::class)]
+#[EntityExtension(Bar::class)]
 trait BarTrait
 {
     /**
      * @var string
-     *
-     * @ORM\Column(name="mail", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: 'mail', type: 'string', length: 255, nullable: true)]
     public $mail;
 }

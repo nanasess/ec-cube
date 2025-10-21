@@ -49,18 +49,29 @@ class LogType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $files = [];
         $finder = new Finder();
         $finder->name('*.log')
             ->depth('== 0')
             ->sort(function (\SplFileInfo $a, \SplFileInfo $b) {
-                return strcmp($b->getMTime(), $a->getMTime());
+                return strcmp((string) $b->getMTime(), (string) $a->getMTime());
             });
         $dirs = $this->kernel->getLogDir().DIRECTORY_SEPARATOR.$this->kernel->getEnvironment();
+
+        // ログディレクトリが存在しない場合は作成（Monolog StreamHandlerと同様の実装）
+        if (!is_dir($dirs)) {
+            mkdir($dirs, 0777, true);
+        }
+
         foreach ($finder->in($dirs) as $file) {
             $files[$file->getFilename()] = $file->getFilename();
         }
@@ -94,7 +105,7 @@ class LogType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'admin_system_log';
     }

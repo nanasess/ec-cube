@@ -22,6 +22,7 @@ use Eccube\Repository\OrderPdfRepository;
 use Eccube\Repository\OrderRepository;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
 use Faker\Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\HttpKernel\Client;
@@ -197,9 +198,8 @@ class OrderPdfControllerTest extends AbstractAdminWebTestCase
      *
      * @param string $field
      * @param string $message
-     *
-     * @dataProvider dataDownloadMaxLengthProvider
      */
+    #[DataProvider(methodName: 'dataDownloadMaxLengthProvider')]
     public function testDownloadMaxLength($field, $message)
     {
         $Order = $this->createOrderForSearch();
@@ -244,7 +244,7 @@ class OrderPdfControllerTest extends AbstractAdminWebTestCase
      *
      * @return array
      */
-    public function dataDownloadMaxLengthProvider()
+    public static function dataDownloadMaxLengthProvider()
     {
         return [
             ['order_pdf[title]', 'この値は、255文字以内で入力してください。'],

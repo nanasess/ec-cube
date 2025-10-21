@@ -13,8 +13,16 @@
 
 namespace Eccube\Twig;
 
+use Eccube\Common\EccubeConfig;
+use Eccube\Entity\BaseInfo;
+use Eccube\Entity\Layout;
+use Eccube\Entity\Page;
 use Eccube\Event\TemplateEvent;
+use Symfony\Bridge\Twig\AppVariable;
+use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
 use Twig\Source;
 
 class Template extends \Twig\Template
@@ -22,8 +30,13 @@ class Template extends \Twig\Template
     /**
      * {@inheritdoc}
      *
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\SyntaxError
+     * @param array<string, AppVariable|BaseInfo|EccubeConfig|TraceableEventDispatcher|Layout|Page|string|bool> $context
+     * @param array<string, array<int, string|object>>  $blocks
+     *
+     * @return void
+     *
+     * @throws LoaderError
+     * @throws SyntaxError
      */
     #[\Override]
     public function display(array $context, array $blocks = []): void
@@ -55,6 +68,9 @@ class Template extends \Twig\Template
         return '';
     }
 
+    /**
+     * @return array<empty>
+     */
     #[\Override]
     public function getDebugInfo(): array
     {
@@ -62,7 +78,13 @@ class Template extends \Twig\Template
         return [];
     }
 
-    protected function doDisplay(array $context, array $blocks = []): iterable
+    /**
+     * @param array<mixed> $context
+     * @param array<mixed> $blocks
+     *
+     * @return array<empty>
+     */
+    protected function doDisplay(array $context, array $blocks = []): array
     {
         // Templateのキャッシュ作成時に動的に作成されるメソッド
         return [];

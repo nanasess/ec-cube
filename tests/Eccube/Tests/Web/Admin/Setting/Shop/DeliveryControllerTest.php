@@ -20,6 +20,7 @@ use Eccube\Entity\Master\Pref;
 use Eccube\Entity\Payment;
 use Eccube\Entity\PaymentOption;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class DeliveryControllerTest
@@ -103,9 +104,8 @@ class DeliveryControllerTest extends AbstractAdminWebTestCase
      *
      * @param bool $isSuccess
      * @param bool $expected
-     *
-     * @dataProvider dataSubmitProvider
      */
+    #[DataProvider(methodName: 'dataSubmitProvider')]
     public function testNew($isSuccess, $expected)
     {
         $formData = $this->createFormData();
@@ -141,9 +141,8 @@ class DeliveryControllerTest extends AbstractAdminWebTestCase
      *
      * @param bool $isSuccess
      * @param bool $expected
-     *
-     * @dataProvider dataSubmitProvider
      */
+    #[DataProvider(methodName: 'dataSubmitProvider')]
     public function testEdit($isSuccess, $expected)
     {
         $formData = $this->createFormData();
@@ -242,9 +241,9 @@ class DeliveryControllerTest extends AbstractAdminWebTestCase
 
         return [
             '_token' => 'dummy',
-            'name' => $faker->word,
-            'service_name' => $faker->word,
-            'description' => $faker->word,
+            'name' => $faker->word(),
+            'service_name' => $faker->word(),
+            'description' => $faker->word(),
             'confirm_url' => $faker->url,
             'sale_type' => random_int(1, 2),
             'payments' => ['1'],
@@ -252,26 +251,26 @@ class DeliveryControllerTest extends AbstractAdminWebTestCase
             'delivery_times' => [
                 ['delivery_time' => 'AM', 'sort_no' => $i++, 'visible' => 1],
                 ['delivery_time' => 'PM', 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
-                ['delivery_time' => $faker->word, 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
+                ['delivery_time' => $faker->word(), 'sort_no' => $i++, 'visible' => 1],
             ],
             'free_all' => $faker->randomNumber(5),
             'delivery_fees' => $deliveryFree,
         ];
     }
 
-    public function dataSubmitProvider()
+    public static function dataSubmitProvider()
     {
         return [
             [false, false],
@@ -281,8 +280,10 @@ class DeliveryControllerTest extends AbstractAdminWebTestCase
     }
 
     /**
-     * @dataProvider getMergeRulesProvider
+     * @param mixed $rules
+     * @param mixed $expected
      */
+    #[DataProvider(methodName: 'getMergeRulesProvider')]
     public function testGetMergeRules($rules, $expected)
     {
         $Payments = array_map(function ($rule) {
@@ -304,7 +305,7 @@ class DeliveryControllerTest extends AbstractAdminWebTestCase
         $this->assertCount($expected, $result);
     }
 
-    public function getMergeRulesProvider()
+    public static function getMergeRulesProvider()
     {
         return [
             // 利用不可の金額帯なし

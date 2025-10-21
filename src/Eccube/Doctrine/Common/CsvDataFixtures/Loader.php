@@ -25,7 +25,7 @@ use Symfony\Component\Yaml\Yaml;
 class Loader
 {
     /**
-     * @var CsvFixture[]
+     * @var CsvFixture[]|FixtureInterface[]
      */
     protected $fixtures;
 
@@ -36,9 +36,11 @@ class Loader
      *
      * @param string $dir
      *
-     * @return array fixtures.
+     * @return array<mixed> fixtures.
+     *
+     * @throws \InvalidArgumentException|\Exception
      */
-    public function loadFromDirectory($dir)
+    public function loadFromDirectory($dir): array
     {
         if (!dir($dir)) {
             throw new \InvalidArgumentException(sprintf('"%s" does not exist', $dir));
@@ -90,9 +92,9 @@ class Loader
      *
      * @param \Iterator $Iterator Iterator of \SplFileInfo
      *
-     * @return array fixtures.
+     * @return array<int, CsvFixture> fixtures.
      */
-    public function loadFromIterator(\Iterator $Iterator)
+    public function loadFromIterator(\Iterator $Iterator): array
     {
         $fixtures = [];
         foreach ($Iterator as $fixture) {
@@ -105,12 +107,20 @@ class Loader
         return $fixtures;
     }
 
-    public function getFixtures()
+    /**
+     * @return FixtureInterface[]|CsvFixture[]
+     */
+    public function getFixtures(): array
     {
         return $this->fixtures;
     }
 
-    public function addFixture(FixtureInterface $fixture)
+    /**
+     * @param FixtureInterface $fixture
+     *
+     * @return void
+     */
+    public function addFixture(FixtureInterface $fixture): void
     {
         $this->fixtures[] = $fixture;
     }

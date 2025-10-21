@@ -159,7 +159,7 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
         $this->verify();
 
         // 確認画面
-        $crawler = $this->scenarioComplete($this->generateUrl('shopping_confirm'), $Customer);
+        $crawler = $this->scenarioComplete($Customer, $this->generateUrl('shopping_confirm'));
         $this->expected = 'ご注文内容のご確認';
         $this->actual = $crawler->filter('.ec-pageHeader h1')->text();
         $this->verify();
@@ -320,7 +320,7 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
     /**
      * 購入確認画面→支払い方法失敗する、レイアウトヘッダーとフッター確認
      */
-    public function testOrtderConfirmLayout()
+    public function testOrtderConfirmLayout(): never
     {
         $this->markTestIncomplete('ShoppingController is not implemented.');
         $faker = $this->getFaker();
@@ -473,7 +473,7 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
      *
      * @see https://github.com/EC-CUBE/ec-cube/issues/1305
      */
-    public function testShippingShippingPost()
+    public function testShippingShippingPost(): never
     {
         $this->markTestIncomplete('新しい配送管理の実装が完了するまでスキップ');
 
@@ -487,7 +487,7 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
         $crawler = $this->scenarioConfirm($Customer);
         // お届け先の設定
         $shipping_url = $crawler->filter('a.btn-shipping')->attr('href');
-        $crawler = $this->scenarioComplete($shipping_url, $client);
+        $crawler = $this->scenarioComplete(null, $shipping_url, $client);
 
         // お届け先一覧
         $shipping_url = str_replace('shipping_change', 'shipping', $shipping_url);
@@ -524,7 +524,7 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
         $this->assertTrue($client->getResponse()->isRedirect($this->generateUrl('shopping')));
 
         // ご注文完了
-        $this->scenarioComplete($this->generateUrl('shopping_confirm'), $client);
+        $this->scenarioComplete(null, $this->generateUrl('shopping_confirm'), $client);
 
         $this->baseInfoRepository->get();
         $Messages = $this->getMailCatcherMessages();
@@ -537,7 +537,7 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
     /**
      * @see https://github.com/EC-CUBE/ec-cube/issues/1280
      */
-    public function testShippingEditTitle()
+    public function testShippingEditTitle(): never
     {
         // FIXME ShoppingController の登録チェックが実装されたら有効にする
         $this->markTestIncomplete('ShoppingController is not implemented.');
@@ -588,8 +588,8 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
 
         // 確認画面
         $crawler = $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             $Customer,
+            $this->generateUrl('shopping_confirm'),
             [
                 [
                     'Delivery' => $Delivery->getId(),
@@ -604,8 +604,8 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
 
         // 完了画面
         $this->scenarioComplete(
-            $this->generateUrl('shopping_checkout'),
             $Customer,
+            $this->generateUrl('shopping_checkout'),
             [],
             true
         );
@@ -664,8 +664,8 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
 
         // 確認画面
         $crawler = $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             $Customer,
+            $this->generateUrl('shopping_confirm'),
             [
                 [
                     'Delivery' => 1,
@@ -680,8 +680,8 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
 
         // 完了画面
         $this->scenarioComplete(
-            $this->generateUrl('shopping_checkout'),
             $Customer,
+            $this->generateUrl('shopping_checkout'),
             [],
             true
         );
@@ -803,8 +803,8 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
 
         // 確認画面
         $crawler = $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             $Customer,
+            $this->generateUrl('shopping_confirm'),
             [
                 [
                     'Delivery' => 1,
@@ -846,8 +846,8 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
 
         // 確認画面
         $crawler = $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             $Customer,
+            $this->generateUrl('shopping_confirm'),
             [
                 [
                     'Delivery' => 1,
@@ -973,8 +973,8 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
 
         // 確認画面
         $crawler = $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             $Customer,
+            $this->generateUrl('shopping_confirm'),
             [
                 [
                     'Delivery' => 1,
@@ -1021,8 +1021,8 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
 
         // 確認画面
         $crawler = $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             $Customer,
+            $this->generateUrl('shopping_confirm'),
             [
                 [
                     'Delivery' => 1,

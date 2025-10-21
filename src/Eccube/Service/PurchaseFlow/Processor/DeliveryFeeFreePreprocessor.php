@@ -42,9 +42,11 @@ class DeliveryFeeFreePreprocessor implements ItemHolderPreprocessor
     /**
      * @param ItemHolderInterface $itemHolder
      * @param PurchaseContext     $context
+     *
+     * @return void
      */
     #[\Override]
-    public function process(ItemHolderInterface $itemHolder, PurchaseContext $context)
+    public function process(ItemHolderInterface $itemHolder, PurchaseContext $context): void
     {
         $isDeliveryFree = false;
 
@@ -67,7 +69,7 @@ class DeliveryFeeFreePreprocessor implements ItemHolderPreprocessor
             $items = $itemHolder->getItems();
             foreach ($items as $item) {
                 if ($item->isDeliveryFee()) {
-                    $item->setQuantity(0);
+                    $item->setQuantity('0');
                 }
             }
         }

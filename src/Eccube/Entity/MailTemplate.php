@@ -14,21 +14,17 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\MailTemplateRepository;
 
 if (!class_exists(MailTemplate::class)) {
     /**
      * MailTemplate
-     *
-     * @ORM\Table(name="dtb_mail_template")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\MailTemplateRepository")
      */
+    #[ORM\Table(name: 'dtb_mail_template')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: MailTemplateRepository::class)]
     class MailTemplate extends AbstractEntity implements \Stringable
     {
         /**
@@ -41,78 +37,65 @@ if (!class_exists(MailTemplate::class)) {
         }
 
         /**
-         * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
+         * @var int|null
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="name", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'name', type: 'string', length: 255, nullable: true)]
         private $name;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="file_name", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'file_name', type: 'string', length: 255, nullable: true)]
         private $file_name;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="mail_subject", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'mail_subject', type: 'string', length: 255, nullable: true)]
         private $mail_subject;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id')]
         private $Creator;
 
         /**
          * テンプレートの削除可否。
          *
          * @var bool
-         *
-         * @ORM\Column(name="deletable", type="boolean", options={"default":false}))
          */
+        #[ORM\Column(name: 'deletable', type: 'boolean', options: ['default' => false])]
         private bool $deletable = false;
 
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -124,7 +107,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return MailTemplate
          */
-        public function setName($name = null)
+        public function setName($name = null): MailTemplate
         {
             $this->name = $name;
 
@@ -136,7 +119,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return string|null
          */
-        public function getName()
+        public function getName(): ?string
         {
             return $this->name;
         }
@@ -148,7 +131,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return MailTemplate
          */
-        public function setFileName($fileName = null)
+        public function setFileName($fileName = null): MailTemplate
         {
             $this->file_name = $fileName;
 
@@ -160,7 +143,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return string|null
          */
-        public function getFileName()
+        public function getFileName(): ?string
         {
             return $this->file_name;
         }
@@ -172,7 +155,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return MailTemplate
          */
-        public function setMailSubject($mailSubject = null)
+        public function setMailSubject($mailSubject = null): MailTemplate
         {
             $this->mail_subject = $mailSubject;
 
@@ -184,7 +167,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return string|null
          */
-        public function getMailSubject()
+        public function getMailSubject(): ?string
         {
             return $this->mail_subject;
         }
@@ -196,7 +179,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return MailTemplate
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): MailTemplate
         {
             $this->create_date = $createDate;
 
@@ -206,9 +189,9 @@ if (!class_exists(MailTemplate::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -220,7 +203,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return MailTemplate
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): MailTemplate
         {
             $this->update_date = $updateDate;
 
@@ -230,9 +213,9 @@ if (!class_exists(MailTemplate::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -244,7 +227,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return MailTemplate
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): MailTemplate
         {
             $this->Creator = $creator;
 
@@ -256,7 +239,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }
@@ -274,7 +257,7 @@ if (!class_exists(MailTemplate::class)) {
          *
          * @return $this
          */
-        public function setDeletable(bool $deletable): self
+        public function setDeletable(bool $deletable): static
         {
             $this->deletable = $deletable;
 

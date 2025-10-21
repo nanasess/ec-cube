@@ -15,15 +15,27 @@ namespace Eccube\Service\PurchaseFlow;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Eccube\Entity\CartItem;
 use Eccube\Entity\ItemInterface;
 use Eccube\Entity\Master\OrderItemType;
 use Eccube\Entity\Order;
+use Eccube\Entity\OrderItem;
 
+/**
+ * @extends ArrayCollection<int, ItemInterface>
+ */
 class ItemCollection extends ArrayCollection
 {
+    /**
+     * @var string
+     */
     protected $type;
 
-    public function __construct($Items, $type = null)
+    /**
+     * @param array<int, ItemInterface>|array<int, OrderItem>|Collection<int, ItemInterface>|Collection<int, OrderItem>|array<int, CartItem>|Collection<int, CartItem>|null $Items
+     * @param string|null $type
+     */
+    public function __construct($Items = null, $type = null)
     {
         $this->type = is_null($type) ? Order::class : $type;
 
@@ -33,13 +45,22 @@ class ItemCollection extends ArrayCollection
         parent::__construct($Items);
     }
 
-    public function reduce(\Closure $func, $initial = null)
+    /**
+     * @param \Closure $func
+     * @param mixed|null $initial
+     *
+     * @return mixed|null
+     */
+    public function reduce(\Closure $func, $initial = null): mixed
     {
         return array_reduce($this->toArray(), $func, $initial);
     }
 
+    /**
+     * @return ItemCollection<int, ItemInterface>
+     */
     // 明細種別ごとに返すメソッド作る
-    public function getProductClasses()
+    public function getProductClasses(): ItemCollection
     {
         return $this->filter(
             function (ItemInterface $OrderItem) {
@@ -47,7 +68,10 @@ class ItemCollection extends ArrayCollection
             });
     }
 
-    public function getDeliveryFees()
+    /**
+     * @return ItemCollection<int, ItemInterface>
+     */
+    public function getDeliveryFees(): ItemCollection
     {
         return $this->filter(
             function (ItemInterface $OrderItem) {
@@ -55,7 +79,10 @@ class ItemCollection extends ArrayCollection
             });
     }
 
-    public function getCharges()
+    /**
+     * @return ItemCollection<int, ItemInterface>
+     */
+    public function getCharges(): ItemCollection
     {
         return $this->filter(
             function (ItemInterface $OrderItem) {
@@ -63,7 +90,10 @@ class ItemCollection extends ArrayCollection
             });
     }
 
-    public function getDiscounts()
+    /**
+     * @return ItemCollection<int, ItemInterface>
+     */
+    public function getDiscounts(): ItemCollection
     {
         return $this->filter(
             function (ItemInterface $OrderItem) {
@@ -75,12 +105,16 @@ class ItemCollection extends ArrayCollection
      * 同名の明細が存在するかどうか.
      *
      * TODO 暫定対応. 本来は明細種別でチェックする.
+     *
+     * @param string $productName
+     *
+     * @return bool
      */
-    public function hasProductByName($productName)
+    public function hasProductByName($productName): bool
     {
         $OrderItems = $this->filter(
             function (ItemInterface $OrderItem) use ($productName) {
-                /* @var OrderItem $OrderItem */
+                /** @var OrderItem $OrderItem */
                 return $OrderItem->getProductName() == $productName;
             });
 
@@ -94,7 +128,7 @@ class ItemCollection extends ArrayCollection
      *
      * @return bool
      */
-    public function hasItemByOrderItemType($OrderItemType)
+    public function hasItemByOrderItemType($OrderItemType): bool
     {
         $filteredItems = $this->filter(function (ItemInterface $OrderItem) use ($OrderItemType) {
             /* @var OrderItem $OrderItem */
@@ -104,12 +138,18 @@ class ItemCollection extends ArrayCollection
         return !$filteredItems->isEmpty();
     }
 
-    public function getType()
+    /**
+     * @return string
+     */
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function sort()
+    /**
+     * @return self
+     */
+    public function sort(): ItemCollection
     {
         $Items = $this->toArray();
         usort($Items, function (ItemInterface $a, ItemInterface $b) {

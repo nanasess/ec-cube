@@ -14,6 +14,7 @@
 namespace Eccube\Form\Type;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Eccube\Entity\Category;
 use Eccube\Entity\Master\ProductListMax;
 use Eccube\Entity\Master\ProductListOrderBy;
 use Eccube\Form\Type\Master\ProductListMaxType;
@@ -51,9 +52,14 @@ class SearchProductType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $Categories = $this->categoryRepository
             ->getList(null, true);
@@ -62,7 +68,7 @@ class SearchProductType extends AbstractType
             'data' => 'search',
         ]);
         $builder->add('category_id', EntityType::class, [
-            'class' => \Eccube\Entity\Category::class,
+            'class' => Category::class,
             'choice_label' => 'NameWithLevel',
             'choices' => $Categories,
             'placeholder' => 'common.select__all_products',
@@ -87,9 +93,13 @@ class SearchProductType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'csrf_protection' => false,
@@ -101,7 +111,7 @@ class SearchProductType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'search_product';
     }

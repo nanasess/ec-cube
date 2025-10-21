@@ -92,7 +92,7 @@ class ShoppingControllerWithNonmemberTest extends AbstractShoppingControllerTest
         $this->actual = $crawler->filter('.ec-pageHeader h1')->text();
         $this->verify();
 
-        $crawler = $this->scenarioComplete($this->generateUrl('shopping_confirm'), null);
+        $crawler = $this->scenarioComplete(null, $this->generateUrl('shopping_confirm'));
         $this->expected = 'ご注文内容のご確認';
         $this->actual = $crawler->filter('.ec-pageHeader h1')->text();
         $this->verify();
@@ -160,7 +160,7 @@ class ShoppingControllerWithNonmemberTest extends AbstractShoppingControllerTest
     /**
      * 購入確認画面→お届け先の設定画面(非会員)へ遷移する
      */
-    public function testShippingEdit()
+    public function testShippingEdit(): never
     {
         // FIXME お届け先情報編集機能が実装されたら有効にする
         $this->markTestIncomplete('Shipping edit is not implemented.');
@@ -217,7 +217,7 @@ class ShoppingControllerWithNonmemberTest extends AbstractShoppingControllerTest
     /**
      * 購入確認画面→お届け先の設定(非会員)→お届け先変更→購入完了
      */
-    public function testShippingEditWithPostToComplete()
+    public function testShippingEditWithPostToComplete(): never
     {
         // FIXME お届け先情報編集機能が実装されたら有効にする
         $this->markTestIncomplete('Shipping edit is not implemented.');
@@ -283,7 +283,7 @@ class ShoppingControllerWithNonmemberTest extends AbstractShoppingControllerTest
         $this->assertTrue($client->getResponse()->isRedirect($this->app->url('shopping')));
 
         // ご注文完了
-        $this->scenarioComplete($this->app->path('shopping_confirm'), $client);
+        $this->scenarioComplete(null, $this->app->path('shopping_confirm'), $client);
 
         $this->app['eccube.repository.base_info']->get();
         $Messages = $this->getMailCatcherMessages();

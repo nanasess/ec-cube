@@ -17,12 +17,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\Customer;
 use Eccube\Entity\CustomerAddress;
+use Eccube\Entity\Shipping;
 use Eccube\Repository\Master\PrefRepository;
 use Eccube\Service\OrderHelper;
 use Eccube\Session\Session;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -33,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ShippingMultipleItemType extends AbstractType
 {
     /**
-     * @var array
+     * @var EccubeConfig
      */
     protected $eccubeConfig;
 
@@ -95,9 +97,14 @@ class ShippingMultipleItemType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('quantity', IntegerType::class, [
@@ -150,9 +157,9 @@ class ShippingMultipleItemType extends AbstractType
                 ]);
             })
             ->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
-                /** @var \Eccube\Entity\Shipping $data */
+                /** @var Shipping|null $data */
                 $data = $event->getData();
-                /** @var \Symfony\Component\Form\Form $form */
+                /** @var Form $form */
                 $form = $event->getForm();
 
                 if (is_null($data)) {
@@ -185,7 +192,7 @@ class ShippingMultipleItemType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'shipping_multiple_item';
     }

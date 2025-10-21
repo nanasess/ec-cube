@@ -19,16 +19,14 @@ trait PointTrait
 {
     /**
      * @var string
-     *
-     * @ORM\Column(name="add_point", type="decimal", precision=12, scale=0, options={"unsigned":true,"default":0})
      */
+    #[ORM\Column(name: 'add_point', type: 'decimal', precision: 12, scale: 0, options: ['unsigned' => true, 'default' => 0])]
     private $add_point = '0';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="use_point", type="decimal", precision=12, scale=0, options={"unsigned":true,"default":0})
      */
+    #[ORM\Column(name: 'use_point', type: 'decimal', precision: 12, scale: 0, options: ['unsigned' => true, 'default' => 0])]
     private $use_point = '0';
 
     /**
@@ -36,9 +34,9 @@ trait PointTrait
      *
      * @param string $addPoint
      *
-     * @return Order
+     * @return $this
      */
-    public function setAddPoint($addPoint)
+    public function setAddPoint($addPoint): static
     {
         $this->add_point = $addPoint;
 
@@ -50,7 +48,7 @@ trait PointTrait
      *
      * @return string
      */
-    public function getAddPoint()
+    public function getAddPoint(): string
     {
         return $this->add_point;
     }
@@ -60,9 +58,9 @@ trait PointTrait
      *
      * @param string $usePoint
      *
-     * @return Order
+     * @return $this
      */
-    public function setUsePoint($usePoint)
+    public function setUsePoint($usePoint): static
     {
         $this->use_point = $usePoint;
 
@@ -72,9 +70,9 @@ trait PointTrait
     /**
      * Get usePoint
      *
-     * @return string
+     * @return string|null
      */
-    public function getUsePoint()
+    public function getUsePoint(): ?string
     {
         return $this->use_point;
     }

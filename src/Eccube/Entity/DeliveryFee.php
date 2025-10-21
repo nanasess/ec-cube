@@ -14,63 +14,47 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Entity\Master\Pref;
+use Eccube\Repository\DeliveryFeeRepository;
 
 if (!class_exists(DeliveryFee::class)) {
     /**
      * DeliveryFee
-     *
-     * @ORM\Table(name="dtb_delivery_fee")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\DeliveryFeeRepository")
      */
+    #[ORM\Table(name: 'dtb_delivery_fee')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: DeliveryFeeRepository::class)]
     class DeliveryFee extends AbstractEntity
     {
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="fee", type="decimal", precision=12, scale=2, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'fee', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true])]
         private $fee;
 
         /**
-         * @var Delivery
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Delivery", inversedBy="DeliveryFees")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="delivery_id", referencedColumnName="id")
-         * })
+         * @var Delivery|null
          */
+        #[ORM\ManyToOne(targetEntity: Delivery::class, inversedBy: 'DeliveryFees')]
+        #[ORM\JoinColumn(name: 'delivery_id', referencedColumnName: 'id', nullable: false)]
         private $Delivery;
 
         /**
-         * @var Master\Pref
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Pref")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="pref_id", referencedColumnName="id")
-         * })
+         * @var Pref|null
          */
+        #[ORM\ManyToOne(targetEntity: Pref::class)]
+        #[ORM\JoinColumn(name: 'pref_id', referencedColumnName: 'id')]
         private $Pref;
 
         /**
@@ -78,7 +62,7 @@ if (!class_exists(DeliveryFee::class)) {
          *
          * @return int
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -90,7 +74,7 @@ if (!class_exists(DeliveryFee::class)) {
          *
          * @return DeliveryFee
          */
-        public function setFee($fee)
+        public function setFee($fee): DeliveryFee
         {
             $this->fee = $fee;
 
@@ -100,9 +84,9 @@ if (!class_exists(DeliveryFee::class)) {
         /**
          * Get fee.
          *
-         * @return string
+         * @return string|null
          */
-        public function getFee()
+        public function getFee(): ?string
         {
             return $this->fee;
         }
@@ -114,7 +98,7 @@ if (!class_exists(DeliveryFee::class)) {
          *
          * @return DeliveryFee
          */
-        public function setDelivery(?Delivery $delivery = null)
+        public function setDelivery(?Delivery $delivery = null): DeliveryFee
         {
             $this->Delivery = $delivery;
 
@@ -126,7 +110,7 @@ if (!class_exists(DeliveryFee::class)) {
          *
          * @return Delivery|null
          */
-        public function getDelivery()
+        public function getDelivery(): ?Delivery
         {
             return $this->Delivery;
         }
@@ -134,11 +118,11 @@ if (!class_exists(DeliveryFee::class)) {
         /**
          * Set pref.
          *
-         * @param Master\Pref|null $pref
+         * @param Pref|null $pref
          *
          * @return DeliveryFee
          */
-        public function setPref(?Master\Pref $pref = null)
+        public function setPref(?Pref $pref = null): DeliveryFee
         {
             $this->Pref = $pref;
 
@@ -148,9 +132,9 @@ if (!class_exists(DeliveryFee::class)) {
         /**
          * Get pref.
          *
-         * @return Master\Pref|null
+         * @return Pref|null
          */
-        public function getPref()
+        public function getPref(): ?Pref
         {
             return $this->Pref;
         }

@@ -77,6 +77,12 @@ abstract class EccubeTestCase extends WebTestCase
     {
         parent::tearDown();
 
+        // Remove all exception handlers set by Symfony to avoid "risky test" warning
+        // This ensures PHPUnit's exception handler detection doesn't flag the test as risky
+        while (set_exception_handler(null) !== null) {
+            // Keep removing until no handler exists
+        }
+
         $this->cleanUpProperties();
     }
 
@@ -225,6 +231,11 @@ abstract class EccubeTestCase extends WebTestCase
 
     /**
      * LoginHistory オブジェクトを生成して返す
+     *
+     * @param mixed $user_name
+     * @param mixed|null $client_ip
+     * @param mixed $status
+     * @param mixed|null $Member
      *
      * @return LoginHistory
      */

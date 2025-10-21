@@ -22,13 +22,13 @@ abstract class OrderByCustomizer implements QueryCustomizer
 {
     /**
      * @param QueryBuilder $builder
-     * @param array $params
+     * @param array<mixed> $params
      * @param string $queryKey
      *
      * @return void
      */
     #[\Override]
-    final public function customize(QueryBuilder $builder, $params, $queryKey)
+    final public function customize(QueryBuilder $builder, $params, $queryKey): void
     {
         foreach ($this->createStatements($params, $queryKey) as $index => $orderByClause) {
             if ($index === 0) {
@@ -43,10 +43,10 @@ abstract class OrderByCustomizer implements QueryCustomizer
      * 変更するORDER BY句を組み立てます。
      * このメソッドの戻り値で、元のクエリのORDER BY句が上書きされます。
      *
-     * @param array $params
-     * @param $queryKey
+     * @param array<mixed> $params
+     * @param string $queryKey
      *
      * @return OrderByClause[]
      */
-    abstract protected function createStatements($params, $queryKey);
+    abstract protected function createStatements($params, $queryKey): array;
 }

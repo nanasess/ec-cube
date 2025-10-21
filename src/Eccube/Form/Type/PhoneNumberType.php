@@ -14,6 +14,8 @@
 namespace Eccube\Form\Type;
 
 use Eccube\Common\EccubeConfig;
+use Eccube\Form\EventListener\ConvertKanaListener;
+use Eccube\Form\EventListener\TruncateHyphenListener;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -42,20 +44,29 @@ class PhoneNumberType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         // 全角英数を事前に半角にする
-        $builder->addEventSubscriber(new \Eccube\Form\EventListener\ConvertKanaListener());
-        $builder->addEventSubscriber(new \Eccube\Form\EventListener\TruncateHyphenListener());
+        $builder->addEventSubscriber(new ConvertKanaListener());
+        $builder->addEventSubscriber(new TruncateHyphenListener());
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setNormalizer('constraints', function ($options, $value) {
             $constraints = [];
@@ -88,7 +99,7 @@ class PhoneNumberType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getParent()
+    public function getParent(): ?string
     {
         return TelType::class;
     }
@@ -97,7 +108,7 @@ class PhoneNumberType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'phone_number';
     }

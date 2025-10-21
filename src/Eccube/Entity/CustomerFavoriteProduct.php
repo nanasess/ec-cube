@@ -14,78 +14,60 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\CustomerFavoriteProductRepository;
 
 if (!class_exists(CustomerFavoriteProduct::class)) {
     /**
      * CustomerFavoriteProduct
-     *
-     * @ORM\Table(name="dtb_customer_favorite_product")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\CustomerFavoriteProductRepository")
      */
+    #[ORM\Table(name: 'dtb_customer_favorite_product')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: CustomerFavoriteProductRepository::class)]
     class CustomerFavoriteProduct extends AbstractEntity
     {
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
-         * @var Customer
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Customer", inversedBy="CustomerFavoriteProducts")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id")
-         * })
+         * @var Customer|null
          */
+        #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'CustomerFavoriteProducts')]
+        #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id')]
         private $Customer;
 
         /**
-         * @var Product
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Product", inversedBy="CustomerFavoriteProducts")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="product_id", referencedColumnName="id")
-         * })
+         * @var Product|null
          */
+        #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'CustomerFavoriteProducts')]
+        #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id')]
         private $Product;
 
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -97,7 +79,7 @@ if (!class_exists(CustomerFavoriteProduct::class)) {
          *
          * @return CustomerFavoriteProduct
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): CustomerFavoriteProduct
         {
             $this->create_date = $createDate;
 
@@ -107,9 +89,9 @@ if (!class_exists(CustomerFavoriteProduct::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -121,7 +103,7 @@ if (!class_exists(CustomerFavoriteProduct::class)) {
          *
          * @return CustomerFavoriteProduct
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): CustomerFavoriteProduct
         {
             $this->update_date = $updateDate;
 
@@ -131,9 +113,9 @@ if (!class_exists(CustomerFavoriteProduct::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -145,7 +127,7 @@ if (!class_exists(CustomerFavoriteProduct::class)) {
          *
          * @return CustomerFavoriteProduct
          */
-        public function setCustomer(?Customer $customer = null)
+        public function setCustomer(?Customer $customer = null): CustomerFavoriteProduct
         {
             $this->Customer = $customer;
 
@@ -157,7 +139,7 @@ if (!class_exists(CustomerFavoriteProduct::class)) {
          *
          * @return Customer|null
          */
-        public function getCustomer()
+        public function getCustomer(): ?Customer
         {
             return $this->Customer;
         }
@@ -169,7 +151,7 @@ if (!class_exists(CustomerFavoriteProduct::class)) {
          *
          * @return CustomerFavoriteProduct
          */
-        public function setProduct(?Product $product = null)
+        public function setProduct(?Product $product = null): CustomerFavoriteProduct
         {
             $this->Product = $product;
 
@@ -181,7 +163,7 @@ if (!class_exists(CustomerFavoriteProduct::class)) {
          *
          * @return Product|null
          */
-        public function getProduct()
+        public function getProduct(): ?Product
         {
             return $this->Product;
         }

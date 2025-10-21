@@ -14,6 +14,7 @@
 namespace Eccube\Controller\Mypage;
 
 use Eccube\Controller\AbstractController;
+use Eccube\Entity\Customer;
 use Eccube\Entity\Master\CustomerStatus;
 use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
@@ -24,9 +25,10 @@ use Eccube\Service\MailService;
 use Eccube\Service\OrderHelper;
 use Eccube\Util\StringUtil;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class WithdrawController extends AbstractController
@@ -42,7 +44,7 @@ class WithdrawController extends AbstractController
     protected $customerStatusRepository;
 
     /**
-     * @var TokenStorage
+     * @var TokenStorageInterface
      */
     protected $tokenStorage;
 
@@ -89,11 +91,15 @@ class WithdrawController extends AbstractController
 
     /**
      * 退会画面.
+     *
+     * @param Request $request
+     *
+     * @return Response|RedirectResponse|array<string, mixed>
      */
-    #[Route('/mypage/withdraw', name: 'mypage_withdraw', methods: ['GET', 'POST'])]
-    #[Route('/mypage/withdraw', name: 'mypage_withdraw_confirm', methods: ['GET', 'POST'])]
-    #[Template('Mypage/withdraw.twig')]
-    public function index(Request $request)
+    #[Route(path: '/mypage/withdraw', name: 'mypage_withdraw', methods: ['GET', 'POST'])]
+    #[Route(path: '/mypage/withdraw', name: 'mypage_withdraw_confirm', methods: ['GET', 'POST'])]
+    #[Template(template: 'Mypage/withdraw.twig')]
+    public function index(Request $request): Response|RedirectResponse|array
     {
         $builder = $this->formFactory->createBuilder();
 
@@ -125,7 +131,7 @@ class WithdrawController extends AbstractController
                 case 'complete':
                     log_info('退会処理開始');
 
-                    /** @var \Eccube\Entity\Customer $Customer */
+                    /** @var Customer $Customer */
                     $Customer = $this->getUser();
                     $email = $Customer->getEmail();
 
@@ -169,10 +175,14 @@ class WithdrawController extends AbstractController
 
     /**
      * 退会完了画面.
+     *
+     * @param Request $request
+     *
+     * @return array<empty>
      */
-    #[Route('/mypage/withdraw_complete', name: 'mypage_withdraw_complete', methods: ['GET'])]
-    #[Template('Mypage/withdraw_complete.twig')]
-    public function complete(Request $request)
+    #[Route(path: '/mypage/withdraw_complete', name: 'mypage_withdraw_complete', methods: ['GET'])]
+    #[Template(template: 'Mypage/withdraw_complete.twig')]
+    public function complete(Request $request): array
     {
         return [];
     }

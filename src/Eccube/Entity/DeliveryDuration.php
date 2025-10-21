@@ -14,21 +14,17 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\DeliveryDurationRepository;
 
 if (!class_exists(DeliveryDuration::class)) {
     /**
      * DeliveryDuration
-     *
-     * @ORM\Table(name="dtb_delivery_duration")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\DeliveryDurationRepository")
      */
+    #[ORM\Table(name: 'dtb_delivery_duration')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: DeliveryDurationRepository::class)]
     class DeliveryDuration extends AbstractEntity implements \Stringable
     {
         /**
@@ -42,34 +38,29 @@ if (!class_exists(DeliveryDuration::class)) {
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="name", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'name', type: 'string', length: 255, nullable: true)]
         private $name;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="duration", type="smallint", options={"default":0})
          */
+        #[ORM\Column(name: 'duration', type: 'smallint', options: ['default' => 0])]
         private $duration = 0;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="sort_no", type="integer", options={"unsigned":true})
          */
+        #[ORM\Column(name: 'sort_no', type: 'integer', options: ['unsigned' => true])]
         private $sort_no;
 
         /**
@@ -77,7 +68,7 @@ if (!class_exists(DeliveryDuration::class)) {
          *
          * @return int
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -89,7 +80,7 @@ if (!class_exists(DeliveryDuration::class)) {
          *
          * @return DeliveryDuration
          */
-        public function setName($name = null)
+        public function setName($name = null): DeliveryDuration
         {
             $this->name = $name;
 
@@ -101,7 +92,7 @@ if (!class_exists(DeliveryDuration::class)) {
          *
          * @return string|null
          */
-        public function getName()
+        public function getName(): ?string
         {
             return $this->name;
         }
@@ -113,7 +104,7 @@ if (!class_exists(DeliveryDuration::class)) {
          *
          * @return DeliveryDuration
          */
-        public function setDuration($duration)
+        public function setDuration($duration): DeliveryDuration
         {
             $this->duration = $duration;
 
@@ -125,7 +116,7 @@ if (!class_exists(DeliveryDuration::class)) {
          *
          * @return int
          */
-        public function getDuration()
+        public function getDuration(): int
         {
             return $this->duration;
         }
@@ -137,7 +128,7 @@ if (!class_exists(DeliveryDuration::class)) {
          *
          * @return DeliveryDuration
          */
-        public function setSortNo($sortNo)
+        public function setSortNo($sortNo): DeliveryDuration
         {
             $this->sort_no = $sortNo;
 
@@ -149,7 +140,7 @@ if (!class_exists(DeliveryDuration::class)) {
          *
          * @return int
          */
-        public function getSortNo()
+        public function getSortNo(): int
         {
             return $this->sort_no;
         }

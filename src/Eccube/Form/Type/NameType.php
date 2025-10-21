@@ -42,9 +42,14 @@ class NameType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $options['lastname_options']['required'] = $options['required'];
         $options['firstname_options']['required'] = $options['required'];
@@ -82,9 +87,15 @@ class NameType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormView $view
+     * @param FormInterface $form
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $builder = $form->getConfig();
         $view->vars['lastname_name'] = $builder->getAttribute('lastname_name');
@@ -93,9 +104,13 @@ class NameType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'options' => [],
@@ -139,7 +154,7 @@ class NameType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'name';
     }

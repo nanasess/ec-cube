@@ -15,6 +15,7 @@ namespace Eccube\Form\Type\Admin;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Common\EccubeConfig;
+use Eccube\Entity\Shipping;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -53,10 +54,12 @@ class OrderPdfType extends AbstractType
      * Build config type form.
      *
      * @param FormBuilderInterface $builder
-     * @param array                $options
+     * @param array<string, mixed>         $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $config = $this->eccubeConfig;
         $builder
@@ -165,7 +168,7 @@ class OrderPdfType extends AbstractType
 
                 $qb = $this->entityManager->createQueryBuilder();
                 $qb->select('count(s.id)')
-                    ->from(\Eccube\Entity\Shipping::class, 's')
+                    ->from(Shipping::class, 's')
                     ->where($qb->expr()->in('s.id', ':ids'))
                     ->setParameter('ids', $ids);
                 $actual = $qb->getQuery()->getSingleScalarResult();
@@ -183,7 +186,7 @@ class OrderPdfType extends AbstractType
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return 'admin_order_pdf';
     }

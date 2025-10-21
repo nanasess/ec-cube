@@ -14,21 +14,17 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\MailHistoryRepository;
 
 if (!class_exists(MailHistory::class)) {
     /**
      * MailHistory
-     *
-     * @ORM\Table(name="dtb_mail_history")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\MailHistoryRepository")
      */
+    #[ORM\Table(name: 'dtb_mail_history')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: MailHistoryRepository::class)]
     class MailHistory extends AbstractEntity implements \Stringable
     {
         /**
@@ -42,65 +38,49 @@ if (!class_exists(MailHistory::class)) {
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="send_date", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'send_date', type: 'datetimetz', nullable: true)]
         private $send_date;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="mail_subject", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'mail_subject', type: 'string', length: 255, nullable: true)]
         private $mail_subject;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="mail_body", type="text", nullable=true)
          */
+        #[ORM\Column(name: 'mail_body', type: 'text', nullable: true)]
         private $mail_body;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="mail_html_body", type="text", nullable=true)
          */
+        #[ORM\Column(name: 'mail_html_body', type: 'text', nullable: true)]
         private $mail_html_body;
 
         /**
-         * @var Order
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Order", inversedBy="MailHistories")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="order_id", referencedColumnName="id")
-         * })
+         * @var Order|null
          */
+        #[ORM\ManyToOne(targetEntity: Order::class, inversedBy: 'MailHistories')]
+        #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'id', nullable: true)]
         private $Order;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id", nullable=true)
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id', nullable: true)]
         private $Creator;
 
         /**
@@ -108,7 +88,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return int
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -120,7 +100,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return MailHistory
          */
-        public function setSendDate($sendDate = null)
+        public function setSendDate($sendDate = null): MailHistory
         {
             $this->send_date = $sendDate;
 
@@ -132,7 +112,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return \DateTime|null
          */
-        public function getSendDate()
+        public function getSendDate(): ?\DateTime
         {
             return $this->send_date;
         }
@@ -144,7 +124,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return MailHistory
          */
-        public function setMailSubject($mailSubject = null)
+        public function setMailSubject($mailSubject = null): MailHistory
         {
             $this->mail_subject = $mailSubject;
 
@@ -156,7 +136,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return string|null
          */
-        public function getMailSubject()
+        public function getMailSubject(): ?string
         {
             return $this->mail_subject;
         }
@@ -168,7 +148,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return MailHistory
          */
-        public function setMailBody($mailBody = null)
+        public function setMailBody($mailBody = null): MailHistory
         {
             $this->mail_body = $mailBody;
 
@@ -180,7 +160,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return string|null
          */
-        public function getMailBody()
+        public function getMailBody(): ?string
         {
             return $this->mail_body;
         }
@@ -192,7 +172,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return MailHistory
          */
-        public function setMailHtmlBody($mailHtmlBody = null)
+        public function setMailHtmlBody($mailHtmlBody = null): MailHistory
         {
             $this->mail_html_body = $mailHtmlBody;
 
@@ -204,7 +184,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return string|null
          */
-        public function getMailHtmlBody()
+        public function getMailHtmlBody(): ?string
         {
             return $this->mail_html_body;
         }
@@ -216,7 +196,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return MailHistory
          */
-        public function setOrder(?Order $order = null)
+        public function setOrder(?Order $order = null): MailHistory
         {
             $this->Order = $order;
 
@@ -228,7 +208,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return Order|null
          */
-        public function getOrder()
+        public function getOrder(): ?Order
         {
             return $this->Order;
         }
@@ -240,7 +220,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return MailHistory
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): MailHistory
         {
             $this->Creator = $creator;
 
@@ -252,7 +232,7 @@ if (!class_exists(MailHistory::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }

@@ -28,7 +28,7 @@ abstract class ItemHolderPostValidator
      *
      * @return ProcessResult
      */
-    final public function execute(ItemHolderInterface $itemHolder, PurchaseContext $context)
+    final public function execute(ItemHolderInterface $itemHolder, PurchaseContext $context): ProcessResult
     {
         try {
             $this->validate($itemHolder, $context);
@@ -45,7 +45,9 @@ abstract class ItemHolderPostValidator
      * @param ItemHolderInterface $itemHolder
      * @param PurchaseContext $context
      *
+     * @return void
+     *
      * @throws InvalidItemException
      */
-    abstract protected function validate(ItemHolderInterface $itemHolder, PurchaseContext $context);
+    abstract protected function validate(ItemHolderInterface $itemHolder, PurchaseContext $context): void;
 }

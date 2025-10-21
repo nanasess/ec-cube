@@ -11,7 +11,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Eccube\Annotation;
+namespace Eccube\Attribute;
 
 #[\Attribute(\Attribute::TARGET_METHOD)]
 final class ForwardOnly
@@ -21,7 +21,7 @@ final class ForwardOnly
      *
      * @return string
      */
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return 'forward_only';
     }
@@ -31,7 +31,7 @@ final class ForwardOnly
      *
      * @return bool
      */
-    public function allowArray()
+    public function allowArray(): bool
     {
         return false;
     }

@@ -20,10 +20,11 @@ use Eccube\Form\Type\Front\PasswordResetType;
 use Eccube\Repository\CustomerRepository;
 use Eccube\Service\MailService;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception as HttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -56,7 +57,7 @@ class ForgotController extends AbstractController
      * @param ValidatorInterface $validator
      * @param MailService $mailService
      * @param CustomerRepository $customerRepository
-     * @param UserPasswordHasherInterface $encoderFactory
+     * @param UserPasswordHasherInterface $passwordHasher
      */
     public function __construct(
         ValidatorInterface $validator,
@@ -72,10 +73,14 @@ class ForgotController extends AbstractController
 
     /**
      * パスワードリマインダ.
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse|array<string, mixed>
      */
-    #[Route('/forgot', name: 'forgot', methods: ['GET', 'POST'])]
-    #[Template('Forgot/index.twig')]
-    public function index(Request $request)
+    #[Route(path: '/forgot', name: 'forgot', methods: ['GET', 'POST'])]
+    #[Template(template: 'Forgot/index.twig')]
+    public function index(Request $request): RedirectResponse|array
     {
         if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
             throw new HttpException\NotFoundHttpException();
@@ -143,10 +148,16 @@ class ForgotController extends AbstractController
 
     /**
      * 再設定URL送信完了画面.
+     *
+     * @param Request $request
+     *
+     * @return array<empty>
+     *
+     * @throws HttpException\NotFoundHttpException
      */
-    #[Route('/forgot/complete', name: 'forgot_complete', methods: ['GET'])]
-    #[Template('Forgot/complete.twig')]
-    public function complete(Request $request)
+    #[Route(path: '/forgot/complete', name: 'forgot_complete', methods: ['GET'])]
+    #[Template(template: 'Forgot/complete.twig')]
+    public function complete(Request $request): array
     {
         if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
             throw new HttpException\NotFoundHttpException();
@@ -157,10 +168,17 @@ class ForgotController extends AbstractController
 
     /**
      * パスワード再発行実行画面.
+     *
+     * @param Request $request
+     * @param string $reset_key
+     *
+     * @return RedirectResponse|array<string, mixed>
+     *
+     * @throws HttpException\NotFoundHttpException
      */
-    #[Route('/forgot/reset/{reset_key}', name: 'forgot_reset', methods: ['GET', 'POST'])]
-    #[Template('Forgot/reset.twig')]
-    public function reset(Request $request, $reset_key)
+    #[Route(path: '/forgot/reset/{reset_key}', name: 'forgot_reset', methods: ['GET', 'POST'])]
+    #[Template(template: 'Forgot/reset.twig')]
+    public function reset(Request $request, $reset_key): RedirectResponse|array
     {
         if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
             throw new HttpException\NotFoundHttpException();

@@ -14,6 +14,7 @@
 namespace Eccube\Tests\Stream\Filter;
 
 use Eccube\Stream\Filter\SjisToUtf8EncodingFilter;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class SjisToUtf8EncodingFilterTest extends TestCase
@@ -29,9 +30,7 @@ class SjisToUtf8EncodingFilterTest extends TestCase
         SjisToUtf8EncodingFilter::setBufferSizeLimit(1024);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function encodeSmallData(): void
     {
         $utf8Value = 'あ,い,う';
@@ -40,9 +39,7 @@ class SjisToUtf8EncodingFilterTest extends TestCase
         self::assertSame(['あ', 'い', 'う'], \fgetcsv($resource));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function encodeBigDataThatExceedsStreamChunkSize(): void
     {
         $utf8Value = 'かきくけこ,さしすせそ';
@@ -55,9 +52,7 @@ class SjisToUtf8EncodingFilterTest extends TestCase
         self::assertSame(['かきくけこ', 'さしすせそ'], \fgetcsv($resource));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function fgetcsvDoesntOccur5cProblem(): void
     {
         $utf8Value = '"表"';
@@ -70,9 +65,7 @@ class SjisToUtf8EncodingFilterTest extends TestCase
         self::assertSame(['表'], \fgetcsv($resource));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function bufferSizeShouldNotBeTooLarge(): void
     {
         SjisToUtf8EncodingFilter::setBufferSizeLimit(1);

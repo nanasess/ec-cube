@@ -22,8 +22,14 @@ use Eccube\Service\PurchaseFlow\PurchaseContext;
  */
 class CustomerPurchaseInfoProcessor extends AbstractPurchaseProcessor
 {
+    /**
+     * @param ItemHolderInterface $target
+     * @param PurchaseContext $context
+     *
+     * @return void
+     */
     #[\Override]
-    public function commit(ItemHolderInterface $target, PurchaseContext $context)
+    public function commit(ItemHolderInterface $target, PurchaseContext $context): void
     {
         if (!$target instanceof Order) {
             return;
@@ -41,7 +47,7 @@ class CustomerPurchaseInfoProcessor extends AbstractPurchaseProcessor
         }
         $Customer->setLastBuyDate($now);
 
-        $Customer->setBuyTimes($Customer->getBuyTimes() + 1);
-        $Customer->setBuyTotal($Customer->getBuyTotal() + $target->getTotal());
+        $Customer->setBuyTimes(bcadd((string) $Customer->getBuyTimes(), '1'));
+        $Customer->setBuyTotal(bcadd((string) $Customer->getBuyTotal(), $target->getTotal()));
     }
 }

@@ -14,85 +14,61 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\BlockPositionRepository;
 
 if (!class_exists(BlockPosition::class)) {
     /**
      * BlockPosition
-     *
-     * @ORM\Table(name="dtb_block_position")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\BlockPositionRepository")
      */
+    #[ORM\Table(name: 'dtb_block_position')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: BlockPositionRepository::class)]
     class BlockPosition extends AbstractEntity
     {
         /**
          * @var int
-         *
-         * @ORM\Column(name="section", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="NONE")
          */
+        #[ORM\Column(name: 'section', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'NONE')]
         private $section;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="block_id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="NONE")
          */
+        #[ORM\Column(name: 'block_id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'NONE')]
         private $block_id;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="layout_id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="NONE")
          */
+        #[ORM\Column(name: 'layout_id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'NONE')]
         private $layout_id;
 
         /**
          * @var int|null
-         *
-         * @ORM\Column(name="block_row", type="integer", nullable=true, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'block_row', type: 'integer', nullable: true, options: ['unsigned' => true])]
         private $block_row;
 
         /**
-         * @var Block
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Block", inversedBy="BlockPositions")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="block_id", referencedColumnName="id")
-         * })
+         * @var Block|null
          */
+        #[ORM\ManyToOne(targetEntity: Block::class, inversedBy: 'BlockPositions')]
+        #[ORM\JoinColumn(name: 'block_id', referencedColumnName: 'id')]
         private $Block;
 
         /**
-         * @var Layout
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Layout", inversedBy="BlockPositions")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="layout_id", referencedColumnName="id")
-         * })
+         * @var Layout|null
          */
+        #[ORM\ManyToOne(targetEntity: Layout::class, inversedBy: 'BlockPositions')]
+        #[ORM\JoinColumn(name: 'layout_id', referencedColumnName: 'id')]
         private $Layout;
 
         /**
@@ -102,7 +78,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return BlockPosition
          */
-        public function setSection($section)
+        public function setSection($section): BlockPosition
         {
             $this->section = $section;
 
@@ -114,7 +90,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return int
          */
-        public function getSection()
+        public function getSection(): int
         {
             return $this->section;
         }
@@ -126,7 +102,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return BlockPosition
          */
-        public function setBlockId($blockId)
+        public function setBlockId($blockId): BlockPosition
         {
             $this->block_id = $blockId;
 
@@ -138,7 +114,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return int
          */
-        public function getBlockId()
+        public function getBlockId(): int
         {
             return $this->block_id;
         }
@@ -150,7 +126,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return BlockPosition
          */
-        public function setLayoutId($layoutId)
+        public function setLayoutId($layoutId): BlockPosition
         {
             $this->layout_id = $layoutId;
 
@@ -162,7 +138,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return int
          */
-        public function getLayoutId()
+        public function getLayoutId(): int
         {
             return $this->layout_id;
         }
@@ -174,7 +150,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return BlockPosition
          */
-        public function setBlockRow($blockRow = null)
+        public function setBlockRow($blockRow = null): BlockPosition
         {
             $this->block_row = $blockRow;
 
@@ -186,7 +162,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return int|null
          */
-        public function getBlockRow()
+        public function getBlockRow(): ?int
         {
             return $this->block_row;
         }
@@ -198,7 +174,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return BlockPosition
          */
-        public function setBlock(?Block $block = null)
+        public function setBlock(?Block $block = null): BlockPosition
         {
             $this->Block = $block;
 
@@ -210,7 +186,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return Block|null
          */
-        public function getBlock()
+        public function getBlock(): ?Block
         {
             return $this->Block;
         }
@@ -222,7 +198,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return BlockPosition
          */
-        public function setLayout(?Layout $Layout = null)
+        public function setLayout(?Layout $Layout = null): BlockPosition
         {
             $this->Layout = $Layout;
 
@@ -234,7 +210,7 @@ if (!class_exists(BlockPosition::class)) {
          *
          * @return Layout|null
          */
-        public function getLayout()
+        public function getLayout(): ?Layout
         {
             return $this->Layout;
         }

@@ -15,6 +15,8 @@ namespace Eccube\Service\PurchaseFlow\Processor;
 
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\PessimisticLockException;
 use Eccube\Entity\ItemHolderInterface;
 use Eccube\Entity\Order;
 use Eccube\Entity\ProductStock;
@@ -53,11 +55,11 @@ class StockReduceProcessor extends AbstractPurchaseProcessor
      * {@inheritdoc}
      */
     #[\Override]
-    public function prepare(ItemHolderInterface $itemHolder, PurchaseContext $context)
+    public function prepare(ItemHolderInterface $itemHolder, PurchaseContext $context): void
     {
         // 在庫を減らす
         $this->eachProductOrderItems($itemHolder, function ($currentStock, $itemQuantity) {
-            return $currentStock - $itemQuantity;
+            return bcsub((string) $currentStock, (string) $itemQuantity);
         });
     }
 
@@ -65,15 +67,25 @@ class StockReduceProcessor extends AbstractPurchaseProcessor
      * {@inheritdoc}
      */
     #[\Override]
-    public function rollback(ItemHolderInterface $itemHolder, PurchaseContext $context)
+    public function rollback(ItemHolderInterface $itemHolder, PurchaseContext $context): void
     {
         // 在庫を戻す
         $this->eachProductOrderItems($itemHolder, function ($currentStock, $itemQuantity) {
-            return $currentStock + $itemQuantity;
+            return bcadd((string) $currentStock, (string) $itemQuantity);
         });
     }
 
-    private function eachProductOrderItems(ItemHolderInterface $itemHolder, callable $callback)
+    /**
+     * @param ItemHolderInterface $itemHolder 受注 or カート
+     * @param callable $callback 在庫数を計算するコールバック関数
+     *
+     * @return void
+     *
+     * @throws ShoppingException 在庫切れの場合
+     * @throws OptimisticLockException
+     * @throws PessimisticLockException
+     */
+    private function eachProductOrderItems(ItemHolderInterface $itemHolder, callable $callback): void
     {
         // Order以外の場合は何もしない
         if (!$itemHolder instanceof Order) {
@@ -84,7 +96,7 @@ class StockReduceProcessor extends AbstractPurchaseProcessor
             // 在庫が無制限かチェックし、制限ありなら在庫数をチェック
             if (!$item->getProductClass()->isStockUnlimited()) {
                 // 在庫チェックあり
-                /* @var ProductStock $productStock */
+                /** @var ProductStock $productStock */
                 $productStock = $item->getProductClass()->getProductStock();
                 if ($productStock->getProductClassId() === null) {
                     // 在庫に対してロックを実行

@@ -16,7 +16,8 @@ namespace Eccube\Form\Type\Admin;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\ClassCategory;
-use Eccube\Form\DataTransformer;
+use Eccube\Entity\ProductClass;
+use Eccube\Form\DataTransformer\EntityToIdTransformer;
 use Eccube\Form\Type\Master\DeliveryDurationType;
 use Eccube\Form\Type\Master\SaleTypeType;
 use Eccube\Form\Type\PriceType;
@@ -58,9 +59,14 @@ class ProductClassType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('code', TextType::class, [
@@ -138,7 +144,7 @@ class ProductClassType extends AbstractType
                 }
             });
 
-        $transformer = new DataTransformer\EntityToIdTransformer($this->entityManager, ClassCategory::class);
+        $transformer = new EntityToIdTransformer($this->entityManager, ClassCategory::class);
         $builder
             ->add($builder->create('ClassCategory1', HiddenType::class)
                 ->addModelTransformer($transformer)
@@ -150,12 +156,16 @@ class ProductClassType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => \Eccube\Entity\ProductClass::class,
+            'data_class' => ProductClass::class,
         ]);
     }
 
@@ -163,7 +173,7 @@ class ProductClassType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'admin_product_class';
     }

@@ -107,8 +107,8 @@ class ShoppingControllerWithMultipleNonmemberTest extends AbstractShoppingContro
 
         // 確認画面
         $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             null,
+            $this->generateUrl('shopping_confirm'),
             [
                 // 配送先1
                 [
@@ -864,7 +864,7 @@ class ShoppingControllerWithMultipleNonmemberTest extends AbstractShoppingContro
     /**
      * Test add multi shipping
      */
-    public function testAddMultiShippingCartUnlock()
+    public function testAddMultiShippingCartUnlock(): never
     {
         $this->markTestIncomplete('カートのアンロック対応');
 
@@ -886,7 +886,7 @@ class ShoppingControllerWithMultipleNonmemberTest extends AbstractShoppingContro
     /**
      * Test multi shipping with nonmember
      */
-    public function testAddMultiShippingWithoutCart()
+    public function testAddMultiShippingWithoutCart(): never
     {
         $this->markTestIncomplete('カートのクリア対応');
 
@@ -933,7 +933,7 @@ class ShoppingControllerWithMultipleNonmemberTest extends AbstractShoppingContro
     /**
      * Test multi shipping with nonmember
      */
-    public function testAddMultiShippingShippingUnlock()
+    public function testAddMultiShippingShippingUnlock(): never
     {
         $this->markTestIncomplete('カートのアンロック対応');
 
@@ -949,7 +949,7 @@ class ShoppingControllerWithMultipleNonmemberTest extends AbstractShoppingContro
 
         // お届け先設定画面への遷移前チェック
         $shipping_edit_change_url = $crawler->filter('a.btn-shipping-edit')->attr('href');
-        $this->scenarioComplete($shipping_edit_change_url, $client);
+        $this->scenarioComplete(null, $shipping_edit_change_url, $client);
 
         // add multi shipping
         $multiForm = [
@@ -1427,8 +1427,8 @@ class ShoppingControllerWithMultipleNonmemberTest extends AbstractShoppingContro
 
         // 完了画面
         $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             null,
+            $this->generateUrl('shopping_confirm'),
             [
                 // 配送先1
                 [

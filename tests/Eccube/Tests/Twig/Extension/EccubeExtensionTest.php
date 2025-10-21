@@ -17,6 +17,7 @@ use Eccube\Common\EccubeConfig;
 use Eccube\Entity\Product;
 use Eccube\Tests\EccubeTestCase;
 use Eccube\Twig\Extension\EccubeExtension;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class EccubeExtensionTest extends EccubeTestCase
 {
@@ -36,7 +37,7 @@ class EccubeExtensionTest extends EccubeTestCase
     public function testGetClassCategoriesAsJson()
     {
         $faker = $this->getFaker();
-        $Product = $this->createProduct($faker->word, 3);
+        $Product = $this->createProduct($faker->word(), 3);
 
         $actuals = json_decode($this->Extension->getClassCategoriesAsJson($Product), true);
 
@@ -53,7 +54,7 @@ class EccubeExtensionTest extends EccubeTestCase
 
                 $actual = $actuals[$class_category_id]['#'.$class_category_id2];
 
-                $this->assertEquals($class_category_id2, $actual['classcategory_id2']);
+                $this->assertSame((string) $class_category_id2, $actual['classcategory_id2']);
                 $this->assertEquals($name2, $actual['name']);
 
                 $ProductClass = $Product
@@ -82,22 +83,25 @@ class EccubeExtensionTest extends EccubeTestCase
                 $this->assertSame($this->Extension->getPriceFilter($ProductClass->getPrice02()), $actual['price02_with_currency']);
                 $this->assertSame($this->Extension->getPriceFilter($ProductClass->getPrice02IncTax()), $actual['price02_inc_tax_with_currency']);
                 $this->assertEquals($ProductClass->getCode(), $actual['product_code']);
-                $this->assertEquals($ProductClass->getSaleType()->getId(), $actual['sale_type']);
+                $this->assertSame($ProductClass->getSaleType()->getId(), (int) $actual['sale_type']);
                 $this->assertEquals($ProductClass->getStockFind(), $actual['stock_find']);
             }
         }
     }
 
     /**
-     * @dataProvider extensionProvider
+     * @param mixed $ext
+     * @param mixed $iconOnly
+     * @param mixed $expected
      */
+    #[DataProvider(methodName: 'extensionProvider')]
     public function testGetExtensionIcon($ext, $iconOnly, $expected)
     {
         $actual = $this->Extension->getExtensionIcon($ext, [], $iconOnly);
         $this->assertEquals($expected, $actual);
     }
 
-    public function extensionProvider()
+    public static function extensionProvider()
     {
         return [
             ['jpg', false, '<i class="fa fa-file-image-o" ></i>'],

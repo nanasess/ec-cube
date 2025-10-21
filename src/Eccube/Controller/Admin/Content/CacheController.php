@@ -19,13 +19,16 @@ use Eccube\Util\CacheUtil;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class CacheController extends AbstractController
 {
-    #[Route('/%eccube_admin_route%/content/cache', name: 'admin_content_cache', methods: ['GET', 'POST'])]
-    #[Template('@admin/Content/cache.twig')]
-    public function index(Request $request, CacheUtil $cacheUtil, SystemService $systemService)
+    /**
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/%eccube_admin_route%/content/cache', name: 'admin_content_cache', methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Content/cache.twig')]
+    public function index(Request $request, CacheUtil $cacheUtil, SystemService $systemService): array
     {
         $builder = $this->formFactory->createBuilder(FormType::class);
         $form = $builder->getForm();

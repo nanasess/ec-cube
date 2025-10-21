@@ -26,6 +26,7 @@ use Eccube\Service\PurchaseFlow\PurchaseContext;
 use Eccube\Service\PurchaseFlow\PurchaseException;
 use Eccube\Service\PurchaseFlow\PurchaseFlow;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class StockDiffProcessorTest extends EccubeTestCase
 {
@@ -47,8 +48,6 @@ class StockDiffProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider validateProvider
-     *
      * @param $stock int 在庫数
      * @param $beforeQuantity int 編集前の商品の数量
      * @param $afterQuantity int 編集後の商品の数量
@@ -56,6 +55,7 @@ class StockDiffProcessorTest extends EccubeTestCase
      * @param $beforeOrderStatus int 編集前の受注ステータス
      * @param $afterOrderStatus int 編集後の受注ステータス
      */
+    #[DataProvider(methodName: 'validateProvider')]
     public function testValidate($stock, $beforeQuantity, $afterQuantity, $isError, $beforeOrderStatus, $afterOrderStatus)
     {
         $Customer = new Customer();
@@ -103,7 +103,7 @@ class StockDiffProcessorTest extends EccubeTestCase
         }
     }
 
-    public function validateProvider()
+    public static function validateProvider()
     {
         return [
             [10, 2, 12, false, OrderStatus::NEW, OrderStatus::NEW],
@@ -146,8 +146,6 @@ class StockDiffProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider prepareProvider
-     *
      * @param $beforeStock int 編集前の在庫数
      * @param $afterStock int 編集後の在庫数
      * @param $beforeQuantity int 編集前の商品の数量
@@ -157,6 +155,7 @@ class StockDiffProcessorTest extends EccubeTestCase
      *
      * @throws PurchaseException
      */
+    #[DataProvider(methodName: 'prepareProvider')]
     public function testPrepare($beforeStock, $afterStock, $beforeQuantity, $afterQuantity, $beforeOrderStatus, $afterOrderStatus)
     {
         $Customer = new Customer();
@@ -191,17 +190,17 @@ class StockDiffProcessorTest extends EccubeTestCase
         $purchaseFlow->addPurchaseProcessor($this->processor);
         $context = new PurchaseContext($BeforeOrder, $Customer);
         $purchaseFlow->prepare($AfterOrder, $context);
-        $this->expected = $afterStock;
+        $this->expected = $afterStock === null ? null : (string) $afterStock;
         $this->actual = $ProductClass->getStock();
         $this->verify('dtb_product_class の在庫数(stock)が正しくセットされていない。');
 
         $ProductStock = $ProductClass->getProductStock();
-        $this->expected = $afterStock;
+        $this->expected = $afterStock === null ? null : (string) $afterStock;
         $this->actual = $ProductStock->getStock();
         $this->verify('dtb_product_stock の在庫数(stock)が正しくセットされていない。');
     }
 
-    public function prepareProvider()
+    public static function prepareProvider()
     {
         return [
             [10, 0, 2, 12, OrderStatus::NEW, OrderStatus::NEW],

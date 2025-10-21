@@ -23,10 +23,12 @@ use Eccube\Util\CacheUtil;
 use Eccube\Util\StringUtil;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
+use Twig\Error\LoaderError;
 
 /**
  * Class MailController
@@ -48,10 +50,20 @@ class MailController extends AbstractController
         $this->mailTemplateRepository = $mailTemplateRepository;
     }
 
-    #[Route('/%eccube_admin_route%/setting/shop/mail', name: 'admin_setting_shop_mail', methods: ['GET', 'POST'])]
-    #[Route('/%eccube_admin_route%/setting/shop/mail/{id}', requirements: ['id' => '\d+'], name: 'admin_setting_shop_mail_edit', methods: ['GET', 'POST'])]
-    #[Template('@admin/Setting/Shop/mail.twig')]
-    public function index(Request $request, Environment $twig, CacheUtil $cacheUtil, ?MailTemplate $Mail = null)
+    /**
+     * @param Request $request
+     * @param Environment $twig
+     * @param CacheUtil $cacheUtil
+     * @param MailTemplate|null $Mail
+     *
+     * @return RedirectResponse|array<string, mixed>
+     *
+     * @throws LoaderError
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/shop/mail', name: 'admin_setting_shop_mail', methods: ['GET', 'POST'])]
+    #[Route(path: '/%eccube_admin_route%/setting/shop/mail/{id}', name: 'admin_setting_shop_mail_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Setting/Shop/mail.twig')]
+    public function index(Request $request, Environment $twig, CacheUtil $cacheUtil, ?MailTemplate $Mail = null): RedirectResponse|array
     {
         $Mail ??= new MailTemplate();
         $builder = $this->formFactory
@@ -150,9 +162,14 @@ class MailController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/setting/shop/mail/preview', name: 'admin_setting_shop_mail_preview', methods: ['POST'])]
-    #[Template('@admin/Setting/Shop/mail_view.twig')]
-    public function preview(Request $request)
+    /**
+     * @param Request $request
+     *
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/shop/mail/preview', name: 'admin_setting_shop_mail_preview', methods: ['POST'])]
+    #[Template(template: '@admin/Setting/Shop/mail_view.twig')]
+    public function preview(Request $request): array
     {
         if (!$request->isXmlHttpRequest() && $this->isTokenValid()) {
             throw new BadRequestHttpException();
@@ -173,8 +190,14 @@ class MailController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/setting/shop/mail/{id}/delete', name: 'admin_setting_shop_mail_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(Request $request, MailTemplate $Mail)
+    /**
+     * @param Request $request
+     * @param MailTemplate $Mail
+     *
+     * @return RedirectResponse
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/shop/mail/{id}/delete', name: 'admin_setting_shop_mail_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(Request $request, MailTemplate $Mail): RedirectResponse
     {
         $this->isTokenValid();
 
@@ -212,7 +235,7 @@ class MailController extends AbstractController
      *
      * @return string
      */
-    protected function getHtmlFileName($fileName)
+    protected function getHtmlFileName($fileName): string
     {
         // HTMLテンプレートファイルの取得
         $targetTemplate = pathinfo($fileName);
@@ -224,11 +247,11 @@ class MailController extends AbstractController
     /**
      * テンプレートディレクトリ配下のパスかどうかを検証する
      *
-     * @param $path
+     * @param string $path
      *
      * @return bool
      */
-    protected function validateFilePath($path)
+    protected function validateFilePath($path): bool
     {
         $templatePath = realpath($this->getParameter('eccube_theme_front_dir'));
         $path = realpath($path);

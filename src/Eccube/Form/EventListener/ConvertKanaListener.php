@@ -29,6 +29,10 @@ class ConvertKanaListener implements EventSubscriberInterface
      */
     protected $encoding;
 
+    /**
+     * @param string $option
+     * @param string $encoding
+     */
     public function __construct($option = 'a', $encoding = 'utf-8')
     {
         $this->option = $option;
@@ -36,14 +40,19 @@ class ConvertKanaListener implements EventSubscriberInterface
     }
 
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::PRE_SUBMIT => 'onPreSubmit',
         ];
     }
 
-    public function onPreSubmit(FormEvent $event)
+    /**
+     * @param FormEvent $event
+     *
+     * @return void
+     */
+    public function onPreSubmit(FormEvent $event): void
     {
         $data = $event->getData();
 

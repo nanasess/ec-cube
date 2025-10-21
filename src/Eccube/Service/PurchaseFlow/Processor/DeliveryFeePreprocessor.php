@@ -14,6 +14,7 @@
 namespace Eccube\Service\PurchaseFlow\Processor;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NoResultException;
 use Eccube\Entity\BaseInfo;
 use Eccube\Entity\DeliveryFee;
 use Eccube\Entity\ItemHolderInterface;
@@ -73,26 +74,38 @@ class DeliveryFeePreprocessor implements ItemHolderPreprocessor
     }
 
     /**
-     * @param ItemHolderInterface $itemHolder
-     * @param PurchaseContext $context
+     * @param ItemHolderInterface $itemHolder カート or 注文
+     * @param PurchaseContext $context 購入フローのコンテキスト
      *
-     * @throws \Doctrine\ORM\NoResultException
+     * @return void
+     *
+     * @throws NoResultException
      */
     #[\Override]
-    public function process(ItemHolderInterface $itemHolder, PurchaseContext $context)
+    public function process(ItemHolderInterface $itemHolder, PurchaseContext $context): void
     {
-        $this->removeDeliveryFeeItem($itemHolder);
-        $this->saveDeliveryFeeItem($itemHolder);
+        if ($itemHolder instanceof Order) {
+            $this->removeDeliveryFeeItem($itemHolder);
+            $this->saveDeliveryFeeItem($itemHolder);
+        }
     }
 
-    private function removeDeliveryFeeItem(ItemHolderInterface $itemHolder)
+    /**
+     * @param ItemHolderInterface $itemHolder
+     *
+     * @return void
+     */
+    private function removeDeliveryFeeItem(ItemHolderInterface $itemHolder): void
     {
-        foreach ($itemHolder->getShippings() as $Shipping) {
-            foreach ($Shipping->getOrderItems() as $item) {
-                if ($item->getProcessorName() == DeliveryFeePreprocessor::class) {
-                    $Shipping->removeOrderItem($item);
-                    $itemHolder->removeOrderItem($item);
-                    $this->entityManager->remove($item);
+        if ($itemHolder instanceof Order) {
+            foreach ($itemHolder->getShippings() as $Shipping) {
+                /** @var OrderItem $item */
+                foreach ($Shipping->getOrderItems() as $item) {
+                    if ($item->getProcessorName() == DeliveryFeePreprocessor::class) {
+                        $Shipping->removeOrderItem($item);
+                        $itemHolder->removeOrderItem($item);
+                        $this->entityManager->remove($item);
+                    }
                 }
             }
         }
@@ -101,9 +114,11 @@ class DeliveryFeePreprocessor implements ItemHolderPreprocessor
     /**
      * @param ItemHolderInterface $itemHolder
      *
-     * @throws \Doctrine\ORM\NoResultException
+     * @return void
+     *
+     * @throws NoResultException
      */
-    private function saveDeliveryFeeItem(ItemHolderInterface $itemHolder)
+    private function saveDeliveryFeeItem(ItemHolderInterface $itemHolder): void
     {
         $DeliveryFeeType = $this->entityManager
             ->find(OrderItemType::class, OrderItemType::DELIVERY_FEE);
@@ -117,14 +132,14 @@ class DeliveryFeePreprocessor implements ItemHolderPreprocessor
         /* @var Shipping $Shipping */
         foreach ($Order->getShippings() as $Shipping) {
             // 送料の計算
-            $deliveryFeeProduct = 0;
+            $deliveryFeeProduct = '0';
             if ($this->BaseInfo->isOptionProductDeliveryFee()) {
                 /** @var OrderItem $item */
                 foreach ($Shipping->getOrderItems() as $item) {
                     if (!$item->isProduct()) {
                         continue;
                     }
-                    $deliveryFeeProduct += $item->getProductClass()->getDeliveryFee() * $item->getQuantity();
+                    $deliveryFeeProduct = bcadd($deliveryFeeProduct, bcmul((string) $item->getProductClass()->getDeliveryFee(), (string) $item->getQuantity(), 0));
                 }
             }
 
@@ -133,15 +148,15 @@ class DeliveryFeePreprocessor implements ItemHolderPreprocessor
                 'Delivery' => $Shipping->getDelivery(),
                 'Pref' => $Shipping->getPref(),
             ]);
-            $fee = is_object($DeliveryFee) ? $DeliveryFee->getFee() : 0;
+            $fee = is_object($DeliveryFee) ? $DeliveryFee->getFee() : '0';
 
             $OrderItem = new OrderItem();
             $OrderItem->setProductName($DeliveryFeeType->getName())
-                ->setPrice($fee + $deliveryFeeProduct)
-                ->setQuantity(1)
+                ->setPrice(bcadd($fee, $deliveryFeeProduct))
+                ->setQuantity('1')
                 ->setOrderItemType($DeliveryFeeType)
                 ->setShipping($Shipping)
-                ->setOrder($itemHolder)
+                ->setOrder($Order)
                 ->setTaxDisplayType($TaxInclude)
                 ->setTaxType($Taxation)
                 ->setProcessorName(DeliveryFeePreprocessor::class);

@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 class PaymentResult
 {
     /**
-     * @var array
+     * @var array<int, string>
      */
     private $errors = [];
 
@@ -31,7 +31,7 @@ class PaymentResult
     private $success;
 
     /**
-     * @var Response
+     * @var Response|null
      */
     private $response;
 
@@ -44,7 +44,7 @@ class PaymentResult
      *
      * @return PaymentResult
      */
-    public function setSuccess($success)
+    public function setSuccess($success): PaymentResult
     {
         $this->success = $success;
 
@@ -58,7 +58,7 @@ class PaymentResult
      *
      * @return bool
      */
-    public function isSuccess()
+    public function isSuccess(): bool
     {
         return $this->success;
     }
@@ -66,9 +66,9 @@ class PaymentResult
     /**
      * 決済が失敗した場合のエラーの配列を返します.
      *
-     * @return array
+     * @return array<int, string>
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
@@ -76,11 +76,11 @@ class PaymentResult
     /**
      * 決済が失敗した場合のエラーの配列を設定します.
      *
-     * @param array $errors
+     * @param array<int, string> $errors
      *
      * @return PaymentResult
      */
-    public function setErrors(array $errors)
+    public function setErrors(array $errors): PaymentResult
     {
         $this->errors = $errors;
 
@@ -96,7 +96,7 @@ class PaymentResult
      *
      * @return PaymentResult
      */
-    public function setResponse(Response $response)
+    public function setResponse(Response $response): PaymentResult
     {
         $this->response = $response;
 
@@ -106,9 +106,9 @@ class PaymentResult
     /**
      * Response を返します.
      *
-     * @return Response
+     * @return Response|null
      */
-    public function getResponse()
+    public function getResponse(): ?Response
     {
         return $this->response;
     }

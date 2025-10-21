@@ -17,6 +17,7 @@ use Eccube\Controller\Admin\Order\CsvImportController;
 use Eccube\Entity\Master\OrderStatus;
 use Eccube\Service\CsvImportService;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class CsvImportControllerTest extends AbstractAdminWebTestCase
@@ -104,8 +105,10 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
     }
 
     /**
-     * @dataProvider loadCsvInvalidFormatProvider
+     * @param mixed $csv
+     * @param mixed $errorMessage
      */
+    #[DataProvider(methodName: 'loadCsvInvalidFormatProvider')]
     public function testLoadCsvInvalidFormat($csv, $errorMessage)
     {
         $Shipping = $this->createOrder($this->createCustomer())->getShippings()[0];
@@ -121,7 +124,7 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
         self::assertEquals($errors[0], $errorMessage);
     }
 
-    public function loadCsvInvalidFormatProvider()
+    public static function loadCsvInvalidFormatProvider()
     {
         return [
             [

@@ -14,22 +14,36 @@
 namespace Eccube\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\DBALException;
+use Eccube\Common\EccubeConfig;
 use Eccube\Entity\AbstractEntity;
 
+/**
+ * ECCUBE AbstractRepository
+ *
+ * @method T|null find($id, $lockMode = null, $lockVersion = null)
+ * @method T|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
+ * @method T[]    findAll()
+ * @method T[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, ?int $limit = null, ?int $offset = null)
+ *
+ * @template T of AbstractEntity
+ *
+ * @extends ServiceEntityRepository<T>
+ */
 abstract class AbstractRepository extends ServiceEntityRepository
 {
     /**
-     * @var array
+     * @var EccubeConfig
      */
     protected $eccubeConfig;
 
     /**
      * エンティティを削除します。
      *
-     * @param AbstractEntity $entity
+     * @param T $entity
+     *
+     * @return void
      */
-    public function delete($entity)
+    public function delete($entity): void
     {
         $this->getEntityManager()->remove($entity);
     }
@@ -37,14 +51,19 @@ abstract class AbstractRepository extends ServiceEntityRepository
     /**
      * エンティティの登録/保存します。
      *
-     * @param AbstractEntity $entity
+     * @param T $entity
+     *
+     * @return void
      */
-    public function save($entity)
+    public function save($entity): void
     {
         $this->getEntityManager()->persist($entity);
     }
 
-    protected function getCacheLifetime()
+    /**
+     * @return int|string|null
+     */
+    protected function getCacheLifetime(): int|string|null
     {
         if ($this->eccubeConfig !== null) {
             return $this->eccubeConfig['eccube_result_cache_lifetime'];
@@ -57,10 +76,8 @@ abstract class AbstractRepository extends ServiceEntityRepository
      * PostgreSQL環境かどうかを判定します。
      *
      * @return bool
-     *
-     * @throws DBALException
      */
-    protected function isPostgreSQL()
+    protected function isPostgreSQL(): bool
     {
         return 'postgresql' == $this->getEntityManager()->getConnection()->getDatabasePlatform()->getName();
     }
@@ -69,10 +86,8 @@ abstract class AbstractRepository extends ServiceEntityRepository
      * MySQL環境かどうかを判定します。
      *
      * @return bool
-     *
-     * @throws DBALException
      */
-    protected function isMySQL()
+    protected function isMySQL(): bool
     {
         return 'mysql' == $this->getEntityManager()->getConnection()->getDatabasePlatform()->getName();
     }

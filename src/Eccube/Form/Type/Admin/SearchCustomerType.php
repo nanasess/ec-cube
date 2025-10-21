@@ -50,8 +50,8 @@ class SearchCustomerType extends AbstractType
     /**
      * SearchCustomerType constructor.
      *
-     * @param EccubeConfig $eccubeConfig
      * @param CustomerStatusRepository $customerStatusRepository
+     * @param EccubeConfig $eccubeConfig
      */
     public function __construct(
         CustomerStatusRepository $customerStatusRepository,
@@ -63,9 +63,14 @@ class SearchCustomerType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $months = range(1, 12);
         $builder
@@ -440,7 +445,7 @@ class SearchCustomerType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'admin_search_customer';
     }

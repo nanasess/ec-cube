@@ -14,6 +14,7 @@
 namespace Eccube\Form\Type\Master;
 
 use Doctrine\ORM\EntityRepository;
+use Eccube\Entity\Category;
 use Eccube\Form\Type\MasterType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,12 +23,16 @@ class CategoryType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'class' => \Eccube\Entity\Category::class,
+            'class' => Category::class,
             'choice_label' => 'NameWithLevel',
             // なぜかDESC
             'query_builder' => function (EntityRepository $er) {
@@ -38,13 +43,13 @@ class CategoryType extends AbstractType
     }
 
     #[\Override]
-    public function getParent()
+    public function getParent(): ?string
     {
         return MasterType::class;
     }
 
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'category';
     }

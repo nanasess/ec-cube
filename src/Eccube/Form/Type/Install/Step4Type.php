@@ -13,6 +13,8 @@
 
 namespace Eccube\Form\Type\Install;
 
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DriverManager;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -44,9 +46,16 @@ class Step4Type extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
+     *
+     * @throws \Exception
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $database = [];
         if (extension_loaded('pdo_pgsql')) {
@@ -103,7 +112,7 @@ class Step4Type extends AbstractType
                     return;
                 }
                 try {
-                    $config = new \Doctrine\DBAL\Configuration();
+                    $config = new Configuration();
                     $connectionParams = [
                         'dbname' => $data['database_name'],
                         'user' => $data['database_user'],
@@ -112,11 +121,11 @@ class Step4Type extends AbstractType
                         'driver' => $data['database'],
                         'port' => $data['database_port'],
                     ];
-                    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+                    $conn = DriverManager::getConnection($connectionParams, $config);
                     $conn->connect();
 
                     // todo MySQL, PostgreSQLのバージョンチェックも欲しい.DBALで接続すればエラーになる？
-                    $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, $config);
+                    $conn = DriverManager::getConnection($connectionParams, $config);
                     $conn->connect();
                 } catch (\Exception $e) {
                     $form['database']->addError(new FormError(trans('install.database_connection_error').$e->getMessage()));
@@ -128,12 +137,19 @@ class Step4Type extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'install_step4';
     }
 
-    public function validate($data, ExecutionContext $context, $param = null)
+    /**
+     * @param array<mixed> $data
+     * @param ExecutionContext $context
+     * @param mixed|null $param
+     *
+     * @return void
+     */
+    public function validate($data, ExecutionContext $context, $param = null): void
     {
         $parameters = $this->requestStack->getCurrentRequest()->get('install_step4');
         if ($parameters['database'] != 'pdo_sqlite') {

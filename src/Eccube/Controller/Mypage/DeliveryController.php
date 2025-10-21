@@ -15,6 +15,7 @@ namespace Eccube\Controller\Mypage;
 
 use Eccube\Controller\AbstractController;
 use Eccube\Entity\BaseInfo;
+use Eccube\Entity\Customer;
 use Eccube\Entity\CustomerAddress;
 use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
@@ -23,10 +24,11 @@ use Eccube\Repository\BaseInfoRepository;
 use Eccube\Repository\CustomerAddressRepository;
 use Eccube\Service\MailService;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DeliveryController extends AbstractController
 {
@@ -57,10 +59,14 @@ class DeliveryController extends AbstractController
 
     /**
      * お届け先一覧画面.
+     *
+     * @param Request $request
+     *
+     * @return array<string, mixed>
      */
-    #[Route('/mypage/delivery', name: 'mypage_delivery', methods: ['GET'])]
-    #[Template('Mypage/delivery.twig')]
-    public function index(Request $request)
+    #[Route(path: '/mypage/delivery', name: 'mypage_delivery', methods: ['GET'])]
+    #[Template(template: 'Mypage/delivery.twig')]
+    public function index(Request $request): array
     {
         $Customer = $this->getUser();
 
@@ -71,12 +77,20 @@ class DeliveryController extends AbstractController
 
     /**
      * お届け先編集画面.
+     *
+     * @param Request $request
+     * @param string|int|null $id
+     *
+     * @return RedirectResponse|array<string, mixed>
+     *
+     * @throws \Exception
      */
-    #[Route('/mypage/delivery/new', name: 'mypage_delivery_new', methods: ['GET', 'POST'])]
-    #[Route('/mypage/delivery/{id}/edit', name: 'mypage_delivery_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    #[Template('Mypage/delivery_edit.twig')]
-    public function edit(Request $request, $id = null)
+    #[Route(path: '/mypage/delivery/new', name: 'mypage_delivery_new', methods: ['GET', 'POST'])]
+    #[Route(path: '/mypage/delivery/{id}/edit', name: 'mypage_delivery_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Template(template: 'Mypage/delivery_edit.twig')]
+    public function edit(Request $request, $id = null): RedirectResponse|array
     {
+        /** @var Customer $Customer */
         $Customer = $this->getUser();
 
         // 配送先住所最大値判定
@@ -170,14 +184,21 @@ class DeliveryController extends AbstractController
 
     /**
      * お届け先を削除する.
+     *
+     * @param Request $request
+     * @param CustomerAddress $CustomerAddress
+     *
+     * @return RedirectResponse
+     *
+     * @throws \Exception
      */
-    #[Route('/mypage/delivery/{id}/delete', name: 'mypage_delivery_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(Request $request, CustomerAddress $CustomerAddress)
+    #[Route(path: '/mypage/delivery/{id}/delete', name: 'mypage_delivery_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(Request $request, CustomerAddress $CustomerAddress): RedirectResponse
     {
         $this->isTokenValid();
 
         log_info('お届け先削除開始', [$CustomerAddress->getId()]);
-
+        /** @var Customer $Customer */
         $Customer = $this->getUser();
 
         if ($Customer->getId() != $CustomerAddress->getCustomer()->getId()) {

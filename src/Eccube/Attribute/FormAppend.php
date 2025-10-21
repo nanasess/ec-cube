@@ -11,9 +11,7 @@
  * file that was distributed with this source code.
  */
 
-// TODO: Change namespace Eccube\Attribute;
-
-namespace Eccube\Annotation;
+namespace Eccube\Attribute;
 
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class FormAppend
@@ -34,7 +32,7 @@ final class FormAppend
     public $type;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     public $options;
 

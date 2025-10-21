@@ -32,10 +32,12 @@ use Eccube\Repository\Master\SaleTypeRepository;
 use Eccube\Repository\PaymentOptionRepository;
 use Eccube\Twig\Extension\EccubeExtension;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Class DeliveryController
@@ -68,7 +70,7 @@ class DeliveryController extends AbstractController
     protected $deliveryTimeRepository;
 
     /**
-     * @var DeliveryTimeRepository
+     * @var SaleTypeRepository
      */
     protected $saleTypeRepository;
 
@@ -90,9 +92,14 @@ class DeliveryController extends AbstractController
         $this->saleTypeRepository = $saleTypeRepository;
     }
 
-    #[Route('/%eccube_admin_route%/setting/shop/delivery', name: 'admin_setting_shop_delivery', methods: ['GET'])]
-    #[Template('@admin/Setting/Shop/delivery.twig')]
-    public function index(Request $request)
+    /**
+     * @param Request $request
+     *
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/shop/delivery', name: 'admin_setting_shop_delivery', methods: ['GET'])]
+    #[Template(template: '@admin/Setting/Shop/delivery.twig')]
+    public function index(Request $request): array
     {
         $Deliveries = $this->deliveryRepository
             ->findBy([], ['sort_no' => 'DESC']);
@@ -110,10 +117,19 @@ class DeliveryController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/setting/shop/delivery/new', name: 'admin_setting_shop_delivery_new', methods: ['GET', 'POST'])]
-    #[Route('/%eccube_admin_route%/setting/shop/delivery/{id}/edit', requirements: ['id' => '\d+'], name: 'admin_setting_shop_delivery_edit', methods: ['GET', 'POST'])]
-    #[Template('@admin/Setting/Shop/delivery_edit.twig')]
-    public function edit(Request $request, EccubeExtension $extension, $id = null)
+    /**
+     * @param Request $request
+     * @param EccubeExtension $extension
+     * @param string|int|null $id
+     *
+     * @return RedirectResponse|array<string, mixed>
+     *
+     * @throws NotFoundHttpException
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/shop/delivery/new', name: 'admin_setting_shop_delivery_new', methods: ['GET', 'POST'])]
+    #[Route(path: '/%eccube_admin_route%/setting/shop/delivery/{id}/edit', name: 'admin_setting_shop_delivery_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Setting/Shop/delivery_edit.twig')]
+    public function edit(Request $request, EccubeExtension $extension, $id = null): RedirectResponse|array
     {
         if (is_null($id)) {
             $SaleType = $this->saleTypeRepository->findOneBy([], ['sort_no' => 'ASC']);
@@ -136,6 +152,7 @@ class DeliveryController extends AbstractController
             }
         }
 
+        /** @var ArrayCollection<int, DeliveryTime> $originalDeliveryTimes */
         $originalDeliveryTimes = new ArrayCollection();
 
         foreach ($Delivery->getDeliveryTimes() as $deliveryTime) {
@@ -209,7 +226,6 @@ class DeliveryController extends AbstractController
                 $DeliveryData = $form->getData();
 
                 // 配送時間の登録
-                /** @var DeliveryTime $DeliveryTime */
                 foreach ($originalDeliveryTimes as $DeliveryTime) {
                     if (false === $Delivery->getDeliveryTimes()->contains($DeliveryTime)) {
                         $this->entityManager->remove($DeliveryTime);
@@ -285,8 +301,14 @@ class DeliveryController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/setting/shop/delivery/{id}/delete', name: 'admin_setting_shop_delivery_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(Request $request, Delivery $Delivery)
+    /**
+     * @param Request $request
+     * @param Delivery $Delivery
+     *
+     * @return RedirectResponse
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/shop/delivery/{id}/delete', name: 'admin_setting_shop_delivery_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(Request $request, Delivery $Delivery): RedirectResponse
     {
         $this->isTokenValid();
 
@@ -326,8 +348,14 @@ class DeliveryController extends AbstractController
         return $this->redirectToRoute('admin_setting_shop_delivery');
     }
 
-    #[Route('/%eccube_admin_route%/setting/shop/delivery/{id}/visibility', name: 'admin_setting_shop_delivery_visibility', requirements: ['id' => '\d+'], methods: ['PUT'])]
-    public function visibility(Request $request, Delivery $Delivery)
+    /**
+     * @param Request $request
+     * @param Delivery $Delivery
+     *
+     * @return RedirectResponse
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/shop/delivery/{id}/visibility', name: 'admin_setting_shop_delivery_visibility', requirements: ['id' => '\d+'], methods: ['PUT'])]
+    public function visibility(Request $request, Delivery $Delivery): RedirectResponse
     {
         $this->isTokenValid();
 
@@ -356,8 +384,15 @@ class DeliveryController extends AbstractController
         return $this->redirectToRoute('admin_setting_shop_delivery');
     }
 
-    #[Route('/%eccube_admin_route%/setting/shop/delivery/sort_no/move', name: 'admin_setting_shop_delivery_sort_no_move', methods: ['POST'])]
-    public function moveSortNo(Request $request)
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     *
+     * @throws BadRequestHttpException
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/shop/delivery/sort_no/move', name: 'admin_setting_shop_delivery_sort_no_move', methods: ['POST'])]
+    public function moveSortNo(Request $request): JsonResponse
     {
         if (!$request->isXmlHttpRequest()) {
             throw new BadRequestHttpException();
@@ -381,18 +416,19 @@ class DeliveryController extends AbstractController
      *
      * @param Payment[] $PaymentsData
      *
-     * @return array
+     * @return array<int, array<string, float|string|null>>
      */
-    private function getMergeRules(array $PaymentsData)
+    private function getMergeRules(array $PaymentsData): array
     {
         // 手数料抜きの利用条件の一覧を作成
         $rules = array_map(function (Payment $Payment) {
             return [
-                'min' => $Payment->getRuleMin() ? $Payment->getRuleMin() - $Payment->getCharge() : 0,
-                'max' => $Payment->getRuleMax() ? $Payment->getRuleMax() - $Payment->getCharge() + 1 : PHP_INT_MAX,
+                'min' => $Payment->getRuleMin() ? $Payment->getRuleMin() - $Payment->getCharge() : 0, // @phpstan-ignore-line TODO bcmath-polyfill を使用する
+                'max' => $Payment->getRuleMax() ? $Payment->getRuleMax() - $Payment->getCharge() + 1 : PHP_INT_MAX, // @phpstan-ignore-line TODO bcmath-polyfill を使用する
             ];
         }, $PaymentsData);
 
+        /** @var array<int, array{min: int, max: int}> $mergeRules */
         $mergeRules = [];
 
         foreach ($rules as $rule) {
@@ -422,7 +458,8 @@ class DeliveryController extends AbstractController
             }
         }
 
-        usort($mergeRules, function ($a, $b) {
+        // @phpstan-ignore-next-line
+        usort($mergeRules, function (array $a, array $b): int {
             if ($a['min'] == $b['min']) {
                 return 0;
             }

@@ -26,6 +26,8 @@ use Eccube\Entity\Master\OrderStatus;
 use Eccube\Entity\Master\TaxDisplayType;
 use Eccube\Entity\Order;
 use Eccube\Entity\OrderItem;
+use Eccube\Entity\Product;
+use Eccube\Entity\ProductClass;
 use Eccube\Entity\Shipping;
 use Eccube\EventListener\SecurityListener;
 use Eccube\Repository\DeliveryRepository;
@@ -106,7 +108,7 @@ class OrderHelper
     protected $deviceTypeRepository;
 
     /**
-     * @var MobileDetector
+     * @var MobileDetect
      */
     protected $mobileDetector;
 
@@ -161,7 +163,7 @@ class OrderHelper
      *
      * @return Order
      */
-    public function createPurchaseProcessingOrder(Cart $Cart, Customer $Customer)
+    public function createPurchaseProcessingOrder(Cart $Cart, Customer $Customer): Order
     {
         $OrderStatus = $this->orderStatusRepository->find(OrderStatus::PROCESSING);
         $Order = new Order($OrderStatus);
@@ -206,7 +208,7 @@ class OrderHelper
      *
      * @return bool
      */
-    public function verifyCart(Cart $Cart)
+    public function verifyCart(Cart $Cart): bool
     {
         if (count($Cart->getCartItems()) > 0) {
             $divide = $this->session->get(self::SESSION_CART_DIVIDE_FLAG);
@@ -229,7 +231,7 @@ class OrderHelper
      *
      * @return bool
      */
-    public function isLoginRequired()
+    public function isLoginRequired(): bool
     {
         // フォームログイン済はログイン不要
         if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
@@ -256,7 +258,7 @@ class OrderHelper
      *
      * @return Order|null
      */
-    public function getPurchaseProcessingOrder($preOrderId = null)
+    public function getPurchaseProcessingOrder($preOrderId = null): ?Order
     {
         if (null === $preOrderId) {
             return null;
@@ -276,7 +278,7 @@ class OrderHelper
      *
      * @return Customer|null
      */
-    public function getNonMember($session_key = self::SESSION_NON_MEMBER)
+    public function getNonMember($session_key = self::SESSION_NON_MEMBER): ?Customer
     {
         $data = $this->session->get($session_key);
         if (empty($data)) {
@@ -309,7 +311,7 @@ class OrderHelper
      *
      * @return Order|null
      */
-    public function initializeOrder(Cart $Cart, Customer $Customer)
+    public function initializeOrder(Cart $Cart, Customer $Customer): ?Order
     {
         // 購入処理中の受注情報を取得
         if ($Order = $this->getPurchaseProcessingOrder($Cart->getPreOrderId())) {
@@ -323,7 +325,10 @@ class OrderHelper
         return $Order;
     }
 
-    public function removeSession()
+    /**
+     * @return void
+     */
+    public function removeSession(): void
     {
         $this->session->remove(self::SESSION_ORDER_ID);
         $this->session->remove(self::SESSION_NON_MEMBER);
@@ -335,15 +340,20 @@ class OrderHelper
      *
      * @param Order $Order
      * @param Customer $Customer
+     *
+     * @return void
      */
-    public function updateCustomerInfo(Order $Order, Customer $Customer)
+    public function updateCustomerInfo(Order $Order, Customer $Customer): void
     {
         if ($Order->getCreateDate() < $Customer->getUpdateDate()) {
             $this->setCustomer($Order, $Customer);
         }
     }
 
-    public function createPreOrderId()
+    /**
+     * @return string
+     */
+    public function createPreOrderId(): string
     {
         // ランダムなpre_order_idを作成
         do {
@@ -359,7 +369,13 @@ class OrderHelper
         return $preOrderId;
     }
 
-    protected function setCustomer(Order $Order, Customer $Customer)
+    /**
+     * @param Order $Order
+     * @param Customer $Customer
+     *
+     * @return void
+     */
+    protected function setCustomer(Order $Order, Customer $Customer): void
     {
         if ($Customer->getId()) {
             $Order->setCustomer($Customer);
@@ -377,19 +393,19 @@ class OrderHelper
     }
 
     /**
-     * @param Collection|ArrayCollection|CartItem[] $CartItems
+     * @param Collection<int, CartItem>|ArrayCollection<int, CartItem>|CartItem[]|array<int, CartItem> $CartItems
      *
      * @return OrderItem[]
      */
-    protected function createOrderItemsFromCartItems($CartItems)
+    protected function createOrderItemsFromCartItems($CartItems): array
     {
         $ProductItemType = $this->orderItemTypeRepository->find(OrderItemType::PRODUCT);
 
         return array_map(function ($item) use ($ProductItemType) {
             /** @var CartItem $item */
-            /** @var \Eccube\Entity\ProductClass $ProductClass */
+            /** @var ProductClass $ProductClass */
             $ProductClass = $item->getProductClass();
-            /** @var \Eccube\Entity\Product $Product */
+            /** @var Product $Product */
             $Product = $ProductClass->getProduct();
 
             $OrderItem = new OrderItem();
@@ -422,7 +438,7 @@ class OrderHelper
      *
      * @return Shipping
      */
-    protected function createShippingFromCustomer(Customer $Customer)
+    protected function createShippingFromCustomer(Customer $Customer): Shipping
     {
         $Shipping = new Shipping();
         $Shipping
@@ -442,8 +458,10 @@ class OrderHelper
 
     /**
      * @param Shipping $Shipping
+     *
+     * @return void
      */
-    protected function setDefaultDelivery(Shipping $Shipping)
+    protected function setDefaultDelivery(Shipping $Shipping): void
     {
         // 配送商品に含まれる販売種別を抽出.
         $OrderItems = $Shipping->getOrderItems();
@@ -466,8 +484,10 @@ class OrderHelper
 
     /**
      * @param Order $Order
+     *
+     * @return void
      */
-    protected function setDefaultPayment(Order $Order)
+    protected function setDefaultPayment(Order $Order): void
     {
         $OrderItems = $Order->getOrderItems();
 
@@ -502,9 +522,11 @@ class OrderHelper
     /**
      * @param Order $Order
      * @param Shipping $Shipping
-     * @param array $OrderItems
+     * @param array<int, OrderItem> $OrderItems
+     *
+     * @return void
      */
-    protected function addOrderItems(Order $Order, Shipping $Shipping, array $OrderItems)
+    protected function addOrderItems(Order $Order, Shipping $Shipping, array $OrderItems): void
     {
         foreach ($OrderItems as $OrderItem) {
             $Shipping->addOrderItem($OrderItem);
@@ -515,6 +537,13 @@ class OrderHelper
     }
 
     /**
+     * @param mixed $attribute
+     * @param null $subject
+     * @param string $attribute
+     * @param string|null $subject
+     *
+     * @return bool
+     *
      * @see Symfony\Bundle\FrameworkBundle\Controller\AbstractController
      */
     private function isGranted($attribute, $subject = null): bool
@@ -524,6 +553,8 @@ class OrderHelper
 
     /**
      * @see Symfony\Bundle\FrameworkBundle\Controller\AbstractController
+     *
+     * @return UserInterface|null
      */
     private function getUser(): ?UserInterface
     {
@@ -547,15 +578,13 @@ class OrderHelper
      * - 手数料: 税込
      * - ポイント値引き: 税込
      *
-     * @param $OrderItemType
+     * @param OrderItemType|int $OrderItemType
      *
      * @return TaxDisplayType
      */
-    public function getTaxDisplayType($OrderItemType)
+    public function getTaxDisplayType($OrderItemType): TaxDisplayType
     {
-        if ($OrderItemType instanceof OrderItemType) {
-            $OrderItemType = $OrderItemType->getId();
-        }
+        $OrderItemType = is_object($OrderItemType) ? $OrderItemType->getId() : $OrderItemType;
 
         return match ($OrderItemType) {
             OrderItemType::PRODUCT => $this->entityManager->find(TaxDisplayType::class, TaxDisplayType::EXCLUDED),

@@ -35,9 +35,9 @@ class AbstractCsvImportController extends AbstractController
      *
      * @param UploadedFile $formFile
      *
-     * @return CsvImportService|bool
+     * @return CsvImportService<int, mixed>|bool
      */
-    protected function getImportData(UploadedFile $formFile)
+    protected function getImportData(UploadedFile $formFile): CsvImportService|bool
     {
         // アップロードされたCSVファイルを一時ディレクトリに保存
         $this->csvFileName = 'upload_'.StringUtil::random().'.'.$formFile->getClientOriginalExtension();
@@ -53,7 +53,14 @@ class AbstractCsvImportController extends AbstractController
         return $data->setHeaderRowNumber(0) ? $data : false;
     }
 
-    protected function sendTemplateResponse(Request $request, $columns, $filename)
+    /**
+     * @param Request $request
+     * @param array<int, mixed> $columns
+     * @param string $filename
+     *
+     * @return StreamedResponse
+     */
+    protected function sendTemplateResponse(Request $request, $columns, $filename): StreamedResponse
     {
         set_time_limit(0);
 
@@ -78,8 +85,10 @@ class AbstractCsvImportController extends AbstractController
 
     /**
      * アップロードされたCSVファイルの削除
+     *
+     * @return void
      */
-    protected function removeUploadedFile()
+    protected function removeUploadedFile(): void
     {
         if (!empty($this->csvFileName)) {
             try {

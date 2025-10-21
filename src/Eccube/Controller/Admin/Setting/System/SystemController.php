@@ -19,7 +19,7 @@ use Eccube\Service\SystemService;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SystemController
 {
@@ -47,9 +47,14 @@ class SystemController
         $this->systemService = $systemService;
     }
 
-    #[Route('/%eccube_admin_route%/setting/system/system', name: 'admin_setting_system_system', methods: ['GET'])]
-    #[Template('@admin/Setting/System/system.twig')]
-    public function index(Request $request)
+    /**
+     * @param Request $request
+     *
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/system/system', name: 'admin_setting_system_system', methods: ['GET'])]
+    #[Template(template: '@admin/Setting/System/system.twig')]
+    public function index(Request $request): array
     {
         $info = [];
         $info[] = ['title' => trans('admin.setting.system.system.eccube'), 'value' => Constant::VERSION];
@@ -67,8 +72,13 @@ class SystemController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/setting/system/system/phpinfo', name: 'admin_setting_system_system_phpinfo', methods: ['GET'])]
-    public function phpinfo(Request $request)
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     */
+    #[Route(path: '/%eccube_admin_route%/setting/system/system/phpinfo', name: 'admin_setting_system_system_phpinfo', methods: ['GET'])]
+    public function phpinfo(Request $request): Response
     {
         ob_start();
         phpinfo();

@@ -14,33 +14,35 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Entity\Master\SaleType;
+use Eccube\Repository\ProductClassRepository;
 
 if (!class_exists(ProductClass::class)) {
     /**
      * ProductClass
-     *
-     * @ORM\Table(name="dtb_product_class", indexes={@ORM\Index(name="dtb_product_class_price02_idx", columns={"price02"}), @ORM\Index(name="dtb_product_class_stock_stock_unlimited_idx", columns={"stock", "stock_unlimited"})})
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\ProductClassRepository")
      */
+    #[ORM\Table(name: 'dtb_product_class')]
+    #[ORM\Index(name: 'dtb_product_class_price02_idx', columns: ['price02'])]
+    #[ORM\Index(columns: ['stock', 'stock_unlimited'], name: 'dtb_product_class_stock_stock_unlimited_idx')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: ProductClassRepository::class)]
     class ProductClass extends AbstractEntity
     {
+        /** @var string|null */
         private $price01_inc_tax;
+        /** @var string|null */
         private $price02_inc_tax;
-        private $tax_rate = false;
+        /** @var string|null */
+        private $tax_rate;
 
         /**
          * 商品規格名を含めた商品名を返す.
          *
          * @return string
          */
-        public function formattedProductName()
+        public function formattedProductName(): string
         {
             $productName = $this->getProduct()->getName();
             if ($this->hasClassCategory1()) {
@@ -60,7 +62,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @deprecated
          */
-        public function isEnable()
+        public function isEnable(): bool
         {
             return $this->getProduct()->isEnable();
         }
@@ -72,7 +74,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setPrice01IncTax($price01_inc_tax)
+        public function setPrice01IncTax($price01_inc_tax): ProductClass
         {
             $this->price01_inc_tax = $price01_inc_tax;
 
@@ -84,7 +86,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return string
          */
-        public function getPrice01IncTax()
+        public function getPrice01IncTax(): string
         {
             return $this->price01_inc_tax;
         }
@@ -92,9 +94,11 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Set price02 IncTax
          *
+         * @param string $price02_inc_tax
+         *
          * @return ProductClass
          */
-        public function setPrice02IncTax($price02_inc_tax)
+        public function setPrice02IncTax($price02_inc_tax): ProductClass
         {
             $this->price02_inc_tax = $price02_inc_tax;
 
@@ -106,7 +110,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return string
          */
-        public function getPrice02IncTax()
+        public function getPrice02IncTax(): string
         {
             return $this->price02_inc_tax;
         }
@@ -116,7 +120,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return bool
          */
-        public function getStockFind()
+        public function getStockFind(): bool
         {
             if ($this->getStock() > 0 || $this->isStockUnlimited()) {
                 return true;
@@ -128,11 +132,11 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Set tax_rate
          *
-         * @param  string $tax_rate
+         * @param  string|null $tax_rate
          *
          * @return ProductClass
          */
-        public function setTaxRate($tax_rate)
+        public function setTaxRate($tax_rate): ProductClass
         {
             $this->tax_rate = $tax_rate;
 
@@ -142,9 +146,9 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Get tax_rate
          *
-         * @return bool
+         * @return string|null
          */
-        public function getTaxRate()
+        public function getTaxRate(): ?string
         {
             return $this->tax_rate;
         }
@@ -154,7 +158,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return bool
          */
-        public function hasClassCategory1()
+        public function hasClassCategory1(): bool
         {
             return isset($this->ClassCategory1);
         }
@@ -164,190 +168,144 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return bool
          */
-        public function hasClassCategory2()
+        public function hasClassCategory2(): bool
         {
             return isset($this->ClassCategory2);
         }
 
         /**
-         * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
+         * @var int|null
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /** @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="product_code", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'product_code', type: 'string', length: 255, nullable: true)]
         private $code;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="stock", type="decimal", precision=10, scale=0, nullable=true)
          */
+        #[ORM\Column(name: 'stock', type: 'decimal', precision: 10, scale: 0, nullable: true)]
         private $stock;
 
         /**
          * @var bool
-         *
-         * @ORM\Column(name="stock_unlimited", type="boolean", options={"default":false})
          */
+        #[ORM\Column(name: 'stock_unlimited', type: 'boolean', options: ['default' => false])]
         private $stock_unlimited = false;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="sale_limit", type="decimal", precision=10, scale=0, nullable=true, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'sale_limit', type: 'decimal', precision: 10, scale: 0, nullable: true, options: ['unsigned' => true])]
         private $sale_limit;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="price01", type="decimal", precision=12, scale=2, nullable=true)
          */
+        #[ORM\Column(name: 'price01', type: 'decimal', precision: 12, scale: 2, nullable: true)]
         private $price01;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="price02", type="decimal", precision=12, scale=2)
          */
+        #[ORM\Column(name: 'price02', type: 'decimal', precision: 12, scale: 2)]
         private $price02;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="delivery_fee", type="decimal", precision=12, scale=2, nullable=true, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'delivery_fee', type: 'decimal', precision: 12, scale: 2, nullable: true, options: ['unsigned' => true])]
         private $delivery_fee;
 
         /**
          * @var bool
-         *
-         * @ORM\Column(name="visible", type="boolean", options={"default":true})
          */
+        #[ORM\Column(name: 'visible', type: 'boolean', options: ['default' => true])]
         private $visible;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="currency_code", type="string", nullable=true)
          */
+        #[ORM\Column(name: 'currency_code', type: 'string', nullable: true)]
         private $currency_code;
 
         /**
-         * @var string
-         *
-         * @ORM\Column(name="point_rate", type="decimal", precision=10, scale=0, options={"unsigned":true}, nullable=true)
+         * @var string|null
          */
+        #[ORM\Column(name: 'point_rate', type: 'decimal', precision: 10, scale: 0, options: ['unsigned' => true], nullable: true)]
         private $point_rate;
 
         /**
-         * @var ProductStock
-         *
-         * @ORM\OneToOne(targetEntity="Eccube\Entity\ProductStock", mappedBy="ProductClass", cascade={"persist","remove"})
+         * @var ProductStock|null
          */
+        #[ORM\OneToOne(targetEntity: ProductStock::class, mappedBy: 'ProductClass', cascade: ['persist', 'remove'])]
         private $ProductStock;
 
         /**
-         * @var TaxRule
-         *
-         * @ORM\OneToOne(targetEntity="Eccube\Entity\TaxRule", mappedBy="ProductClass", cascade={"persist","remove"})
+         * @var TaxRule|null
          */
+        #[ORM\OneToOne(targetEntity: TaxRule::class, mappedBy: 'ProductClass', cascade: ['persist', 'remove'])]
         private $TaxRule;
 
         /**
-         * @var Product
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Product", inversedBy="ProductClasses")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="product_id", referencedColumnName="id")
-         * })
+         * @var Product|null
          */
+        #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'ProductClasses')]
+        #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id')]
         private $Product;
 
         /**
-         * @var Master\SaleType
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\SaleType")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="sale_type_id", referencedColumnName="id")
-         * })
+         * @var SaleType|null
          */
+        #[ORM\ManyToOne(targetEntity: SaleType::class)]
+        #[ORM\JoinColumn(name: 'sale_type_id', referencedColumnName: 'id')]
         private $SaleType;
 
         /**
-         * @var ClassCategory
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\ClassCategory")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="class_category_id1", referencedColumnName="id", nullable=true)
-         * })
+         * @var ClassCategory|null
          */
+        #[ORM\ManyToOne(targetEntity: ClassCategory::class)]
+        #[ORM\JoinColumn(name: 'class_category_id1', referencedColumnName: 'id', nullable: true)]
         private $ClassCategory1;
 
         /**
-         * @var ClassCategory
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\ClassCategory")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="class_category_id2", referencedColumnName="id", nullable=true)
-         * })
+         * @var ClassCategory|null
          */
+        #[ORM\ManyToOne(targetEntity: ClassCategory::class)]
+        #[ORM\JoinColumn(name: 'class_category_id2', referencedColumnName: 'id', nullable: true)]
         private $ClassCategory2;
 
         /**
-         * @var DeliveryDuration
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\DeliveryDuration")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="delivery_duration_id", referencedColumnName="id")
-         * })
+         * @var DeliveryDuration|null
          */
+        #[ORM\ManyToOne(targetEntity: DeliveryDuration::class)]
+        #[ORM\JoinColumn(name: 'delivery_duration_id', referencedColumnName: 'id')]
         private $DeliveryDuration;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id')]
         private $Creator;
 
         public function __clone()
@@ -358,9 +316,9 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -372,7 +330,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setCode($code = null)
+        public function setCode($code = null): ProductClass
         {
             $this->code = $code;
 
@@ -384,7 +342,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return string|null
          */
-        public function getCode()
+        public function getCode(): ?string
         {
             return $this->code;
         }
@@ -396,7 +354,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setStock($stock = null)
+        public function setStock($stock = null): ProductClass
         {
             $this->stock = $stock;
 
@@ -408,7 +366,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return string|null
          */
-        public function getStock()
+        public function getStock(): ?string
         {
             return $this->stock;
         }
@@ -420,7 +378,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setStockUnlimited($stockUnlimited)
+        public function setStockUnlimited($stockUnlimited): ProductClass
         {
             $this->stock_unlimited = $stockUnlimited;
 
@@ -432,7 +390,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return bool
          */
-        public function isStockUnlimited()
+        public function isStockUnlimited(): bool
         {
             return $this->stock_unlimited;
         }
@@ -444,7 +402,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setSaleLimit($saleLimit = null)
+        public function setSaleLimit($saleLimit = null): ProductClass
         {
             $this->sale_limit = $saleLimit;
 
@@ -456,7 +414,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return string|null
          */
-        public function getSaleLimit()
+        public function getSaleLimit(): ?string
         {
             return $this->sale_limit;
         }
@@ -468,7 +426,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setPrice01($price01 = null)
+        public function setPrice01($price01 = null): ProductClass
         {
             $this->price01 = $price01;
 
@@ -480,7 +438,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return string|null
          */
-        public function getPrice01()
+        public function getPrice01(): ?string
         {
             return $this->price01;
         }
@@ -492,7 +450,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setPrice02($price02)
+        public function setPrice02($price02): ProductClass
         {
             $this->price02 = $price02;
 
@@ -502,9 +460,9 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Get price02.
          *
-         * @return string
+         * @return string|null
          */
-        public function getPrice02()
+        public function getPrice02(): ?string
         {
             return $this->price02;
         }
@@ -516,7 +474,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setDeliveryFee($deliveryFee = null)
+        public function setDeliveryFee($deliveryFee = null): ProductClass
         {
             $this->delivery_fee = $deliveryFee;
 
@@ -528,7 +486,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return string|null
          */
-        public function getDeliveryFee()
+        public function getDeliveryFee(): ?string
         {
             return $this->delivery_fee;
         }
@@ -536,7 +494,7 @@ if (!class_exists(ProductClass::class)) {
         /**
          * @return bool
          */
-        public function isVisible()
+        public function isVisible(): bool
         {
             return $this->visible;
         }
@@ -546,7 +504,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setVisible($visible)
+        public function setVisible($visible): ProductClass
         {
             $this->visible = $visible;
 
@@ -560,7 +518,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): ProductClass
         {
             $this->create_date = $createDate;
 
@@ -570,9 +528,9 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -584,7 +542,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): ProductClass
         {
             $this->update_date = $updateDate;
 
@@ -594,9 +552,9 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -606,7 +564,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return string
          */
-        public function getCurrencyCode()
+        public function getCurrencyCode(): string
         {
             return $this->currency_code;
         }
@@ -618,7 +576,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return $this
          */
-        public function setCurrencyCode($currencyCode = null)
+        public function setCurrencyCode($currencyCode = null): static
         {
             $this->currency_code = $currencyCode;
 
@@ -632,7 +590,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setProductStock(?ProductStock $productStock = null)
+        public function setProductStock(?ProductStock $productStock = null): ProductClass
         {
             $this->ProductStock = $productStock;
 
@@ -644,7 +602,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductStock|null
          */
-        public function getProductStock()
+        public function getProductStock(): ?ProductStock
         {
             return $this->ProductStock;
         }
@@ -656,7 +614,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setTaxRule(?TaxRule $taxRule = null)
+        public function setTaxRule(?TaxRule $taxRule = null): ProductClass
         {
             $this->TaxRule = $taxRule;
 
@@ -668,7 +626,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return TaxRule|null
          */
-        public function getTaxRule()
+        public function getTaxRule(): ?TaxRule
         {
             return $this->TaxRule;
         }
@@ -680,7 +638,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setProduct(?Product $product = null)
+        public function setProduct(?Product $product = null): ProductClass
         {
             $this->Product = $product;
 
@@ -692,7 +650,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return Product|null
          */
-        public function getProduct()
+        public function getProduct(): ?Product
         {
             return $this->Product;
         }
@@ -700,11 +658,11 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Set saleType.
          *
-         * @param Master\SaleType|null $saleType
+         * @param SaleType|null $saleType
          *
          * @return ProductClass
          */
-        public function setSaleType(?Master\SaleType $saleType = null)
+        public function setSaleType(?SaleType $saleType = null): ProductClass
         {
             $this->SaleType = $saleType;
 
@@ -714,9 +672,9 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Get saleType.
          *
-         * @return Master\SaleType|null
+         * @return SaleType|null
          */
-        public function getSaleType()
+        public function getSaleType(): ?SaleType
         {
             return $this->SaleType;
         }
@@ -728,7 +686,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setClassCategory1(?ClassCategory $classCategory1 = null)
+        public function setClassCategory1(?ClassCategory $classCategory1 = null): ProductClass
         {
             $this->ClassCategory1 = $classCategory1;
 
@@ -740,7 +698,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ClassCategory|null
          */
-        public function getClassCategory1()
+        public function getClassCategory1(): ?ClassCategory
         {
             return $this->ClassCategory1;
         }
@@ -752,7 +710,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setClassCategory2(?ClassCategory $classCategory2 = null)
+        public function setClassCategory2(?ClassCategory $classCategory2 = null): ProductClass
         {
             $this->ClassCategory2 = $classCategory2;
 
@@ -764,7 +722,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ClassCategory|null
          */
-        public function getClassCategory2()
+        public function getClassCategory2(): ?ClassCategory
         {
             return $this->ClassCategory2;
         }
@@ -776,7 +734,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setDeliveryDuration(?DeliveryDuration $deliveryDuration = null)
+        public function setDeliveryDuration(?DeliveryDuration $deliveryDuration = null): ProductClass
         {
             $this->DeliveryDuration = $deliveryDuration;
 
@@ -788,7 +746,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return DeliveryDuration|null
          */
-        public function getDeliveryDuration()
+        public function getDeliveryDuration(): ?DeliveryDuration
         {
             return $this->DeliveryDuration;
         }
@@ -800,7 +758,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): ProductClass
         {
             $this->Creator = $creator;
 
@@ -812,7 +770,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }
@@ -824,7 +782,7 @@ if (!class_exists(ProductClass::class)) {
          *
          * @return ProductClass
          */
-        public function setPointRate($pointRate)
+        public function setPointRate($pointRate): ProductClass
         {
             $this->point_rate = $pointRate;
 
@@ -834,9 +792,9 @@ if (!class_exists(ProductClass::class)) {
         /**
          * Get pointRate
          *
-         * @return string
+         * @return string|null
          */
-        public function getPointRate()
+        public function getPointRate(): ?string
         {
             return $this->point_rate;
         }

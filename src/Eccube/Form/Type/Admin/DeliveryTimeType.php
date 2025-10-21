@@ -29,9 +29,14 @@ class DeliveryTimeType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('delivery_time', TextType::class, [
@@ -59,17 +64,19 @@ class DeliveryTimeType extends AbstractType
         $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             /** @var DeliveryTime $DeliveryTime */
             $DeliveryTime = $event->getData();
-            if (null === $DeliveryTime->isVisible()) {
-                $DeliveryTime->setVisible(true);
-            }
+            $DeliveryTime->setVisible(true);
         });
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => DeliveryTime::class,
@@ -85,7 +92,7 @@ class DeliveryTimeType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'delivery_time';
     }

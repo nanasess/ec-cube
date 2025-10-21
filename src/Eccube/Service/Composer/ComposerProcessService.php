@@ -14,6 +14,8 @@
 namespace Eccube\Service\Composer;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\BaseInfo;
 use Eccube\Exception\PluginException;
@@ -61,7 +63,7 @@ class ComposerProcessService implements ComposerServiceInterface
     }
 
     #[\Override]
-    public function execRequire($packageName, $output = null)
+    public function execRequire($packageName, $output = null): string
     {
         return $this->runCommand([
             'eccube:composer:require',
@@ -70,7 +72,7 @@ class ComposerProcessService implements ComposerServiceInterface
     }
 
     #[\Override]
-    public function execRemove($packageName, $output = null)
+    public function execRemove($packageName, $output = null): string
     {
         return $this->runCommand([
             'eccube:composer:remove',
@@ -79,13 +81,15 @@ class ComposerProcessService implements ComposerServiceInterface
     }
 
     /**
-     * Run command
+     * @param string[] $commands
+     * @param string[]|null $output
+     * @param bool $init
      *
-     * @param string $command
+     * @return string
      *
      * @throws PluginException
      */
-    public function runCommand($commands, $output = null, $init = true)
+    public function runCommand($commands, $output = null, $init = true): string
     {
         if ($init) {
             $this->init();
@@ -113,9 +117,15 @@ class ComposerProcessService implements ComposerServiceInterface
     /**
      * Set init
      *
+     * @param BaseInfo|null $BaseInfo
+     *
+     * @return void
+     *
      * @throws PluginException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    private function init($BaseInfo = null)
+    private function init($BaseInfo = null): void
     {
         //        /**
         //         * Mysql lock in transaction
@@ -134,8 +144,14 @@ class ComposerProcessService implements ComposerServiceInterface
         $this->composerApiService->configureRepository($BaseInfo);
     }
 
+    /**
+     * @param string $key
+     * @param string[]|null $value
+     *
+     * @return array<int|string, array<int, string>>|null
+     */
     #[\Override]
-    public function execConfig($key, $value = null)
+    public function execConfig($key, $value = null): ?array
     {
         return $this->composerApiService->execConfig($key, $value);
     }
@@ -146,6 +162,19 @@ class ComposerProcessService implements ComposerServiceInterface
         $this->composerApiService->configureRepository($BaseInfo);
     }
 
+    /**
+     * @param string $packageName
+     * @param string|null $version
+     * @param string $callback
+     * @param null $typeFilter
+     * @param int $level
+     *
+     * @return void
+     *
+     * @throws PluginException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
     #[\Override]
     public function foreachRequires($packageName, $version, $callback, $typeFilter = null, $level = 0): void
     {

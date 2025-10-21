@@ -35,6 +35,7 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
@@ -86,9 +87,14 @@ class ShippingType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', NameType::class, [
@@ -224,9 +230,9 @@ class ShippingType extends AbstractType
                 'data' => true,
             ])
             ->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
-                /** @var Shipping $data */
+                /** @var Shipping|null $data */
                 $data = $event->getData();
-                /** @var \Symfony\Component\Form\Form $form */
+                /** @var Form $form */
                 $form = $event->getForm();
 
                 if (!$data) {
@@ -341,9 +347,13 @@ class ShippingType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Shipping::class,
@@ -354,7 +364,7 @@ class ShippingType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'shipping';
     }

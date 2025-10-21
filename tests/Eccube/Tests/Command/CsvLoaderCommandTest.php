@@ -14,17 +14,13 @@
 namespace Eccube\Tests\Command;
 
 use Eccube\Command\CsvLoaderCommand;
+use Eccube\Entity\Master\Job;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class CsvLoaderCommandTest extends AbstractCommandTest
+class CsvLoaderCommandTest extends CommandTestCase
 {
     /** @var \SplFileObject */
     protected $file;
-
-    public static function setUpBeforeClass(): void
-    {
-        self::markTestIncomplete();
-    }
 
     protected function setUp(): void
     {
@@ -36,7 +32,7 @@ class CsvLoaderCommandTest extends AbstractCommandTest
 
         $this->initCommand(new CsvLoaderCommand());
 
-        $Jobs = $this->app['orm.em']->getRepository(\Eccube\Entity\Master\Job::class)->findAll();
+        $Jobs = $this->app['orm.em']->getRepository(Job::class)->findAll();
         foreach ($Jobs as $Job) {
             $this->app['orm.em']->remove($Job);
         }
@@ -75,7 +71,7 @@ class CsvLoaderCommandTest extends AbstractCommandTest
         }
 
         $this->file->rewind();
-        $Jobs = $this->app['orm.em']->getRepository(\Eccube\Entity\Master\Job::class)->findAll();
+        $Jobs = $this->app['orm.em']->getRepository(Job::class)->findAll();
 
         $this->expected = count($rows);
         $this->actual = count($Jobs);

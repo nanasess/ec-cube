@@ -20,7 +20,7 @@ use Eccube\Entity\Master\OrderItemType as OrderItemTypeMaster;
 use Eccube\Entity\Master\TaxType;
 use Eccube\Entity\OrderItem;
 use Eccube\Entity\ProductClass;
-use Eccube\Form\DataTransformer;
+use Eccube\Form\DataTransformer\EntityToIdTransformer;
 use Eccube\Form\Type\PriceType;
 use Eccube\Repository\BaseInfoRepository;
 use Eccube\Repository\Master\OrderItemTypeRepository;
@@ -120,9 +120,14 @@ class OrderItemType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('product_name', TextType::class, [
@@ -169,17 +174,17 @@ class OrderItemType extends AbstractType
 
         $builder
             ->add($builder->create('order_item_type', HiddenType::class)
-                ->addModelTransformer(new DataTransformer\EntityToIdTransformer(
+                ->addModelTransformer(new EntityToIdTransformer(
                     $this->entityManager,
                     OrderItemTypeMaster::class
                 )))
             ->add($builder->create('tax_type', HiddenType::class)
-                ->addModelTransformer(new DataTransformer\EntityToIdTransformer(
+                ->addModelTransformer(new EntityToIdTransformer(
                     $this->entityManager,
                     TaxType::class
                 )))
             ->add($builder->create('ProductClass', HiddenType::class)
-                ->addModelTransformer(new DataTransformer\EntityToIdTransformer(
+                ->addModelTransformer(new EntityToIdTransformer(
                     $this->entityManager,
                     ProductClass::class
                 )));
@@ -300,9 +305,13 @@ class OrderItemType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => OrderItem::class,
@@ -313,7 +322,7 @@ class OrderItemType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'order_item';
     }
@@ -321,8 +330,10 @@ class OrderItemType extends AbstractType
     /**
      * @param FormInterface $form
      * @param ConstraintViolationListInterface $errors
+     *
+     * @return void
      */
-    protected function addErrorsIfExists(FormInterface $form, ConstraintViolationListInterface $errors)
+    protected function addErrorsIfExists(FormInterface $form, ConstraintViolationListInterface $errors): void
     {
         if (count($errors) < 1) {
             return;

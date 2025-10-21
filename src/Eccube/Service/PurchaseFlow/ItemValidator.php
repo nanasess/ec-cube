@@ -28,7 +28,7 @@ abstract class ItemValidator
      *
      * @return ProcessResult
      */
-    final public function execute(ItemInterface $item, PurchaseContext $context)
+    final public function execute(ItemInterface $item, PurchaseContext $context): ProcessResult
     {
         try {
             $this->validate($item, $context);
@@ -46,16 +46,20 @@ abstract class ItemValidator
      *
      * @param ItemInterface $item
      * @param PurchaseContext $context
+     *
+     * @return void
      */
-    abstract protected function validate(ItemInterface $item, PurchaseContext $context);
+    abstract protected function validate(ItemInterface $item, PurchaseContext $context): void;
 
     /**
      * 検証エラー時に後処理を行う.
      *
      * @param ItemInterface $item
      * @param PurchaseContext $context
+     *
+     * @return void
      */
-    protected function handle(ItemInterface $item, PurchaseContext $context)
+    protected function handle(ItemInterface $item, PurchaseContext $context): void
     {
     }
 }

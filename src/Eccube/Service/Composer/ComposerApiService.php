@@ -14,6 +14,9 @@
 namespace Eccube\Service\Composer;
 
 use Composer\Console\Application;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\Persistence\Mapping\MappingException;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\BaseInfo;
 use Eccube\Exception\PluginException;
@@ -39,6 +42,9 @@ class ComposerApiService implements ComposerServiceInterface
      */
     private $consoleApplication;
 
+    /**
+     * @var string
+     */
     private $workingDir;
     /**
      * @var BaseInfoRepository
@@ -71,13 +77,13 @@ class ComposerApiService implements ComposerServiceInterface
      * @param string $pluginName format foo/bar or foo/bar:1.0.0 or "foo/bar 1.0.0"
      * @param string|null $version
      *
-     * @return array
+     * @return array<string|null, array<string|null, string>|string|null>
      *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function execInfo($pluginName, $version)
+    public function execInfo($pluginName, $version): array
     {
         $output = $this->runCommand([
             'command' => 'info',
@@ -99,11 +105,11 @@ class ComposerApiService implements ComposerServiceInterface
      * @return string
      *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     #[\Override]
-    public function execRequire($packageName, $output = null, $from = null)
+    public function execRequire($packageName, $output = null, $from = null): string
     {
         $packageName = explode(' ', trim($packageName));
 
@@ -135,11 +141,11 @@ class ComposerApiService implements ComposerServiceInterface
      * @return string
      *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     #[\Override]
-    public function execRemove($packageName, $output = null)
+    public function execRemove($packageName, $output = null): string
     {
         $this->dropTableToExtra($packageName);
 
@@ -169,11 +175,13 @@ class ComposerApiService implements ComposerServiceInterface
      * @param bool $dryRun
      * @param OutputInterface|null $output
      *
+     * @return void
+     *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function execUpdate($dryRun, $output = null)
+    public function execUpdate($dryRun, $output = null): void
     {
         $this->init();
         $this->execConfig('allow-plugins.symfony/flex', ['false']);
@@ -198,11 +206,13 @@ class ComposerApiService implements ComposerServiceInterface
      * @param bool $dryRun
      * @param OutputInterface|null $output
      *
+     * @return void
+     *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function execInstall($dryRun, $output = null)
+    public function execInstall($dryRun, $output = null): void
     {
         $this->init();
         $this->execConfig('allow-plugins.symfony/flex', ['false']);
@@ -226,15 +236,15 @@ class ComposerApiService implements ComposerServiceInterface
      *
      * @param string $packageName
      * @param string|null $version
-     * @param string $callback
-     * @param null $typeFilter
+     * @param callable $callback
+     * @param string|null $typeFilter
      * @param int $level
      *
      * @return void
      *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     #[\Override]
     public function foreachRequires($packageName, $version, $callback, $typeFilter = null, $level = 0): void
@@ -262,16 +272,16 @@ class ComposerApiService implements ComposerServiceInterface
      * Run get config information
      *
      * @param string $key
-     * @param null $value
+     * @param string[]|null $value
      *
-     * @return array|mixed
+     * @return array<int|string, array<int, string>>|null
      *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     #[\Override]
-    public function execConfig($key, $value = null)
+    public function execConfig($key, $value = null): ?array
     {
         $commands = [
             'command' => 'config',
@@ -290,13 +300,13 @@ class ComposerApiService implements ComposerServiceInterface
     /**
      * Get config list
      *
-     * @return array
+     * @return array<string, array<string, mixed>>
      *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         $output = $this->runCommand([
             'command' => 'config',
@@ -310,8 +320,10 @@ class ComposerApiService implements ComposerServiceInterface
      * Set work dir
      *
      * @param string $workingDir
+     *
+     * @return void
      */
-    public function setWorkingDir($workingDir)
+    public function setWorkingDir($workingDir): void
     {
         $this->workingDir = $workingDir;
     }
@@ -319,18 +331,18 @@ class ComposerApiService implements ComposerServiceInterface
     /**
      * Run composer command
      *
-     * @param array $commands
+     * @param array<string, string|bool|array<string>|null> $commands
      * @param OutputInterface|null $output
      * @param bool $init
      *
-     * @return string
+     * @return string|null
      *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      * @throws \Exception
      */
-    public function runCommand($commands, $output = null, $init = true)
+    public function runCommand($commands, $output = null, $init = true): ?string
     {
         if ($init) {
             $this->init();
@@ -353,6 +365,7 @@ class ComposerApiService implements ComposerServiceInterface
 
         if ($useBufferedOutput) {
             ob_end_clean();
+            /** @var BufferedOutput $output */
             $log = $output->fetch();
             if ($exitCode) {
                 log_error($log);
@@ -375,11 +388,13 @@ class ComposerApiService implements ComposerServiceInterface
      * @param string[] $packageName
      * @param string|null $from
      *
+     * @return void
+     *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    private function init($BaseInfo = null, $packageName = [], $from = null)
+    private function init($BaseInfo = null, $packageName = [], $from = null): void
     {
         $BaseInfo = $BaseInfo ?: $this->baseInfoRepository->get();
 
@@ -435,7 +450,10 @@ class ComposerApiService implements ComposerServiceInterface
         $this->initConsole();
     }
 
-    private function initConsole()
+    /**
+     * @return void
+     */
+    private function initConsole(): void
     {
         $consoleApplication = new Application();
         $consoleApplication->resetComposer();
@@ -449,8 +467,8 @@ class ComposerApiService implements ComposerServiceInterface
      * @return void
      *
      * @throws PluginException
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     #[\Override]
     public function configureRepository(BaseInfo $BaseInfo): void
@@ -458,7 +476,16 @@ class ComposerApiService implements ComposerServiceInterface
         $this->init($BaseInfo);
     }
 
-    private function dropTableToExtra($packageNames)
+    /**
+     * @param string $packageNames
+     *
+     * @return void
+     *
+     * @throws PluginException
+     * @throws MappingException
+     * @throws \ReflectionException
+     */
+    private function dropTableToExtra($packageNames): void
     {
         $projectRoot = $this->eccubeConfig->get('kernel.project_dir');
 

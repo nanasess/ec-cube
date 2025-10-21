@@ -14,6 +14,7 @@
 namespace Eccube\Form\Type;
 
 use Eccube\Common\EccubeConfig;
+use Eccube\Form\EventListener\ConvertKanaListener;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -38,20 +39,29 @@ class KanaType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         // ひらがなをカタカナに変換する
         // 引数はmb_convert_kanaのもの
-        $builder->addEventSubscriber(new \Eccube\Form\EventListener\ConvertKanaListener('CV'));
+        $builder->addEventSubscriber(new ConvertKanaListener('CV'));
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'lastname_options' => [
@@ -89,7 +99,7 @@ class KanaType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getParent()
+    public function getParent(): ?string
     {
         return NameType::class;
     }
@@ -98,7 +108,7 @@ class KanaType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'kana';
     }

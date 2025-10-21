@@ -13,9 +13,9 @@
 
 namespace Eccube\DependencyInjection\Compiler;
 
-use Eccube\Annotation\CartFlow;
-use Eccube\Annotation\OrderFlow;
-use Eccube\Annotation\ShoppingFlow;
+use Eccube\Attribute\CartFlow;
+use Eccube\Attribute\OrderFlow;
+use Eccube\Attribute\ShoppingFlow;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\PriorityTaggedServiceTrait;
@@ -35,8 +35,15 @@ class PurchaseFlowPass implements CompilerPassInterface
     public const ITEM_HOLDER_POST_VALIDATOR_TAG = 'eccube.item.holder.post.validator';
     public const PURCHASE_PROCESSOR_TAG = 'eccube.purchase.processor';
 
+    /**
+     * @param ContainerBuilder $container
+     *
+     * @return void
+     *
+     * @throws \ReflectionException
+     */
     #[\Override]
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $flowTypes = [
             PurchaseContext::CART_FLOW => $container->findDefinition('eccube.purchase.flow.cart'),
@@ -63,13 +70,11 @@ class PurchaseFlowPass implements CompilerPassInterface
                     }
                 }
             }
-            /**
-             * @var string $flowType
-             * @var Definition $purchaseFlowDef
-             */
+            /** @var string $flowType */
             foreach ($allMethod as $flowType => $flowMethod) {
+                /** @var Definition|null $purchaseFlowDef */
                 $purchaseFlowDef = $flowTypes[$flowType] ?? null;
-                if (!is_null($purchaseFlowDef) && count($flowMethod) > 0) {
+                if (!is_null($purchaseFlowDef)) {
                     // flow_typeごとにソートをしてセットする
                     uasort($flowMethod, static fn ($a, $b) => $b['priority'] <=> $a['priority'] ?: $a['index'] <=> $b['index']);
                     foreach ($flowMethod as $attributes) {

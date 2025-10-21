@@ -29,9 +29,11 @@ class AbstractShoppingController extends AbstractController
 
     /**
      * @param PurchaseFlow $shoppingPurchaseFlow
+     *
+     * @return void
      */
     #[Required]
-    public function setPurchaseFlow(PurchaseFlow $shoppingPurchaseFlow)
+    public function setPurchaseFlow(PurchaseFlow $shoppingPurchaseFlow): void
     {
         $this->purchaseFlow = $shoppingPurchaseFlow;
     }
@@ -42,7 +44,7 @@ class AbstractShoppingController extends AbstractController
      *
      * @return PurchaseFlowResult|RedirectResponse|null
      */
-    protected function executePurchaseFlow(ItemHolderInterface $itemHolder, $returnResponse = true)
+    protected function executePurchaseFlow(ItemHolderInterface $itemHolder, $returnResponse = true): PurchaseFlowResult|RedirectResponse|null
     {
         /** @var PurchaseFlowResult $flowResult */
         $flowResult = $this->purchaseFlow->validate($itemHolder, new PurchaseContext(clone $itemHolder, $itemHolder->getCustomer()));

@@ -14,7 +14,9 @@
 namespace Eccube\Service\PurchaseFlow\Processor;
 
 use Eccube\Entity\ItemHolderInterface;
+use Eccube\Entity\ProductClass;
 use Eccube\Repository\ProductClassRepository;
+use Eccube\Service\PurchaseFlow\InvalidItemException;
 use Eccube\Service\PurchaseFlow\ItemHolderValidator;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 
@@ -36,13 +38,15 @@ class SaleLimitMultipleValidator extends ItemHolderValidator
     }
 
     /**
-     * @param ItemHolderInterface $itemHolder
-     * @param PurchaseContext $context
+     * @param ItemHolderInterface $itemHolder 商品
+     * @param PurchaseContext $context 購入フローのコンテキスト
      *
-     * @throws \Eccube\Service\PurchaseFlow\InvalidItemException
+     * @return void
+     *
+     * @throws InvalidItemException 商品の購入数が在庫数を超えている場合
      */
     #[\Override]
-    public function validate(ItemHolderInterface $itemHolder, PurchaseContext $context)
+    public function validate(ItemHolderInterface $itemHolder, PurchaseContext $context): void
     {
         $OrderItemsByProductClass = [];
         foreach ($itemHolder->getItems() as $Item) {
@@ -53,6 +57,7 @@ class SaleLimitMultipleValidator extends ItemHolderValidator
         }
 
         foreach ($OrderItemsByProductClass as $id => $Items) {
+            /** @var ProductClass $ProductClass */
             $ProductClass = $this->productClassRepository->find($id);
             $limit = $ProductClass->getSaleLimit();
             if (null === $limit) {
@@ -60,11 +65,11 @@ class SaleLimitMultipleValidator extends ItemHolderValidator
             }
             $isOver = false;
             foreach ($Items as $Item) {
-                if ($limit - $Item->getQuantity() >= 0) {
-                    $limit = $limit - $Item->getQuantity();
+                if (bcsub($limit, $Item->getQuantity()) >= 0) {
+                    $limit = bcsub($limit, $Item->getQuantity());
                 } else {
                     $Item->setQuantity($limit);
-                    $limit = 0;
+                    $limit = '0';
                     $isOver = true;
                 }
             }

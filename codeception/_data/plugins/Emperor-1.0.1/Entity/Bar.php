@@ -14,39 +14,31 @@
 namespace Plugin\Emperor\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Plugin\Emperor\Repository\BarRepository;
 
 if (!class_exists(Bar::class)) {
     /**
      * Plugin
-     *
-     * @ORM\Table(name="dtb_bar")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Plugin\Emperor\Repository\BarRepository")
      */
+    #[ORM\Table(name: 'dtb_bar')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: BarRepository::class)]
     class Bar
     {
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
         public $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="name", type="string", length=255)
          */
+        #[ORM\Column(name: 'name', type: 'string', length: 255)]
         public $name;
     }
 }

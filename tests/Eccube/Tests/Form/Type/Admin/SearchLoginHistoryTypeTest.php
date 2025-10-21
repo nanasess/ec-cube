@@ -15,6 +15,7 @@ namespace Eccube\Tests\Form\Type\Admin;
 
 use Eccube\Form\Type\Admin\SearchLoginHistoryType;
 use Eccube\Tests\Form\Type\AbstractTypeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\FormInterface;
 
 class SearchLoginHistoryTypeTest extends AbstractTypeTestCase
@@ -38,10 +39,9 @@ class SearchLoginHistoryTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider dataFormDateTimeProvider
-     *
      * @param string $formName
      */
+    #[DataProvider(methodName: 'dataFormDateTimeProvider')]
     public function testDateTimeSearch(string $formName)
     {
         $formData = [
@@ -57,7 +57,7 @@ class SearchLoginHistoryTypeTest extends AbstractTypeTestCase
      *
      * @return array
      */
-    public function dataFormDateTimeProvider()
+    public static function dataFormDateTimeProvider()
     {
         return [
             ['create_datetime_start'],

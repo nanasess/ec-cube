@@ -19,11 +19,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Twig\Environment;
 
 class ExceptionListener implements EventSubscriberInterface
 {
     /**
-     * @var \Twig\Environment
+     * @var Environment
      */
     private $twig;
 
@@ -35,13 +36,18 @@ class ExceptionListener implements EventSubscriberInterface
     /**
      * ExceptionListener constructor.
      */
-    public function __construct(\Twig\Environment $twig, Context $requestContext)
+    public function __construct(Environment $twig, Context $requestContext)
     {
         $this->twig = $twig;
         $this->requestContext = $requestContext;
     }
 
-    public function onKernelException(ExceptionEvent $event)
+    /**
+     * @param ExceptionEvent $event
+     *
+     * @return void
+     */
+    public function onKernelException(ExceptionEvent $event): void
     {
         $title = trans('exception.error_title');
         $message = trans('exception.error_message');
@@ -124,10 +130,10 @@ class ExceptionListener implements EventSubscriberInterface
      *  * array('eventName' => array('methodName', $priority))
      *  * array('eventName' => array(array('methodName1', $priority), array('methodName2')))
      *
-     * @return array The event names to listen to
+     * @return array<string, array<int, string>> The event names to listen to
      */
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::EXCEPTION => ['onKernelException'],

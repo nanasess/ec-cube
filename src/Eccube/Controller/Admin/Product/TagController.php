@@ -21,9 +21,10 @@ use Eccube\Form\Type\Admin\ProductTag;
 use Eccube\Repository\TagRepository;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class TagController extends AbstractController
 {
@@ -40,11 +41,11 @@ class TagController extends AbstractController
     /**
      * @param Request $request
      *
-     * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
+     * @return array<string, mixed>|RedirectResponse
      */
-    #[Route('/%eccube_admin_route%/product/tag', name: 'admin_product_tag', methods: ['GET', 'POST'])]
-    #[Template('@admin/Product/tag.twig')]
-    public function index(Request $request)
+    #[Route(path: '/%eccube_admin_route%/product/tag', name: 'admin_product_tag', methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Product/tag.twig')]
+    public function index(Request $request): array|RedirectResponse
     {
         $Tag = new Tag();
         $Tags = $this->tagRepository->getList();
@@ -122,8 +123,16 @@ class TagController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/product/tag/{id}/delete', name: 'admin_product_tag_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(Request $request, Tag $Tag)
+    /**
+     * @param Request $request
+     * @param Tag $Tag
+     *
+     * @return RedirectResponse
+     *
+     * @throws \Exception
+     */
+    #[Route(path: '/%eccube_admin_route%/product/tag/{id}/delete', name: 'admin_product_tag_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(Request $request, Tag $Tag): RedirectResponse
     {
         $this->isTokenValid();
 
@@ -152,8 +161,13 @@ class TagController extends AbstractController
         return $this->redirectToRoute('admin_product_tag');
     }
 
-    #[Route('/%eccube_admin_route%/product/tag/sort_no/move', name: 'admin_product_tag_sort_no_move', methods: ['POST'])]
-    public function moveSortNo(Request $request)
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     */
+    #[Route(path: '/%eccube_admin_route%/product/tag/sort_no/move', name: 'admin_product_tag_sort_no_move', methods: ['POST'])]
+    public function moveSortNo(Request $request): Response
     {
         if ($request->isXmlHttpRequest() && $this->isTokenValid()) {
             $sortNos = $request->request->all();
@@ -170,7 +184,14 @@ class TagController extends AbstractController
         return new Response();
     }
 
-    protected function dispatchComplete(Request $request, FormInterface $form, Tag $Tag)
+    /**
+     * @param Request $request
+     * @param FormInterface $form
+     * @param Tag $Tag
+     *
+     * @return void
+     */
+    protected function dispatchComplete(Request $request, FormInterface $form, Tag $Tag): void
     {
         $event = new EventArgs(
             [

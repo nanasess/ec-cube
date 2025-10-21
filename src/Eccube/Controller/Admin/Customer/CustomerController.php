@@ -17,6 +17,8 @@ use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\QueryBuilder;
 use Eccube\Common\Constant;
 use Eccube\Controller\AbstractController;
+use Eccube\Entity\Customer;
+use Eccube\Entity\ExportCsvRow;
 use Eccube\Entity\Master\CsvType;
 use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
@@ -30,10 +32,11 @@ use Eccube\Service\MailService;
 use Eccube\Util\FormUtil;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -85,10 +88,17 @@ class CustomerController extends AbstractController
         $this->csvExportService = $csvExportService;
     }
 
-    #[Route('/%eccube_admin_route%/customer', name: 'admin_customer', methods: ['GET', 'POST'])]
-    #[Route('/%eccube_admin_route%/customer/page/{page_no}', name: 'admin_customer_page', requirements: ['page_no' => '\d+'], methods: ['GET', 'POST'])]
-    #[Template('@admin/Customer/index.twig')]
-    public function index(Request $request, PaginatorInterface $paginator, $page_no = null)
+    /**
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     * @param string|null $page_no
+     *
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/%eccube_admin_route%/customer', name: 'admin_customer', methods: ['GET', 'POST'])]
+    #[Route(path: '/%eccube_admin_route%/customer/page/{page_no}', name: 'admin_customer_page', requirements: ['page_no' => '\d+'], methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Customer/index.twig')]
+    public function index(Request $request, PaginatorInterface $paginator, $page_no = null): array
     {
         $session = $this->session;
         $builder = $this->formFactory->createBuilder(SearchCustomerType::class);
@@ -179,8 +189,16 @@ class CustomerController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/customer/{id}/resend', name: 'admin_customer_resend', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function resend(Request $request, $id)
+    /**
+     * @param Request $request
+     * @param string $id
+     *
+     * @return RedirectResponse
+     *
+     * @throws NotFoundHttpException
+     */
+    #[Route(path: '/%eccube_admin_route%/customer/{id}/resend', name: 'admin_customer_resend', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function resend(Request $request, $id): RedirectResponse
     {
         $this->isTokenValid();
 
@@ -218,8 +236,15 @@ class CustomerController extends AbstractController
         return $this->redirectToRoute('admin_customer');
     }
 
-    #[Route('/%eccube_admin_route%/customer/{id}/delete', name: 'admin_customer_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(Request $request, $id, TranslatorInterface $translator)
+    /**
+     * @param Request $request
+     * @param string $id
+     * @param TranslatorInterface $translator
+     *
+     * @return RedirectResponse
+     */
+    #[Route(path: '/%eccube_admin_route%/customer/{id}/delete', name: 'admin_customer_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(Request $request, $id, TranslatorInterface $translator): RedirectResponse
     {
         $this->isTokenValid();
 
@@ -270,8 +295,8 @@ class CustomerController extends AbstractController
      *
      * @return StreamedResponse
      */
-    #[Route('/%eccube_admin_route%/customer/export', name: 'admin_customer_export', methods: ['GET'])]
-    public function export(Request $request)
+    #[Route(path: '/%eccube_admin_route%/customer/export', name: 'admin_customer_export', methods: ['GET'])]
+    public function export(Request $request): StreamedResponse
     {
         // タイムアウトを無効にする.
         set_time_limit(0);
@@ -297,10 +322,10 @@ class CustomerController extends AbstractController
             $this->csvExportService->exportData(function ($entity, $csvService) use ($request) {
                 $Csvs = $csvService->getCsvs();
 
-                /** @var \Eccube\Entity\Customer $Customer */
+                /** @var Customer $Customer */
                 $Customer = $entity;
 
-                $ExportCsvRow = new \Eccube\Entity\ExportCsvRow();
+                $ExportCsvRow = new ExportCsvRow();
 
                 // CSV出力項目と合致するデータを取得.
                 foreach ($Csvs as $Csv) {

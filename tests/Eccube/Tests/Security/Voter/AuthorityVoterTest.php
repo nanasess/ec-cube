@@ -18,6 +18,7 @@ use Eccube\Entity\AuthorityRole;
 use Eccube\Repository\AuthorityRoleRepository;
 use Eccube\Security\Voter\AuthorityVoter;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -43,8 +44,10 @@ class AuthorityVoterTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider voteProvider
+     * @param mixed $accessUrl
+     * @param mixed $expected
      */
+    #[DataProvider(methodName: 'voteProvider')]
     public function testVote(array $deniedUrls, $accessUrl, $expected)
     {
         $request = $this->createMock(Request::class);
@@ -71,7 +74,7 @@ class AuthorityVoterTest extends EccubeTestCase
         self::assertEquals($expected, $voter->vote($token, null, []));
     }
 
-    public function voteProvider()
+    public static function voteProvider()
     {
         return [
             [[], '/admin/content', VoterInterface::ACCESS_GRANTED],

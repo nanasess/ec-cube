@@ -14,10 +14,21 @@
 namespace Eccube\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
+use Eccube\Entity\Master\Country;
+use Eccube\Entity\Master\CustomerOrderStatus;
+use Eccube\Entity\Master\DeviceType;
+use Eccube\Entity\Master\Job;
+use Eccube\Entity\Master\OrderStatus;
+use Eccube\Entity\Master\OrderStatusColor;
+use Eccube\Entity\Master\Pref;
 use Eccube\Entity\Master\RoundingType;
+use Eccube\Entity\Master\Sex;
 use Eccube\Entity\Master\TaxType;
+use Eccube\Repository\OrderRepository;
 use Eccube\Service\Calculator\OrderItemCollection;
 use Eccube\Service\PurchaseFlow\ItemCollection;
 use Eccube\Service\TaxRuleService;
@@ -25,28 +36,18 @@ use Eccube\Service\TaxRuleService;
 if (!class_exists(Order::class)) {
     /**
      * Order
-     *
-     * @ORM\Table(name="dtb_order", indexes={
-     *
-     *     @ORM\Index(name="dtb_order_email_idx", columns={"email"}),
-     *     @ORM\Index(name="dtb_order_order_date_idx", columns={"order_date"}),
-     *     @ORM\Index(name="dtb_order_payment_date_idx", columns={"payment_date"}),
-     *     @ORM\Index(name="dtb_order_update_date_idx", columns={"update_date"}),
-     *     @ORM\Index(name="dtb_order_order_no_idx", columns={"order_no"})
-     *  },
-     *  uniqueConstraints={
-     *
-     *     @ORM\UniqueConstraint(name="dtb_order_pre_order_id_idx", columns={"pre_order_id"})
-     *  })
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\OrderRepository")
      */
+    #[ORM\Table(name: 'dtb_order')]
+    #[ORM\Index(columns: ['email'], name: 'dtb_order_email_idx')]
+    #[ORM\Index(columns: ['order_date'], name: 'dtb_order_order_date_idx')]
+    #[ORM\Index(columns: ['payment_date'], name: 'dtb_order_payment_date_idx')]
+    #[ORM\Index(columns: ['update_date'], name: 'dtb_order_update_date_idx')]
+    #[ORM\Index(columns: ['order_no'], name: 'dtb_order_order_no_idx')]
+    #[ORM\UniqueConstraint(name: 'dtb_order_pre_order_id_idx', columns: ['pre_order_id'])]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: OrderRepository::class)]
     class Order extends AbstractEntity implements PurchaseInterface, ItemHolderInterface
     {
         use NameTrait;
@@ -57,7 +58,7 @@ if (!class_exists(Order::class)) {
          *
          * @return OrderItem[]
          */
-        public function getTaxableItems()
+        public function getTaxableItems(): array
         {
             $Items = [];
 
@@ -80,7 +81,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
-        public function getTaxableTotal()
+        public function getTaxableTotal(): string
         {
             $total = '0';
 
@@ -96,7 +97,7 @@ if (!class_exists(Order::class)) {
          *
          * @return array<string, string>  [税率 => 合計金額]
          */
-        public function getTaxableTotalByTaxRate()
+        public function getTaxableTotalByTaxRate(): array
         {
             $total = [];
 
@@ -120,7 +121,7 @@ if (!class_exists(Order::class)) {
          *
          * @return array<string, string>
          */
-        public function getTotalByTaxRate()
+        public function getTotalByTaxRate(): array
         {
             $roundingTypes = $this->getRoundingTypeByTaxRate();
             $total = [];
@@ -155,7 +156,7 @@ if (!class_exists(Order::class)) {
          *
          * @return array<string, string>
          */
-        public function getTaxByTaxRate()
+        public function getTaxByTaxRate(): array
         {
             $roundingTypes = $this->getRoundingTypeByTaxRate();
             $tax = [];
@@ -163,7 +164,7 @@ if (!class_exists(Order::class)) {
             $taxFreeDiscount = $this->getTaxFreeDiscount();
 
             foreach ($this->getTaxableTotalByTaxRate() as $rate => $totalPrice) {
-                if (is_null($roundingTypes[$rate])) {
+                if (!array_key_exists($rate, $roundingTypes) || null === $roundingTypes[$rate]) {
                     continue;
                 }
 
@@ -178,7 +179,7 @@ if (!class_exists(Order::class)) {
                     $afterDiscount = bcsub($totalPrice, $discountPortion, 6);
 
                     // rate / (100 + rate)
-                    $rateStr = (string) $rate;
+                    $rateStr = $rate;
                     $taxRate = bcdiv($rateStr, bcadd('100', $rateStr, 6), 6);
 
                     // 最終計算
@@ -201,10 +202,11 @@ if (!class_exists(Order::class)) {
         /**
          * 課税対象の値引き明細を返す.
          *
-         * @return array
+         * @return array<int, OrderItem>
          */
-        public function getTaxableDiscountItems()
+        public function getTaxableDiscountItems(): array
         {
+            /** @var OrderItem[] $items */
             $items = (new ItemCollection($this->getTaxableItems()))->sort()->toArray();
 
             return array_filter($items, function (OrderItem $Item) {
@@ -217,7 +219,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
-        public function getTaxableDiscount()
+        public function getTaxableDiscount(): string
         {
             return array_reduce($this->getTaxableDiscountItems(), function ($sum, OrderItem $Item) {
                 return bcadd($sum, $Item->getTotalPrice(), 2);
@@ -227,10 +229,11 @@ if (!class_exists(Order::class)) {
         /**
          * 非課税・不課税の値引き明細を返す.
          *
-         * @return array
+         * @return array<int, OrderItem>
          */
-        public function getTaxFreeDiscountItems()
+        public function getTaxFreeDiscountItems(): array
         {
+            /** @var OrderItem[] $items */
             $items = (new ItemCollection($this->getOrderItems()))->sort()->toArray();
 
             return array_filter($items, function (OrderItem $Item) {
@@ -243,7 +246,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
-        public function getTaxFreeDiscount()
+        public function getTaxFreeDiscount(): string
         {
             return array_reduce($this->getTaxFreeDiscountItems(), function ($sum, OrderItem $Item) {
                 return bcadd($sum, $Item->getTotalPrice(), 2);
@@ -253,9 +256,9 @@ if (!class_exists(Order::class)) {
         /**
          * 税率ごとの丸め規則を取得する.
          *
-         * @return array<string, RoundingType>
+         * @return array<string, RoundingType|null>
          */
-        public function getRoundingTypeByTaxRate()
+        public function getRoundingTypeByTaxRate(): array
         {
             $roundingTypes = [];
             foreach ($this->getTaxableItems() as $Item) {
@@ -270,7 +273,7 @@ if (!class_exists(Order::class)) {
          *
          * @return bool
          */
-        public function isMultiple()
+        public function isMultiple(): bool
         {
             $Shippings = [];
             // クエリビルダ使用時に絞り込まれる場合があるため,
@@ -295,7 +298,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Shipping|null
          */
-        public function findShipping($shippingId)
+        public function findShipping($shippingId): ?Shipping
         {
             foreach ($this->getShippings() as $Shipping) {
                 if ($Shipping->getId() == $shippingId) {
@@ -311,11 +314,10 @@ if (!class_exists(Order::class)) {
          *
          * @return Master\SaleType[] 一意な販売種別の配列
          */
-        public function getSaleTypes()
+        public function getSaleTypes(): array
         {
             $saleTypes = [];
             foreach ($this->getOrderItems() as $OrderItem) {
-                /** @var ProductClass $ProductClass */
                 $ProductClass = $OrderItem->getProductClass();
                 if ($ProductClass) {
                     $saleTypes[] = $ProductClass->getSaleType();
@@ -330,7 +332,7 @@ if (!class_exists(Order::class)) {
          *
          * @return OrderItem[]
          */
-        public function getMergedProductOrderItems()
+        public function getMergedProductOrderItems(): array
         {
             $ProductOrderItems = $this->getProductOrderItems();
             $orderItemArray = [];
@@ -339,7 +341,7 @@ if (!class_exists(Order::class)) {
                 $productClassId = $ProductOrderItem->getProductClass()->getId();
                 if (array_key_exists($productClassId, $orderItemArray)) {
                     // 同じ規格の商品がある場合は個数をまとめる
-                    /** @var ItemInterface $OrderItem */
+                    /** @var OrderItem $OrderItem */
                     $OrderItem = $orderItemArray[$productClassId];
                     $quantity = bcadd($OrderItem->getQuantity(), $ProductOrderItem->getQuantity());
                     $OrderItem->setQuantity($quantity);
@@ -361,7 +363,7 @@ if (!class_exists(Order::class)) {
          *
          * @deprecated
          */
-        public function getTotalPrice()
+        public function getTotalPrice(): string
         {
             @trigger_error('The '.__METHOD__.' method is deprecated.', E_USER_DEPRECATED);
 
@@ -369,212 +371,182 @@ if (!class_exists(Order::class)) {
         }
 
         /**
-         * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
+         * @var int|null
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="pre_order_id", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'pre_order_id', type: 'string', length: 255, nullable: true)]
         private $pre_order_id;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="order_no", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'order_no', type: 'string', length: 255, nullable: true)]
         private $order_no;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="message", type="string", length=4000, nullable=true)
          */
+        #[ORM\Column(name: 'message', type: 'string', length: 4000, nullable: true)]
         private $message;
 
         /**
-         * @var string|null
-         *
-         * @ORM\Column(name="name01", type="string", length=255)
+         * @var string
          */
+        #[ORM\Column(name: 'name01', type: 'string', length: 255)]
         private $name01;
 
         /**
-         * @var string|null
-         *
-         * @ORM\Column(name="name02", type="string", length=255)
+         * @var string
          */
+        #[ORM\Column(name: 'name02', type: 'string', length: 255)]
         private $name02;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="kana01", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'kana01', type: 'string', length: 255, nullable: true)]
         private $kana01;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="kana02", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'kana02', type: 'string', length: 255, nullable: true)]
         private $kana02;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="company_name", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'company_name', type: 'string', length: 255, nullable: true)]
         private $company_name;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="email", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'email', type: 'string', length: 255, nullable: true)]
         private $email;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="phone_number", type="string", length=14, nullable=true)
          */
+        #[ORM\Column(name: 'phone_number', type: 'string', length: 14, nullable: true)]
         private $phone_number;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="postal_code", type="string", length=8, nullable=true)
          */
+        #[ORM\Column(name: 'postal_code', type: 'string', length: 8, nullable: true)]
         private $postal_code;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="addr01", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'addr01', type: 'string', length: 255, nullable: true)]
         private $addr01;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="addr02", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'addr02', type: 'string', length: 255, nullable: true)]
         private $addr02;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="birth", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'birth', type: 'datetimetz', nullable: true)]
         private $birth;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="subtotal", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'subtotal', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $subtotal = '0';
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="discount", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'discount', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $discount = '0';
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="delivery_fee_total", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'delivery_fee_total', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $delivery_fee_total = '0';
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="charge", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'charge', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $charge = '0';
 
         /**
          * @var string
          *
-         * @ORM\Column(name="tax", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
-         *
          * @deprecated 明細ごとに集計した税額と差異が発生する場合があるため非推奨
          */
+        #[ORM\Column(name: 'tax', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $tax = '0';
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="total", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'total', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $total = '0';
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="payment_total", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'payment_total', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $payment_total = '0';
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="payment_method", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'payment_method', type: 'string', length: 255, nullable: true)]
         private $payment_method;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="note", type="string", length=4000, nullable=true)
          */
+        #[ORM\Column(name: 'note', type: 'string', length: 4000, nullable: true)]
         private $note;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="order_date", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'order_date', type: 'datetimetz', nullable: true)]
         private $order_date;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="payment_date", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'payment_date', type: 'datetimetz', nullable: true)]
         private $payment_date;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="currency_code", type="string", nullable=true)
          */
+        #[ORM\Column(name: 'currency_code', type: 'string', nullable: true)]
         private $currency_code;
 
         /**
@@ -585,9 +557,8 @@ if (!class_exists(Order::class)) {
          * 表示する際にHTMLは利用可能です。
          *
          * @var string|null
-         *
-         * @ORM\Column(name="complete_message", type="text", nullable=true)
          */
+        #[ORM\Column(name: 'complete_message', type: 'text', nullable: true)]
         private $complete_message;
 
         /**
@@ -597,164 +568,107 @@ if (!class_exists(Order::class)) {
          * 複数のプラグインから利用されるため, appendCompleteMailMesssage()で追加してください.
          *
          * @var string|null
-         *
-         * @ORM\Column(name="complete_mail_message", type="text", nullable=true)
          */
+        #[ORM\Column(name: 'complete_mail_message', type: 'text', nullable: true)]
         private $complete_mail_message;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection|OrderItem[]
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\OrderItem", mappedBy="Order", cascade={"persist","remove"})
+         * @var Collection<int, OrderItem>
          */
+        #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'Order', cascade: ['persist', 'remove'])]
         private $OrderItems;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection|Shipping[]
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\Shipping", mappedBy="Order", cascade={"persist","remove"})
+         * @var Collection<int, Shipping>
          */
+        #[ORM\OneToMany(targetEntity: Shipping::class, mappedBy: 'Order', cascade: ['persist', 'remove'])]
         private $Shippings;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\MailHistory", mappedBy="Order", cascade={"remove"})
-         *
-         * @ORM\OrderBy({
-         *     "send_date"="DESC"
-         * })
+         * @var Collection<int, MailHistory>
          */
+        #[ORM\OneToMany(targetEntity: MailHistory::class, mappedBy: 'Order', cascade: ['remove'])]
+        #[ORM\OrderBy(['send_date' => 'DESC'])]
         private $MailHistories;
 
         /**
-         * @var Customer
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Customer", inversedBy="Orders")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id")
-         * })
+         * @var Customer|null
          */
+        #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'Orders')]
+        #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id')]
         private $Customer;
 
         /**
-         * @var Master\Country
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Country")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="country_id", referencedColumnName="id")
-         * })
+         * @var Country|null
          */
+        #[ORM\ManyToOne(targetEntity: Country::class)]
+        #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
         private $Country;
 
         /**
-         * @var Master\Pref
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Pref")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="pref_id", referencedColumnName="id")
-         * })
+         * @var Pref|null
          */
+        #[ORM\ManyToOne(targetEntity: Pref::class)]
+        #[ORM\JoinColumn(name: 'pref_id', referencedColumnName: 'id')]
         private $Pref;
 
         /**
-         * @var Master\Sex
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Sex")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="sex_id", referencedColumnName="id")
-         * })
+         * @var Sex|null
          */
+        #[ORM\ManyToOne(targetEntity: Sex::class)]
+        #[ORM\JoinColumn(name: 'sex_id', referencedColumnName: 'id')]
         private $Sex;
 
         /**
-         * @var Master\Job
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Job")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="job_id", referencedColumnName="id")
-         * })
+         * @var Job|null
          */
+        #[ORM\ManyToOne(targetEntity: Job::class)]
+        #[ORM\JoinColumn(name: 'job_id', referencedColumnName: 'id')]
         private $Job;
 
         /**
-         * @var Payment
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Payment")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="payment_id", referencedColumnName="id")
-         * })
+         * @var Payment|null
          */
+        #[ORM\ManyToOne(targetEntity: Payment::class)]
+        #[ORM\JoinColumn(name: 'payment_id', referencedColumnName: 'id')]
         private $Payment;
 
         /**
-         * @var Master\DeviceType
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\DeviceType")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="device_type_id", referencedColumnName="id")
-         * })
+         * @var DeviceType|null
          */
+        #[ORM\ManyToOne(targetEntity: DeviceType::class)]
+        #[ORM\JoinColumn(name: 'device_type_id', referencedColumnName: 'id')]
         private $DeviceType;
 
         /**
          * OrderStatusより先にプロパティを定義しておかないとセットされなくなる
          *
-         * @var Master\CustomerOrderStatus
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\CustomerOrderStatus")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="order_status_id", referencedColumnName="id")
-         * })
+         * @var CustomerOrderStatus|null
          */
+        #[ORM\ManyToOne(targetEntity: CustomerOrderStatus::class)]
+        #[ORM\JoinColumn(name: 'order_status_id', referencedColumnName: 'id')]
         private $CustomerOrderStatus;
 
         /**
          * OrderStatusより先にプロパティを定義しておかないとセットされなくなる
          *
-         * @var Master\OrderStatusColor
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\OrderStatusColor")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="order_status_id", referencedColumnName="id")
-         * })
+         * @var OrderStatusColor|null
          */
+        #[ORM\ManyToOne(targetEntity: OrderStatusColor::class)]
+        #[ORM\JoinColumn(name: 'order_status_id', referencedColumnName: 'id')]
         private $OrderStatusColor;
 
         /**
-         * @var Master\OrderStatus
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\OrderStatus")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="order_status_id", referencedColumnName="id")
-         * })
+         * @var OrderStatus|null
          */
+        #[ORM\ManyToOne(targetEntity: OrderStatus::class)]
+        #[ORM\JoinColumn(name: 'order_status_id', referencedColumnName: 'id')]
         private $OrderStatus;
 
         /**
          * Constructor
          */
-        public function __construct(?Master\OrderStatus $orderStatus = null)
+        public function __construct(?OrderStatus $orderStatus = null)
         {
             $this->setDiscount('0')
                 ->setSubtotal('0')
@@ -802,9 +716,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -816,7 +730,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setPreOrderId($preOrderId = null)
+        public function setPreOrderId($preOrderId = null): Order
         {
             $this->pre_order_id = $preOrderId;
 
@@ -828,7 +742,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getPreOrderId()
+        public function getPreOrderId(): ?string
         {
             return $this->pre_order_id;
         }
@@ -840,7 +754,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setOrderNo($orderNo = null)
+        public function setOrderNo($orderNo = null): Order
         {
             $this->order_no = $orderNo;
 
@@ -852,7 +766,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getOrderNo()
+        public function getOrderNo(): ?string
         {
             return $this->order_no;
         }
@@ -864,7 +778,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setMessage($message = null)
+        public function setMessage($message = null): Order
         {
             $this->message = $message;
 
@@ -876,7 +790,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getMessage()
+        public function getMessage(): ?string
         {
             return $this->message;
         }
@@ -888,7 +802,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setName01($name01 = null)
+        public function setName01($name01 = null): Order
         {
             $this->name01 = $name01;
 
@@ -900,7 +814,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getName01()
+        public function getName01(): ?string
         {
             return $this->name01;
         }
@@ -912,7 +826,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setName02($name02 = null)
+        public function setName02($name02 = null): Order
         {
             $this->name02 = $name02;
 
@@ -924,7 +838,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getName02()
+        public function getName02(): ?string
         {
             return $this->name02;
         }
@@ -936,7 +850,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setKana01($kana01 = null)
+        public function setKana01($kana01 = null): Order
         {
             $this->kana01 = $kana01;
 
@@ -948,7 +862,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getKana01()
+        public function getKana01(): ?string
         {
             return $this->kana01;
         }
@@ -960,7 +874,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setKana02($kana02 = null)
+        public function setKana02($kana02 = null): Order
         {
             $this->kana02 = $kana02;
 
@@ -972,7 +886,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getKana02()
+        public function getKana02(): ?string
         {
             return $this->kana02;
         }
@@ -984,7 +898,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setCompanyName($companyName = null)
+        public function setCompanyName($companyName = null): Order
         {
             $this->company_name = $companyName;
 
@@ -996,7 +910,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getCompanyName()
+        public function getCompanyName(): ?string
         {
             return $this->company_name;
         }
@@ -1008,7 +922,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setEmail($email = null)
+        public function setEmail($email = null): Order
         {
             $this->email = $email;
 
@@ -1020,7 +934,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getEmail()
+        public function getEmail(): ?string
         {
             return $this->email;
         }
@@ -1032,7 +946,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setPhoneNumber($phone_number = null)
+        public function setPhoneNumber($phone_number = null): Order
         {
             $this->phone_number = $phone_number;
 
@@ -1044,7 +958,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getPhoneNumber()
+        public function getPhoneNumber(): ?string
         {
             return $this->phone_number;
         }
@@ -1056,7 +970,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setPostalCode($postal_code = null)
+        public function setPostalCode($postal_code = null): Order
         {
             $this->postal_code = $postal_code;
 
@@ -1068,7 +982,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getPostalCode()
+        public function getPostalCode(): ?string
         {
             return $this->postal_code;
         }
@@ -1080,7 +994,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setAddr01($addr01 = null)
+        public function setAddr01($addr01 = null): Order
         {
             $this->addr01 = $addr01;
 
@@ -1092,7 +1006,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getAddr01()
+        public function getAddr01(): ?string
         {
             return $this->addr01;
         }
@@ -1104,7 +1018,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setAddr02($addr02 = null)
+        public function setAddr02($addr02 = null): Order
         {
             $this->addr02 = $addr02;
 
@@ -1116,7 +1030,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getAddr02()
+        public function getAddr02(): ?string
         {
             return $this->addr02;
         }
@@ -1128,7 +1042,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setBirth($birth = null)
+        public function setBirth($birth = null): Order
         {
             $this->birth = $birth;
 
@@ -1140,7 +1054,7 @@ if (!class_exists(Order::class)) {
          *
          * @return \DateTime|null
          */
-        public function getBirth()
+        public function getBirth(): ?\DateTime
         {
             return $this->birth;
         }
@@ -1152,7 +1066,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setSubtotal($subtotal)
+        public function setSubtotal($subtotal): Order
         {
             $this->subtotal = $subtotal;
 
@@ -1164,7 +1078,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
-        public function getSubtotal()
+        public function getSubtotal(): string
         {
             return $this->subtotal;
         }
@@ -1174,10 +1088,10 @@ if (!class_exists(Order::class)) {
          *
          * @param string $discount
          *
-         * @return Order
+         * @return static
          */
         #[\Override]
-        public function setDiscount($discount)
+        public function setDiscount($discount): static
         {
             $this->discount = $discount;
 
@@ -1191,7 +1105,7 @@ if (!class_exists(Order::class)) {
          *
          * @deprecated 4.0.3 から値引きは課税値引きと 非課税・不課税の値引きの2種に分かれる. 課税値引きについてはgetTaxableDiscountを利用してください.
          */
-        public function getDiscount()
+        public function getDiscount(): string
         {
             return $this->discount;
         }
@@ -1201,10 +1115,10 @@ if (!class_exists(Order::class)) {
          *
          * @param string $deliveryFeeTotal
          *
-         * @return Order
+         * @return $this
          */
         #[\Override]
-        public function setDeliveryFeeTotal($deliveryFeeTotal)
+        public function setDeliveryFeeTotal($deliveryFeeTotal): static
         {
             $this->delivery_fee_total = $deliveryFeeTotal;
 
@@ -1217,7 +1131,7 @@ if (!class_exists(Order::class)) {
          * @return string
          */
         #[\Override]
-        public function getDeliveryFeeTotal()
+        public function getDeliveryFeeTotal(): string
         {
             return $this->delivery_fee_total;
         }
@@ -1227,10 +1141,10 @@ if (!class_exists(Order::class)) {
          *
          * @param string $charge
          *
-         * @return Order
+         * @return $this
          */
         #[\Override]
-        public function setCharge($charge)
+        public function setCharge($charge): static
         {
             $this->charge = $charge;
 
@@ -1242,7 +1156,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
-        public function getCharge()
+        public function getCharge(): string
         {
             return $this->charge;
         }
@@ -1252,12 +1166,12 @@ if (!class_exists(Order::class)) {
          *
          * @param string $tax
          *
-         * @return Order
+         * @return $this
          *
          * @deprecated 明細ごとに集計した税額と差異が発生する場合があるため非推奨
          */
         #[\Override]
-        public function setTax($tax)
+        public function setTax($tax): static
         {
             $this->tax = $tax;
 
@@ -1271,7 +1185,7 @@ if (!class_exists(Order::class)) {
          *
          * @deprecated 明細ごとに集計した税額と差異が発生する場合があるため非推奨
          */
-        public function getTax()
+        public function getTax(): string
         {
             return $this->tax;
         }
@@ -1281,10 +1195,10 @@ if (!class_exists(Order::class)) {
          *
          * @param string $total
          *
-         * @return Order
+         * @return static
          */
         #[\Override]
-        public function setTotal($total)
+        public function setTotal($total): static
         {
             $this->total = $total;
 
@@ -1297,7 +1211,7 @@ if (!class_exists(Order::class)) {
          * @return string
          */
         #[\Override]
-        public function getTotal()
+        public function getTotal(): string
         {
             return $this->total;
         }
@@ -1309,7 +1223,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setPaymentTotal($paymentTotal)
+        public function setPaymentTotal($paymentTotal): Order
         {
             $this->payment_total = $paymentTotal;
 
@@ -1321,7 +1235,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
-        public function getPaymentTotal()
+        public function getPaymentTotal(): string
         {
             return $this->payment_total;
         }
@@ -1333,7 +1247,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setPaymentMethod($paymentMethod = null)
+        public function setPaymentMethod($paymentMethod = null): Order
         {
             $this->payment_method = $paymentMethod;
 
@@ -1345,7 +1259,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getPaymentMethod()
+        public function getPaymentMethod(): ?string
         {
             return $this->payment_method;
         }
@@ -1357,7 +1271,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setNote($note = null)
+        public function setNote($note = null): Order
         {
             $this->note = $note;
 
@@ -1369,7 +1283,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string|null
          */
-        public function getNote()
+        public function getNote(): ?string
         {
             return $this->note;
         }
@@ -1381,7 +1295,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): Order
         {
             $this->create_date = $createDate;
 
@@ -1391,9 +1305,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -1405,7 +1319,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): Order
         {
             $this->update_date = $updateDate;
 
@@ -1415,9 +1329,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -1429,7 +1343,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setOrderDate($orderDate = null)
+        public function setOrderDate($orderDate = null): Order
         {
             $this->order_date = $orderDate;
 
@@ -1441,7 +1355,7 @@ if (!class_exists(Order::class)) {
          *
          * @return \DateTime|null
          */
-        public function getOrderDate()
+        public function getOrderDate(): ?\DateTime
         {
             return $this->order_date;
         }
@@ -1453,7 +1367,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setPaymentDate($paymentDate = null)
+        public function setPaymentDate($paymentDate = null): Order
         {
             $this->payment_date = $paymentDate;
 
@@ -1465,7 +1379,7 @@ if (!class_exists(Order::class)) {
          *
          * @return \DateTime|null
          */
-        public function getPaymentDate()
+        public function getPaymentDate(): ?\DateTime
         {
             return $this->payment_date;
         }
@@ -1475,7 +1389,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
-        public function getCurrencyCode()
+        public function getCurrencyCode(): string
         {
             return $this->currency_code;
         }
@@ -1487,7 +1401,7 @@ if (!class_exists(Order::class)) {
          *
          * @return $this
          */
-        public function setCurrencyCode($currencyCode = null)
+        public function setCurrencyCode($currencyCode = null): static
         {
             $this->currency_code = $currencyCode;
 
@@ -1497,7 +1411,7 @@ if (!class_exists(Order::class)) {
         /**
          * @return string|null
          */
-        public function getCompleteMessage()
+        public function getCompleteMessage(): ?string
         {
             return $this->complete_message;
         }
@@ -1507,7 +1421,7 @@ if (!class_exists(Order::class)) {
          *
          * @return $this
          */
-        public function setCompleteMessage($complete_message = null)
+        public function setCompleteMessage($complete_message = null): static
         {
             $this->complete_message = $complete_message;
 
@@ -1519,7 +1433,7 @@ if (!class_exists(Order::class)) {
          *
          * @return $this
          */
-        public function appendCompleteMessage($complete_message = null)
+        public function appendCompleteMessage($complete_message = null): static
         {
             $this->complete_message .= $complete_message;
 
@@ -1529,7 +1443,7 @@ if (!class_exists(Order::class)) {
         /**
          * @return string|null
          */
-        public function getCompleteMailMessage()
+        public function getCompleteMailMessage(): ?string
         {
             return $this->complete_mail_message;
         }
@@ -1537,9 +1451,9 @@ if (!class_exists(Order::class)) {
         /**
          * @param string|null $complete_mail_message
          *
-         * @return
+         * @return self
          */
-        public function setCompleteMailMessage($complete_mail_message = null)
+        public function setCompleteMailMessage($complete_mail_message = null): Order
         {
             $this->complete_mail_message = $complete_mail_message;
 
@@ -1549,9 +1463,9 @@ if (!class_exists(Order::class)) {
         /**
          * @param string|null $complete_mail_message
          *
-         * @return
+         * @return self
          */
-        public function appendCompleteMailMessage($complete_mail_message = null)
+        public function appendCompleteMailMessage($complete_mail_message = null): Order
         {
             $this->complete_mail_message .= $complete_mail_message;
 
@@ -1563,7 +1477,7 @@ if (!class_exists(Order::class)) {
          *
          * @return OrderItem[]
          */
-        public function getProductOrderItems()
+        public function getProductOrderItems(): array
         {
             $sio = new OrderItemCollection($this->OrderItems->toArray());
 
@@ -1577,7 +1491,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function addOrderItem(OrderItem $OrderItem)
+        public function addOrderItem(OrderItem $OrderItem): Order
         {
             $this->OrderItems[] = $OrderItem;
 
@@ -1591,7 +1505,7 @@ if (!class_exists(Order::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeOrderItem(OrderItem $OrderItem)
+        public function removeOrderItem(OrderItem $OrderItem): bool
         {
             return $this->OrderItems->removeElement($OrderItem);
         }
@@ -1599,9 +1513,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get orderItems.
          *
-         * @return \Doctrine\Common\Collections\Collection|OrderItem[]
+         * @return Collection<int, OrderItem>
          */
-        public function getOrderItems()
+        public function getOrderItems(): Collection
         {
             return $this->OrderItems;
         }
@@ -1612,7 +1526,7 @@ if (!class_exists(Order::class)) {
          * @return ItemCollection
          */
         #[\Override]
-        public function getItems()
+        public function getItems(): ItemCollection
         {
             return (new ItemCollection($this->getOrderItems()))->sort();
         }
@@ -1624,7 +1538,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function addShipping(Shipping $Shipping)
+        public function addShipping(Shipping $Shipping): Order
         {
             $this->Shippings[] = $Shipping;
 
@@ -1638,7 +1552,7 @@ if (!class_exists(Order::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeShipping(Shipping $Shipping)
+        public function removeShipping(Shipping $Shipping): bool
         {
             return $this->Shippings->removeElement($Shipping);
         }
@@ -1646,14 +1560,17 @@ if (!class_exists(Order::class)) {
         /**
          * Get shippings.
          *
-         * @return \Doctrine\Common\Collections\Collection|Shipping[]
+         * @return Collection<int, Shipping>
          */
-        public function getShippings()
+        public function getShippings(): Collection
         {
             $criteria = Criteria::create()
                 ->orderBy(['name01' => Criteria::ASC, 'name02' => Criteria::ASC, 'id' => Criteria::ASC]);
 
-            return $this->Shippings->matching($criteria);
+            /** @var PersistentCollection<int,Shipping> $Shippings */
+            $Shippings = $this->Shippings;
+
+            return $Shippings->matching($criteria);
         }
 
         /**
@@ -1663,7 +1580,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function addMailHistory(MailHistory $mailHistory)
+        public function addMailHistory(MailHistory $mailHistory): Order
         {
             $this->MailHistories[] = $mailHistory;
 
@@ -1677,7 +1594,7 @@ if (!class_exists(Order::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeMailHistory(MailHistory $mailHistory)
+        public function removeMailHistory(MailHistory $mailHistory): bool
         {
             return $this->MailHistories->removeElement($mailHistory);
         }
@@ -1685,9 +1602,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get mailHistories.
          *
-         * @return \Doctrine\Common\Collections\Collection
+         * @return Collection<int, MailHistory>
          */
-        public function getMailHistories()
+        public function getMailHistories(): Collection
         {
             return $this->MailHistories;
         }
@@ -1699,7 +1616,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setCustomer(?Customer $customer = null)
+        public function setCustomer(?Customer $customer = null): Order
         {
             $this->Customer = $customer;
 
@@ -1711,7 +1628,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Customer|null
          */
-        public function getCustomer()
+        public function getCustomer(): ?Customer
         {
             return $this->Customer;
         }
@@ -1719,11 +1636,11 @@ if (!class_exists(Order::class)) {
         /**
          * Set country.
          *
-         * @param Master\Country|null $country
+         * @param Country|null $country
          *
          * @return Order
          */
-        public function setCountry(?Master\Country $country = null)
+        public function setCountry(?Country $country = null): Order
         {
             $this->Country = $country;
 
@@ -1733,9 +1650,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get country.
          *
-         * @return Master\Country|null
+         * @return Country|null
          */
-        public function getCountry()
+        public function getCountry(): ?Country
         {
             return $this->Country;
         }
@@ -1743,11 +1660,11 @@ if (!class_exists(Order::class)) {
         /**
          * Set pref.
          *
-         * @param Master\Pref|null $pref
+         * @param Pref|null $pref
          *
          * @return Order
          */
-        public function setPref(?Master\Pref $pref = null)
+        public function setPref(?Pref $pref = null): Order
         {
             $this->Pref = $pref;
 
@@ -1757,9 +1674,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get pref.
          *
-         * @return Master\Pref|null
+         * @return Pref|null
          */
-        public function getPref()
+        public function getPref(): ?Pref
         {
             return $this->Pref;
         }
@@ -1767,11 +1684,11 @@ if (!class_exists(Order::class)) {
         /**
          * Set sex.
          *
-         * @param Master\Sex|null $sex
+         * @param Sex|null $sex
          *
          * @return Order
          */
-        public function setSex(?Master\Sex $sex = null)
+        public function setSex(?Sex $sex = null): Order
         {
             $this->Sex = $sex;
 
@@ -1781,9 +1698,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get sex.
          *
-         * @return Master\Sex|null
+         * @return Sex|null
          */
-        public function getSex()
+        public function getSex(): ?Sex
         {
             return $this->Sex;
         }
@@ -1791,11 +1708,11 @@ if (!class_exists(Order::class)) {
         /**
          * Set job.
          *
-         * @param Master\Job|null $job
+         * @param Job|null $job
          *
          * @return Order
          */
-        public function setJob(?Master\Job $job = null)
+        public function setJob(?Job $job = null): Order
         {
             $this->Job = $job;
 
@@ -1805,9 +1722,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get job.
          *
-         * @return Master\Job|null
+         * @return Job|null
          */
-        public function getJob()
+        public function getJob(): ?Job
         {
             return $this->Job;
         }
@@ -1819,7 +1736,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
-        public function setPayment(?Payment $payment = null)
+        public function setPayment(?Payment $payment = null): Order
         {
             $this->Payment = $payment;
 
@@ -1831,7 +1748,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Payment|null
          */
-        public function getPayment()
+        public function getPayment(): ?Payment
         {
             return $this->Payment;
         }
@@ -1839,11 +1756,11 @@ if (!class_exists(Order::class)) {
         /**
          * Set deviceType.
          *
-         * @param Master\DeviceType|null $deviceType
+         * @param DeviceType|null $deviceType
          *
          * @return Order
          */
-        public function setDeviceType(?Master\DeviceType $deviceType = null)
+        public function setDeviceType(?DeviceType $deviceType = null): Order
         {
             $this->DeviceType = $deviceType;
 
@@ -1853,9 +1770,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get deviceType.
          *
-         * @return Master\DeviceType|null
+         * @return DeviceType|null
          */
-        public function getDeviceType()
+        public function getDeviceType(): ?DeviceType
         {
             return $this->DeviceType;
         }
@@ -1863,11 +1780,11 @@ if (!class_exists(Order::class)) {
         /**
          * Set customerOrderStatus.
          *
-         * @param Master\CustomerOrderStatus|null $customerOrderStatus
+         * @param CustomerOrderStatus|null $customerOrderStatus
          *
          * @return Order
          */
-        public function setCustomerOrderStatus(?Master\CustomerOrderStatus $customerOrderStatus = null)
+        public function setCustomerOrderStatus(?CustomerOrderStatus $customerOrderStatus = null): Order
         {
             $this->CustomerOrderStatus = $customerOrderStatus;
 
@@ -1877,9 +1794,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get customerOrderStatus.
          *
-         * @return Master\CustomerOrderStatus|null
+         * @return CustomerOrderStatus|null
          */
-        public function getCustomerOrderStatus()
+        public function getCustomerOrderStatus(): ?CustomerOrderStatus
         {
             return $this->CustomerOrderStatus;
         }
@@ -1887,11 +1804,11 @@ if (!class_exists(Order::class)) {
         /**
          * Set orderStatusColor.
          *
-         * @param Master\OrderStatusColor|null $orderStatusColor
+         * @param OrderStatusColor|null $orderStatusColor
          *
          * @return Order
          */
-        public function setOrderStatusColor(?Master\OrderStatusColor $orderStatusColor = null)
+        public function setOrderStatusColor(?OrderStatusColor $orderStatusColor = null): Order
         {
             $this->OrderStatusColor = $orderStatusColor;
 
@@ -1901,9 +1818,9 @@ if (!class_exists(Order::class)) {
         /**
          * Get orderStatusColor.
          *
-         * @return Master\OrderStatusColor|null
+         * @return OrderStatusColor|null
          */
-        public function getOrderStatusColor()
+        public function getOrderStatusColor(): ?OrderStatusColor
         {
             return $this->OrderStatusColor;
         }
@@ -1911,11 +1828,11 @@ if (!class_exists(Order::class)) {
         /**
          * Set orderStatus.
          *
-         * @param Master\OrderStatus|object|null $orderStatus
+         * @param OrderStatus|null $orderStatus
          *
-         * @return Order
+         * @return self
          */
-        public function setOrderStatus(?Master\OrderStatus $orderStatus = null)
+        public function setOrderStatus(?OrderStatus $orderStatus = null): Order
         {
             $this->OrderStatus = $orderStatus;
 
@@ -1925,28 +1842,32 @@ if (!class_exists(Order::class)) {
         /**
          * Get orderStatus.
          *
-         * @return Master\OrderStatus|null
+         * @return OrderStatus|null
          */
-        public function getOrderStatus()
+        public function getOrderStatus(): ?OrderStatus
         {
             return $this->OrderStatus;
         }
 
         /**
          * @param ItemInterface $item
+         *
+         * @return void
          */
         #[\Override]
-        public function addItem(ItemInterface $item)
+        public function addItem(ItemInterface $item): void
         {
-            $this->OrderItems->add($item);
+            if ($item instanceof OrderItem) {
+                $this->OrderItems->add($item);
+            }
         }
 
         #[\Override]
-        public function getQuantity()
+        public function getQuantity(): string
         {
-            $quantity = 0;
+            $quantity = '0';
             foreach ($this->getItems() as $item) {
-                $quantity += $item->getQuantity();
+                $quantity = bcadd($quantity, $item->getQuantity());
             }
 
             return $quantity;

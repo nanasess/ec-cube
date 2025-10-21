@@ -13,22 +13,20 @@
 
 namespace Eccube\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\PaymentRepository;
 
 if (!class_exists(Payment::class)) {
     /**
      * Payment
-     *
-     * @ORM\Table(name="dtb_payment")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\PaymentRepository")
      */
+    #[ORM\Table(name: 'dtb_payment')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: PaymentRepository::class)]
     class Payment extends AbstractEntity implements \Stringable
     {
         /**
@@ -42,109 +40,90 @@ if (!class_exists(Payment::class)) {
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="payment_method", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'payment_method', type: 'string', length: 255, nullable: true)]
         private $method;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="charge", type="decimal", precision=12, scale=2, nullable=true, options={"unsigned":true,"default":0})
          */
-        private $charge = 0;
+        #[ORM\Column(name: 'charge', type: 'decimal', precision: 12, scale: 2, nullable: true, options: ['unsigned' => true, 'default' => 0])]
+        private $charge = '0';
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="rule_max", type="decimal", precision=12, scale=2, nullable=true, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'rule_max', type: 'decimal', precision: 12, scale: 2, nullable: true, options: ['unsigned' => true])]
         private $rule_max;
 
         /**
          * @var int|null
-         *
-         * @ORM\Column(name="sort_no", type="smallint", nullable=true, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'sort_no', type: 'smallint', nullable: true, options: ['unsigned' => true])]
         private $sort_no;
 
         /**
          * @var bool
-         *
-         * @ORM\Column(name="fixed", type="boolean", options={"default":true})
          */
+        #[ORM\Column(name: 'fixed', type: 'boolean', options: ['default' => true])]
         private $fixed = true;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="payment_image", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'payment_image', type: 'string', length: 255, nullable: true)]
         private $payment_image;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="rule_min", type="decimal", precision=12, scale=2, nullable=true, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'rule_min', type: 'decimal', precision: 12, scale: 2, nullable: true, options: ['unsigned' => true])]
         private $rule_min;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="method_class", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'method_class', type: 'string', length: 255, nullable: true)]
         private $method_class;
 
         /**
-         * @var int
-         *
-         * @ORM\Column(name="visible", type="boolean", options={"default":true})
+         * @var bool
          */
+        #[ORM\Column(name: 'visible', type: 'boolean', options: ['default' => true])]
         private $visible;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\PaymentOption", mappedBy="Payment")
+         * @var Collection<int, PaymentOption>
          */
+        #[ORM\OneToMany(targetEntity: PaymentOption::class, mappedBy: 'Payment')]
         private $PaymentOptions;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id')]
         private $Creator;
 
         /**
@@ -152,15 +131,15 @@ if (!class_exists(Payment::class)) {
          */
         public function __construct()
         {
-            $this->PaymentOptions = new \Doctrine\Common\Collections\ArrayCollection();
+            $this->PaymentOptions = new ArrayCollection();
         }
 
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -172,7 +151,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setMethod($method = null)
+        public function setMethod($method = null): Payment
         {
             $this->method = $method;
 
@@ -184,7 +163,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return string|null
          */
-        public function getMethod()
+        public function getMethod(): ?string
         {
             return $this->method;
         }
@@ -196,7 +175,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setCharge($charge = null)
+        public function setCharge($charge = null): Payment
         {
             $this->charge = $charge;
 
@@ -208,7 +187,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return string|null
          */
-        public function getCharge()
+        public function getCharge(): ?string
         {
             return $this->charge;
         }
@@ -220,7 +199,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setRuleMax($ruleMax = null)
+        public function setRuleMax($ruleMax = null): Payment
         {
             $this->rule_max = $ruleMax;
 
@@ -232,7 +211,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return string|null
          */
-        public function getRuleMax()
+        public function getRuleMax(): ?string
         {
             return $this->rule_max;
         }
@@ -244,7 +223,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setSortNo($sortNo = null)
+        public function setSortNo($sortNo = null): Payment
         {
             $this->sort_no = $sortNo;
 
@@ -256,7 +235,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return int|null
          */
-        public function getSortNo()
+        public function getSortNo(): ?int
         {
             return $this->sort_no;
         }
@@ -268,7 +247,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setFixed($fixed)
+        public function setFixed($fixed): Payment
         {
             $this->fixed = $fixed;
 
@@ -280,7 +259,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return bool
          */
-        public function isFixed()
+        public function isFixed(): bool
         {
             return $this->fixed;
         }
@@ -292,7 +271,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setPaymentImage($paymentImage = null)
+        public function setPaymentImage($paymentImage = null): Payment
         {
             $this->payment_image = $paymentImage;
 
@@ -304,7 +283,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return string|null
          */
-        public function getPaymentImage()
+        public function getPaymentImage(): ?string
         {
             return $this->payment_image;
         }
@@ -316,7 +295,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setRuleMin($ruleMin = null)
+        public function setRuleMin($ruleMin = null): Payment
         {
             $this->rule_min = $ruleMin;
 
@@ -328,7 +307,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return string|null
          */
-        public function getRuleMin()
+        public function getRuleMin(): ?string
         {
             return $this->rule_min;
         }
@@ -340,7 +319,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setMethodClass($methodClass = null)
+        public function setMethodClass($methodClass = null): Payment
         {
             $this->method_class = $methodClass;
 
@@ -352,15 +331,15 @@ if (!class_exists(Payment::class)) {
          *
          * @return string|null
          */
-        public function getMethodClass()
+        public function getMethodClass(): ?string
         {
             return $this->method_class;
         }
 
         /**
-         * @return int
+         * @return bool
          */
-        public function isVisible()
+        public function isVisible(): bool
         {
             return $this->visible;
         }
@@ -370,7 +349,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setVisible($visible)
+        public function setVisible($visible): Payment
         {
             $this->visible = $visible;
 
@@ -384,7 +363,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): Payment
         {
             $this->create_date = $createDate;
 
@@ -394,9 +373,9 @@ if (!class_exists(Payment::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -408,7 +387,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): Payment
         {
             $this->update_date = $updateDate;
 
@@ -418,9 +397,9 @@ if (!class_exists(Payment::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -432,7 +411,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function addPaymentOption(PaymentOption $paymentOption)
+        public function addPaymentOption(PaymentOption $paymentOption): Payment
         {
             $this->PaymentOptions[] = $paymentOption;
 
@@ -446,7 +425,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removePaymentOption(PaymentOption $paymentOption)
+        public function removePaymentOption(PaymentOption $paymentOption): bool
         {
             return $this->PaymentOptions->removeElement($paymentOption);
         }
@@ -454,9 +433,9 @@ if (!class_exists(Payment::class)) {
         /**
          * Get paymentOptions.
          *
-         * @return \Doctrine\Common\Collections\Collection
+         * @return Collection<int, PaymentOption>
          */
-        public function getPaymentOptions()
+        public function getPaymentOptions(): Collection
         {
             return $this->PaymentOptions;
         }
@@ -468,7 +447,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Payment
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): Payment
         {
             $this->Creator = $creator;
 
@@ -480,7 +459,7 @@ if (!class_exists(Payment::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }

@@ -13,22 +13,20 @@
 
 namespace Eccube\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\ClassNameRepository;
 
 if (!class_exists(ClassName::class)) {
     /**
      * ClassName
-     *
-     * @ORM\Table(name="dtb_class_name")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\ClassNameRepository")
      */
+    #[ORM\Table(name: 'dtb_class_name')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: ClassNameRepository::class)]
     class ClassName extends AbstractEntity implements \Stringable
     {
         /**
@@ -42,71 +40,55 @@ if (!class_exists(ClassName::class)) {
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
-         * @var string
-         *
-         * @ORM\Column(name="backend_name", type="string", length=255, nullable=true)
+         * @var string|null
          */
+        #[ORM\Column(name: 'backend_name', type: 'string', length: 255, nullable: true)]
         private $backend_name;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="name", type="string", length=255)
          */
+        #[ORM\Column(name: 'name', type: 'string', length: 255)]
         private $name;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="sort_no", type="integer", options={"unsigned":true})
          */
+        #[ORM\Column(name: 'sort_no', type: 'integer', options: ['unsigned' => true])]
         private $sort_no;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\ClassCategory", mappedBy="ClassName")
-         *
-         * @ORM\OrderBy({
-         *     "sort_no"="DESC"
-         * })
+         * @var Collection<int, ClassCategory>
          */
+        #[ORM\OneToMany(targetEntity: ClassCategory::class, mappedBy: 'ClassName')]
+        #[ORM\OrderBy(['sort_no' => 'DESC'])]
         private $ClassCategories;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id')]
         private $Creator;
 
         /**
@@ -114,15 +96,15 @@ if (!class_exists(ClassName::class)) {
          */
         public function __construct()
         {
-            $this->ClassCategories = new \Doctrine\Common\Collections\ArrayCollection();
+            $this->ClassCategories = new ArrayCollection();
         }
 
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -134,7 +116,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return ClassName
          */
-        public function setBackendName($backendName)
+        public function setBackendName($backendName): ClassName
         {
             $this->backend_name = $backendName;
 
@@ -144,9 +126,9 @@ if (!class_exists(ClassName::class)) {
         /**
          * Get backend_name.
          *
-         * @return string
+         * @return string|null
          */
-        public function getBackendName()
+        public function getBackendName(): ?string
         {
             return $this->backend_name;
         }
@@ -158,7 +140,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return ClassName
          */
-        public function setName($name)
+        public function setName($name): ClassName
         {
             $this->name = $name;
 
@@ -170,7 +152,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return string
          */
-        public function getName()
+        public function getName(): string
         {
             return $this->name;
         }
@@ -182,7 +164,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return ClassName
          */
-        public function setSortNo($sortNo)
+        public function setSortNo($sortNo): ClassName
         {
             $this->sort_no = $sortNo;
 
@@ -194,7 +176,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return int
          */
-        public function getSortNo()
+        public function getSortNo(): int
         {
             return $this->sort_no;
         }
@@ -206,7 +188,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return ClassName
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): ClassName
         {
             $this->create_date = $createDate;
 
@@ -216,9 +198,9 @@ if (!class_exists(ClassName::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -230,7 +212,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return ClassName
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): ClassName
         {
             $this->update_date = $updateDate;
 
@@ -240,9 +222,9 @@ if (!class_exists(ClassName::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -254,7 +236,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return ClassName
          */
-        public function addClassCategory(ClassCategory $classCategory)
+        public function addClassCategory(ClassCategory $classCategory): ClassName
         {
             $this->ClassCategories[] = $classCategory;
 
@@ -268,7 +250,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeClassCategory(ClassCategory $classCategory)
+        public function removeClassCategory(ClassCategory $classCategory): bool
         {
             return $this->ClassCategories->removeElement($classCategory);
         }
@@ -276,9 +258,9 @@ if (!class_exists(ClassName::class)) {
         /**
          * Get classCategories.
          *
-         * @return \Doctrine\Common\Collections\Collection
+         * @return Collection<int, ClassCategory>
          */
-        public function getClassCategories()
+        public function getClassCategories(): Collection
         {
             return $this->ClassCategories;
         }
@@ -290,7 +272,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return ClassName
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): ClassName
         {
             $this->Creator = $creator;
 
@@ -302,7 +284,7 @@ if (!class_exists(ClassName::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }

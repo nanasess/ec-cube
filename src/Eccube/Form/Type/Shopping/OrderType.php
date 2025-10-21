@@ -89,9 +89,14 @@ class OrderType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         // ShoppingController::checkoutから呼ばれる場合は, フォーム項目の定義をスキップする.
         if ($options['skip_add_form']) {
@@ -126,7 +131,7 @@ class OrderType extends AbstractType
 
         // 支払い方法のプルダウンを生成
         $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
-            /** @var Order $Order */
+            /** @var Order|null $Order */
             $Order = $event->getData();
             if (null === $Order || !$Order->getId()) {
                 return;
@@ -135,8 +140,8 @@ class OrderType extends AbstractType
             $Deliveries = $this->getDeliveries($Order);
             $Payments = $this->getPayments($Deliveries);
             // @see https://github.com/EC-CUBE/ec-cube/issues/4881
-            $charge = $Order->getPayment() ? $Order->getPayment()->getCharge() : 0;
-            $Payments = $this->filterPayments($Payments, $Order->getPaymentTotal() - $charge);
+            $charge = $Order->getPayment() ? (string) $Order->getPayment()->getCharge() : '0';
+            $Payments = $this->filterPayments($Payments, bcsub((string) $Order->getPaymentTotal(), $charge));
 
             $form = $event->getForm();
             $this->addPaymentForm($form, $Payments, $Order->getPayment());
@@ -163,8 +168,8 @@ class OrderType extends AbstractType
 
             $Payments = $this->getPayments($Deliveries);
             // @see https://github.com/EC-CUBE/ec-cube/issues/4881
-            $charge = $Order->getPayment() ? $Order->getPayment()->getCharge() : 0;
-            $Payments = $this->filterPayments($Payments, $Order->getPaymentTotal() - $charge);
+            $charge = $Order->getPayment() ? (string) $Order->getPayment()->getCharge() : '0';
+            $Payments = $this->filterPayments($Payments, bcsub((string) $Order->getPaymentTotal(), $charge));
 
             $form = $event->getForm();
             $this->addPaymentForm($form, $Payments);
@@ -180,8 +185,15 @@ class OrderType extends AbstractType
         });
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
+     */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
             [
@@ -192,12 +204,19 @@ class OrderType extends AbstractType
     }
 
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return '_shopping_order';
     }
 
-    private function addPaymentForm(FormInterface $form, array $choices, ?Payment $data = null)
+    /**
+     * @param FormInterface $form
+     * @param Payment[] $choices
+     * @param Payment|null $data
+     *
+     * @return void
+     */
+    private function addPaymentForm(FormInterface $form, array $choices, ?Payment $data = null): void
     {
         $message = trans('front.shopping.payment_method_unselected');
 
@@ -227,7 +246,7 @@ class OrderType extends AbstractType
      *
      * @return Delivery[]
      */
-    private function getDeliveries(Order $Order)
+    private function getDeliveries(Order $Order): array
     {
         $Deliveries = [];
         foreach ($Order->getShippings() as $Shipping) {
@@ -244,11 +263,11 @@ class OrderType extends AbstractType
      * 配送方法に紐づく支払い方法を取得する
      * 各配送方法に共通する支払い方法のみ返す.
      *
-     * @param Delivery[] $Deliveries
+     * @param array<int, Delivery> $Deliveries
      *
-     * @return ArrayCollection
+     * @return ArrayCollection<int, Payment>
      */
-    private function getPayments($Deliveries)
+    private function getPayments($Deliveries): ArrayCollection
     {
         $PaymentsByDeliveries = [];
         foreach ($Deliveries as $Delivery) {
@@ -283,23 +302,23 @@ class OrderType extends AbstractType
     /**
      * 支払い方法の利用条件でフィルタをかける.
      *
-     * @param ArrayCollection $Payments
-     * @param $total
+     * @param ArrayCollection<int, Payment> $Payments
+     * @param string $total
      *
      * @return Payment[]
      */
-    private function filterPayments(ArrayCollection $Payments, $total)
+    private function filterPayments(ArrayCollection $Payments, $total): array
     {
         $PaymentArrays = $Payments->filter(function (Payment $Payment) use ($total) {
             $charge = $Payment->getCharge();
             $min = $Payment->getRuleMin();
             $max = $Payment->getRuleMax();
 
-            if (null !== $min && ($total + $charge) < $min) {
+            if (null !== $min && bcadd($total, $charge) < $min) {
                 return false;
             }
 
-            if (null !== $max && ($total + $charge) > $max) {
+            if (null !== $max && bcadd($total, $charge) > $max) {
                 return false;
             }
 

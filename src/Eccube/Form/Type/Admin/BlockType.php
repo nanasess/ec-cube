@@ -16,6 +16,7 @@ namespace Eccube\Form\Type\Admin;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\Block;
+use Eccube\Entity\Master\DeviceType;
 use Eccube\Form\Validator\TwigLint;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -54,9 +55,14 @@ class BlockType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', TextType::class, [
@@ -92,7 +98,7 @@ class BlockType extends AbstractType
                 ],
             ])
             ->add('DeviceType', EntityType::class, [
-                'class' => \Eccube\Entity\Master\DeviceType::class,
+                'class' => DeviceType::class,
                 'choice_label' => 'id',
             ])
             ->add('id', HiddenType::class)
@@ -126,9 +132,13 @@ class BlockType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Block::class,
@@ -139,7 +149,7 @@ class BlockType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'block';
     }

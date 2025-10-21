@@ -13,23 +13,23 @@
 
 namespace Eccube\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
+use Eccube\Repository\CategoryRepository;
 
 if (!class_exists(Category::class)) {
     /**
      * Category
-     *
-     * @ORM\Table(name="dtb_category")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\CategoryRepository")
      */
+    #[ORM\Table(name: 'dtb_category')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: CategoryRepository::class)]
     class Category extends AbstractEntity implements \Stringable
     {
         /**
@@ -38,13 +38,13 @@ if (!class_exists(Category::class)) {
         #[\Override]
         public function __toString(): string
         {
-            return (string) $this->getName();
+            return $this->getName();
         }
 
         /**
          * @return int
          */
-        public function countBranches()
+        public function countBranches(): int
         {
             $count = 1;
 
@@ -56,12 +56,12 @@ if (!class_exists(Category::class)) {
         }
 
         /**
-         * @param  \Doctrine\ORM\EntityManager $em
+         * @param  EntityManager $em
          * @param  int                     $sortNo
          *
          * @return Category
          */
-        public function calcChildrenSortNo(\Doctrine\ORM\EntityManager $em, $sortNo)
+        public function calcChildrenSortNo(EntityManager $em, $sortNo): Category
         {
             $this->setSortNo($this->getSortNo() + $sortNo);
             $em->persist($this);
@@ -73,7 +73,10 @@ if (!class_exists(Category::class)) {
             return $this;
         }
 
-        public function getParents()
+        /**
+         * @return array<mixed>
+         */
+        public function getParents(): array
         {
             $path = $this->getPath();
             array_pop($path);
@@ -81,7 +84,10 @@ if (!class_exists(Category::class)) {
             return $path;
         }
 
-        public function getPath()
+        /**
+         * @return array<mixed>
+         */
+        public function getPath(): array
         {
             $path = [];
             $Category = $this;
@@ -99,12 +105,18 @@ if (!class_exists(Category::class)) {
             return array_reverse($path);
         }
 
-        public function getNameWithLevel()
+        /**
+         * @return string
+         */
+        public function getNameWithLevel(): string
         {
             return str_repeat('　', $this->getHierarchy() - 1).$this->getName();
         }
 
-        public function getDescendants()
+        /**
+         * @return array<int, mixed>
+         */
+        public function getDescendants(): array
         {
             $DescendantCategories = [];
 
@@ -120,7 +132,10 @@ if (!class_exists(Category::class)) {
             return $DescendantCategories;
         }
 
-        public function getSelfAndDescendants()
+        /**
+         * @return Category[]|mixed[]
+         */
+        public function getSelfAndDescendants(): array
         {
             return array_merge([$this], $this->getDescendants());
         }
@@ -135,102 +150,83 @@ if (!class_exists(Category::class)) {
          *
          * @return bool
          */
-        public function hasProductCategories()
+        public function hasProductCategories(): bool
         {
             $criteria = Criteria::create()
             ->orderBy(['category_id' => Criteria::ASC])
             ->setFirstResult(0)
             ->setMaxResults(1);
 
-            return $this->ProductCategories->matching($criteria)->count() > 0;
+            /** @var PersistentCollection <int,ProductCategory> */
+            $ProductCategories = $this->ProductCategories;
+
+            return $ProductCategories->matching($criteria)->count() > 0;
         }
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /** @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="category_name", type="string", length=255)
          */
+        #[ORM\Column(name: 'category_name', type: 'string', length: 255)]
         private $name;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="hierarchy", type="integer", options={"unsigned":true})
          */
+        #[ORM\Column(name: 'hierarchy', type: 'integer', options: ['unsigned' => true])]
         private $hierarchy;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="sort_no", type="integer")
          */
+        #[ORM\Column(name: 'sort_no', type: 'integer')]
         private $sort_no;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\ProductCategory", mappedBy="Category", fetch="EXTRA_LAZY")
+         * @var Collection<int, ProductCategory>
          */
+        #[ORM\OneToMany(targetEntity: ProductCategory::class, mappedBy: 'Category', fetch: 'EXTRA_LAZY')]
         private $ProductCategories;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\Category", mappedBy="Parent")
-         *
-         * @ORM\OrderBy({
-         *     "sort_no"="DESC"
-         * })
+         * @var Collection<int, Category>
          */
+        #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'Parent')]
+        #[ORM\OrderBy(['sort_no' => 'DESC'])]
         private $Children;
 
         /**
-         * @var Category
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Category", inversedBy="Children")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="parent_category_id", referencedColumnName="id")
-         * })
+         * @var Category|null
          */
+        #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'Children')]
+        #[ORM\JoinColumn(name: 'parent_category_id', referencedColumnName: 'id')]
         private $Parent;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id')]
         private $Creator;
 
         /**
@@ -238,16 +234,16 @@ if (!class_exists(Category::class)) {
          */
         public function __construct()
         {
-            $this->ProductCategories = new \Doctrine\Common\Collections\ArrayCollection();
-            $this->Children = new \Doctrine\Common\Collections\ArrayCollection();
+            $this->ProductCategories = new ArrayCollection();
+            $this->Children = new ArrayCollection();
         }
 
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -259,7 +255,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function setName($name)
+        public function setName($name): Category
         {
             $this->name = $name;
 
@@ -271,7 +267,7 @@ if (!class_exists(Category::class)) {
          *
          * @return string
          */
-        public function getName()
+        public function getName(): string
         {
             return $this->name;
         }
@@ -283,7 +279,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function setHierarchy($hierarchy)
+        public function setHierarchy($hierarchy): Category
         {
             $this->hierarchy = $hierarchy;
 
@@ -295,7 +291,7 @@ if (!class_exists(Category::class)) {
          *
          * @return int
          */
-        public function getHierarchy()
+        public function getHierarchy(): int
         {
             return $this->hierarchy;
         }
@@ -307,7 +303,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function setSortNo($sortNo)
+        public function setSortNo($sortNo): Category
         {
             $this->sort_no = $sortNo;
 
@@ -319,7 +315,7 @@ if (!class_exists(Category::class)) {
          *
          * @return int
          */
-        public function getSortNo()
+        public function getSortNo(): int
         {
             return $this->sort_no;
         }
@@ -331,7 +327,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): Category
         {
             $this->create_date = $createDate;
 
@@ -341,9 +337,9 @@ if (!class_exists(Category::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -355,7 +351,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): Category
         {
             $this->update_date = $updateDate;
 
@@ -365,9 +361,9 @@ if (!class_exists(Category::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -379,7 +375,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function addProductCategory(ProductCategory $productCategory)
+        public function addProductCategory(ProductCategory $productCategory): Category
         {
             $this->ProductCategories[] = $productCategory;
 
@@ -393,7 +389,7 @@ if (!class_exists(Category::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeProductCategory(ProductCategory $productCategory)
+        public function removeProductCategory(ProductCategory $productCategory): bool
         {
             return $this->ProductCategories->removeElement($productCategory);
         }
@@ -401,9 +397,9 @@ if (!class_exists(Category::class)) {
         /**
          * Get productCategories.
          *
-         * @return \Doctrine\Common\Collections\Collection
+         * @return Collection<int, ProductCategory>
          */
-        public function getProductCategories()
+        public function getProductCategories(): Collection
         {
             return $this->ProductCategories;
         }
@@ -415,7 +411,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function addChild(Category $child)
+        public function addChild(Category $child): Category
         {
             $this->Children[] = $child;
 
@@ -429,7 +425,7 @@ if (!class_exists(Category::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeChild(Category $child)
+        public function removeChild(Category $child): bool
         {
             return $this->Children->removeElement($child);
         }
@@ -437,9 +433,9 @@ if (!class_exists(Category::class)) {
         /**
          * Get children.
          *
-         * @return \Doctrine\Common\Collections\Collection
+         * @return Collection<int, Category>
          */
-        public function getChildren()
+        public function getChildren(): Collection
         {
             return $this->Children;
         }
@@ -451,7 +447,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function setParent(?Category $parent = null)
+        public function setParent(?Category $parent = null): Category
         {
             $this->Parent = $parent;
 
@@ -463,7 +459,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category|null
          */
-        public function getParent()
+        public function getParent(): ?Category
         {
             return $this->Parent;
         }
@@ -475,7 +471,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Category
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): Category
         {
             $this->Creator = $creator;
 
@@ -487,7 +483,7 @@ if (!class_exists(Category::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }

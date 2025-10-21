@@ -17,6 +17,7 @@ use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Eccube\Common\Constant;
 use Eccube\Controller\AbstractController;
 use Eccube\Entity\BaseInfo;
+use Eccube\Entity\Category;
 use Eccube\Entity\ExportCsvRow;
 use Eccube\Entity\Master\CsvType;
 use Eccube\Entity\Master\ProductStatus;
@@ -46,7 +47,9 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,7 +57,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 class ProductController extends AbstractController
@@ -147,10 +150,17 @@ class ProductController extends AbstractController
         $this->tagRepository = $tagRepository;
     }
 
-    #[Route('/%eccube_admin_route%/product', name: 'admin_product', methods: ['POST', 'GET'])]
-    #[Route('/%eccube_admin_route%/product/page/{page_no}', name: 'admin_product_page', requirements: ['page_no' => '\d+'], methods: ['POST', 'GET'])]
-    #[Template('@admin/Product/index.twig')]
-    public function index(Request $request, PaginatorInterface $paginator, $page_no = null)
+    /**
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     * @param string|null $page_no
+     *
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/%eccube_admin_route%/product', name: 'admin_product', methods: ['POST', 'GET'])]
+    #[Route(path: '/%eccube_admin_route%/product/page/{page_no}', name: 'admin_product_page', requirements: ['page_no' => '\d+'], methods: ['POST', 'GET'])]
+    #[Template(template: '@admin/Product/index.twig')]
+    public function index(Request $request, PaginatorInterface $paginator, $page_no = null): array
     {
         $builder = $this->formFactory
             ->createBuilder(SearchProductType::class);
@@ -281,16 +291,24 @@ class ProductController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/product/classes/{id}/load', name: 'admin_product_classes_load', requirements: ['id' => '\d+'], methods: ['GET'])]
-    #[Template('@admin/Product/product_class_popup.twig')]
-    public function loadProductClasses(Request $request, #[MapEntity(expr: 'repository.findWithSortedClassCategories(id)')] Product $Product)
+    /**
+     * @param Request $request
+     * @param Product $Product
+     *
+     * @return array<string, mixed>
+     *
+     * @throws BadRequestHttpException
+     */
+    #[Route(path: '/%eccube_admin_route%/product/classes/{id}/load', name: 'admin_product_classes_load', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Template(template: '@admin/Product/product_class_popup.twig')]
+    public function loadProductClasses(Request $request, #[MapEntity(expr: 'repository.findWithSortedClassCategories(id)')] ?Product $Product): array
     {
         if (!$request->isXmlHttpRequest() && $this->isTokenValid()) {
             throw new BadRequestHttpException();
         }
 
         $data = [];
-        /** @var ProductRepository $Product */
+        /** @var Product|null $Product */
         if (!$Product) {
             throw new NotFoundHttpException();
         }
@@ -311,9 +329,15 @@ class ProductController extends AbstractController
      * 画像アップロード時にリクエストされるメソッド.
      *
      * @see https://pqina.nl/filepond/docs/api/server/#process
+     *
+     * @param Request $request
+     *
+     * @return Response
+     *
+     * @throws BadRequestHttpException|UnsupportedMediaTypeHttpException
      */
-    #[Route('/%eccube_admin_route%/product/product/image/process', name: 'admin_product_image_process', methods: ['POST'])]
-    public function imageProcess(Request $request)
+    #[Route(path: '/%eccube_admin_route%/product/product/image/process', name: 'admin_product_image_process', methods: ['POST'])]
+    public function imageProcess(Request $request): Response
     {
         if (!$request->isXmlHttpRequest() && $this->isTokenValid()) {
             throw new BadRequestHttpException();
@@ -362,9 +386,15 @@ class ProductController extends AbstractController
      * アップロード画像を取得する際にコールされるメソッド.
      *
      * @see https://pqina.nl/filepond/docs/api/server/#load
+     *
+     * @param Request $request
+     *
+     * @return BinaryFileResponse
+     *
+     * @throws BadRequestHttpException|NotFoundHttpException
      */
-    #[Route('/%eccube_admin_route%/product/product/image/load', name: 'admin_product_image_load', methods: ['GET'])]
-    public function imageLoad(Request $request)
+    #[Route(path: '/%eccube_admin_route%/product/product/image/load', name: 'admin_product_image_load', methods: ['GET'])]
+    public function imageLoad(Request $request): BinaryFileResponse
     {
         if (!$request->isXmlHttpRequest()) {
             throw new BadRequestHttpException();
@@ -396,9 +426,15 @@ class ProductController extends AbstractController
      * アップロード画像をすぐ削除する際にコールされるメソッド.
      *
      * @see https://pqina.nl/filepond/docs/api/server/#revert
+     *
+     * @param Request $request
+     *
+     * @return Response
+     *
+     * @throws BadRequestHttpException|NotFoundHttpException
      */
-    #[Route('/%eccube_admin_route%/product/product/image/revert', name: 'admin_product_image_revert', methods: ['DELETE'])]
-    public function imageRevert(Request $request)
+    #[Route(path: '/%eccube_admin_route%/product/product/image/revert', name: 'admin_product_image_revert', methods: ['DELETE'])]
+    public function imageRevert(Request $request): Response
     {
         if (!$request->isXmlHttpRequest() && $this->isTokenValid()) {
             throw new BadRequestHttpException();
@@ -415,10 +451,20 @@ class ProductController extends AbstractController
         throw new NotFoundHttpException();
     }
 
-    #[Route('/%eccube_admin_route%/product/product/new', name: 'admin_product_product_new', methods: ['GET', 'POST'])]
-    #[Route('/%eccube_admin_route%/product/product/{id}/edit', requirements: ['id' => '\d+'], name: 'admin_product_product_edit', methods: ['GET', 'POST'])]
-    #[Template('@admin/Product/product.twig')]
-    public function edit(Request $request, RouterInterface $router, CacheUtil $cacheUtil, $id = null)
+    /**
+     * @param Request $request
+     * @param RouterInterface $router
+     * @param CacheUtil $cacheUtil
+     * @param int|string|null $id
+     *
+     * @return RedirectResponse|array<string, mixed>
+     *
+     * @throws NotFoundHttpException|\Exception
+     */
+    #[Route(path: '/%eccube_admin_route%/product/product/new', name: 'admin_product_product_new', methods: ['GET', 'POST'])]
+    #[Route(path: '/%eccube_admin_route%/product/product/{id}/edit', name: 'admin_product_product_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Template(template: '@admin/Product/product.twig')]
+    public function edit(Request $request, RouterInterface $router, CacheUtil $cacheUtil, $id = null): RedirectResponse|array
     {
         $has_class = false;
         if (is_null($id)) {
@@ -550,7 +596,6 @@ class ProductController extends AbstractController
 
                 // カテゴリの登録
                 // 一度クリア
-                /** @var Product $Product */
                 foreach ($Product->getProductCategories() as $ProductCategory) {
                     $Product->removeProductCategory($ProductCategory);
                     $this->entityManager->remove($ProductCategory);
@@ -624,7 +669,15 @@ class ProductController extends AbstractController
 
                 $this->entityManager->flush();
 
-                if ($product_image = $request->request->all()['admin_product']['product_image'] ?? []) {
+                /**
+                 * @var array<string, Product>|Product[]|null $admin_product
+                 */
+                $admin_product = $request->request->all()['admin_product'] ?? null;
+                if (is_array($admin_product) && array_key_exists('product_image', $admin_product)) {
+                    /**
+                     * @var array<int, ProductImage>|ProductImage[] $product_image
+                     */
+                    $product_image = $admin_product['product_image'];
                     foreach ($product_image as $sortNo => $filename) {
                         $ProductImage = $this->productImageRepository
                             ->findOneBy([
@@ -740,8 +793,17 @@ class ProductController extends AbstractController
         ];
     }
 
-    #[Route('/%eccube_admin_route%/product/product/{id}/delete', name: 'admin_product_product_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(Request $request, CacheUtil $cacheUtil, $id = null)
+    /**
+     * @param Request $request
+     * @param CacheUtil $cacheUtil
+     * @param int|string|null $id
+     *
+     * @return RedirectResponse|JsonResponse
+     *
+     * @throws \Exception
+     */
+    #[Route(path: '/%eccube_admin_route%/product/product/{id}/delete', name: 'admin_product_product_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(Request $request, CacheUtil $cacheUtil, $id = null): RedirectResponse|JsonResponse
     {
         $this->isTokenValid();
         $session = $request->getSession();
@@ -750,7 +812,7 @@ class ProductController extends AbstractController
         $success = false;
 
         if (!is_null($id)) {
-            /** @var Product $Product */
+            /** @var Product|null $Product */
             $Product = $this->productRepository->find($id);
             if (!$Product) {
                 if ($request->isXmlHttpRequest()) {
@@ -765,54 +827,49 @@ class ProductController extends AbstractController
                 }
             }
 
-            if ($Product instanceof Product) {
-                log_info('商品削除開始', [$id]);
+            log_info('商品削除開始', [$id]);
 
-                $deleteImages = $Product->getProductImage();
-                $ProductClasses = $Product->getProductClasses();
+            $deleteImages = $Product->getProductImage();
+            $ProductClasses = $Product->getProductClasses();
 
-                try {
-                    $this->productRepository->delete($Product);
-                    $this->entityManager->flush();
+            try {
+                $this->productRepository->delete($Product);
+                $this->entityManager->flush();
 
-                    $event = new EventArgs(
-                        [
-                            'Product' => $Product,
-                            'ProductClass' => $ProductClasses,
-                            'deleteImages' => $deleteImages,
-                        ],
-                        $request
-                    );
-                    $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_PRODUCT_DELETE_COMPLETE);
-                    $deleteImages = $event->getArgument('deleteImages');
+                $event = new EventArgs(
+                    [
+                        'Product' => $Product,
+                        'ProductClass' => $ProductClasses,
+                        'deleteImages' => $deleteImages,
+                    ],
+                    $request
+                );
+                $this->eventDispatcher->dispatch($event, EccubeEvents::ADMIN_PRODUCT_DELETE_COMPLETE);
+                $deleteImages = $event->getArgument('deleteImages');
 
-                    // 画像ファイルの削除(commit後に削除させる)
-                    /** @var ProductImage $deleteImage */
-                    foreach ($deleteImages as $deleteImage) {
-                        if ($this->productImageRepository->findOneBy(['file_name' => $deleteImage->getFileName()])) {
-                            continue;
-                        }
-                        try {
-                            $fs = new Filesystem();
-                            $fs->remove($this->eccubeConfig['eccube_save_image_dir'].'/'.$deleteImage);
-                        } catch (\Exception) {
-                            // エラーが発生しても無視する
-                        }
+                // 画像ファイルの削除(commit後に削除させる)
+                /** @var ProductImage $deleteImage */
+                foreach ($deleteImages as $deleteImage) {
+                    if ($this->productImageRepository->findOneBy(['file_name' => $deleteImage->getFileName()])) {
+                        continue;
                     }
-
-                    log_info('商品削除完了', [$id]);
-
-                    $success = true;
-                    $message = trans('admin.common.delete_complete');
-
-                    $cacheUtil->clearDoctrineCache();
-                } catch (ForeignKeyConstraintViolationException) {
-                    log_info('商品削除エラー', [$id]);
-                    $message = trans('admin.common.delete_error_foreign_key', ['%name%' => $Product->getName()]);
+                    try {
+                        $fs = new Filesystem();
+                        $fs->remove($this->eccubeConfig['eccube_save_image_dir'].'/'.$deleteImage);
+                    } catch (\Exception) {
+                        // エラーが発生しても無視する
+                    }
                 }
-            } else {
+
+                log_info('商品削除完了', [$id]);
+
+                $success = true;
+                $message = trans('admin.common.delete_complete');
+
+                $cacheUtil->clearDoctrineCache();
+            } catch (ForeignKeyConstraintViolationException) {
                 log_info('商品削除エラー', [$id]);
-                $message = trans('admin.common.delete_error');
+                $message = trans('admin.common.delete_error_foreign_key', ['%name%' => $Product->getName()]);
             }
         } else {
             log_info('商品削除エラー', [$id]);
@@ -834,19 +891,35 @@ class ProductController extends AbstractController
         }
     }
 
-    #[Route('/%eccube_admin_route%/product/product/{id}/copy', requirements: ['id' => '\d+'], name: 'admin_product_product_copy', methods: ['POST'])]
-    public function copy(Request $request, $id = null)
+    /**
+     * @param Request $request
+     * @param int|string|null $id
+     *
+     * @return RedirectResponse
+     *
+     * @throws \Exception
+     */
+    #[Route(path: '/%eccube_admin_route%/product/product/{id}/copy', name: 'admin_product_product_copy', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function copy(Request $request, $id = null): RedirectResponse
     {
         $this->isTokenValid();
 
         if (!is_null($id)) {
             $Product = $this->productRepository->find($id);
             if ($Product instanceof Product) {
-                $CopyProduct = clone $Product;
-                $CopyProduct->copy();
+                $CopyProduct = new Product();
+                $CopyProduct->copyProperties($Product, ['id']);
                 $ProductStatus = $this->productStatusRepository->find(ProductStatus::DISPLAY_HIDE);
                 $CopyProduct->setStatus($ProductStatus);
 
+                // 商品IDの確定
+                $this->entityManager->persist($CopyProduct);
+                $this->entityManager->flush();
+
+                // 商品関連のコピー
+                $CopyProduct->copy($Product);
+
+                // 商品カテゴリの登録
                 $CopyProductCategories = $CopyProduct->getProductCategories();
                 foreach ($CopyProductCategories as $Category) {
                     $this->entityManager->persist($Category);
@@ -939,8 +1012,8 @@ class ProductController extends AbstractController
      *
      * @return StreamedResponse
      */
-    #[Route('/%eccube_admin_route%/product/export', name: 'admin_product_export', methods: ['GET'])]
-    public function export(Request $request)
+    #[Route(path: '/%eccube_admin_route%/product/export', name: 'admin_product_export', methods: ['GET'])]
+    public function export(Request $request): StreamedResponse
     {
         // タイムアウトを無効にする.
         set_time_limit(0);
@@ -1043,12 +1116,12 @@ class ProductController extends AbstractController
      * ProductCategory作成
      *
      * @param Product $Product
-     * @param \Eccube\Entity\Category $Category
+     * @param Category $Category
      * @param int $count
      *
      * @return ProductCategory
      */
-    private function createProductCategory($Product, $Category, $count)
+    private function createProductCategory($Product, $Category, $count): ProductCategory
     {
         $ProductCategory = new ProductCategory();
         $ProductCategory->setProduct($Product);
@@ -1064,11 +1137,12 @@ class ProductController extends AbstractController
      *
      * @param Request $request
      * @param ProductStatus $ProductStatus
+     * @param CacheUtil $cacheUtil
      *
      * @return RedirectResponse
      */
-    #[Route('/%eccube_admin_route%/product/bulk/product-status/{id}', requirements: ['id' => '\d+'], name: 'admin_product_bulk_product_status', methods: ['POST'])]
-    public function bulkProductStatus(Request $request, ProductStatus $ProductStatus, CacheUtil $cacheUtil)
+    #[Route(path: '/%eccube_admin_route%/product/bulk/product-status/{id}', name: 'admin_product_bulk_product_status', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function bulkProductStatus(Request $request, ProductStatus $ProductStatus, CacheUtil $cacheUtil): RedirectResponse
     {
         $this->isTokenValid();
 

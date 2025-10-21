@@ -53,12 +53,14 @@ class IgnoreRoutingNotFoundExtension extends AbstractExtension
      * RouteNotFoundException 発生時に 文字列 "/404?bind={bind}" を返します。
      *
      * @param string $name
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      * @param bool $relative
      *
      * @return string
+     *
+     * @throws RouteNotFoundException
      */
-    public function getPath($name, $parameters = [], $relative = false)
+    public function getPath($name, $parameters = [], $relative = false): string
     {
         try {
             return $this->generator->generate($name, $parameters, $relative ? UrlGeneratorInterface::RELATIVE_PATH : UrlGeneratorInterface::ABSOLUTE_PATH);
@@ -75,12 +77,14 @@ class IgnoreRoutingNotFoundExtension extends AbstractExtension
      * RouteNotFoundException 発生時に 文字列 "/404?bind={bind}" を返します。
      *
      * @param string $name
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      * @param bool $schemeRelative
      *
      * @return string
+     *
+     * @throws RouteNotFoundException
      */
-    public function getUrl($name, $parameters = [], $schemeRelative = false)
+    public function getUrl($name, $parameters = [], $schemeRelative = false): string
     {
         try {
             return $this->generator->generate($name, $parameters, $schemeRelative ? UrlGeneratorInterface::NETWORK_PATH : UrlGeneratorInterface::ABSOLUTE_URL);
@@ -92,9 +96,9 @@ class IgnoreRoutingNotFoundExtension extends AbstractExtension
     }
 
     /**
-     * @param Node $argsNode The arguments of the path/url function
+     * @param Node<mixed> $argsNode The arguments of the path/url function
      *
-     * @return array An array with the contexts the URL is safe
+     * @return array<int, mixed> An array with the contexts the URL is safe
      *
      * @see \Symfony\Bridge\Twig\Extension\RoutingExtension
      */
@@ -102,11 +106,11 @@ class IgnoreRoutingNotFoundExtension extends AbstractExtension
     {
         // support named arguments
         $paramsNode = $argsNode->hasNode('parameters') ? $argsNode->getNode('parameters') : (
-            $argsNode->hasNode(1) ? $argsNode->getNode(1) : null
+            $argsNode->hasNode('1') ? $argsNode->getNode('1') : null
         );
 
         if (null === $paramsNode || $paramsNode instanceof ArrayExpression && \count($paramsNode) <= 2
-            && (!$paramsNode->hasNode(1) || $paramsNode->getNode(1) instanceof ConstantExpression)
+            && (!$paramsNode->hasNode('1') || $paramsNode->getNode('1') instanceof ConstantExpression)
         ) {
             return ['html'];
         }

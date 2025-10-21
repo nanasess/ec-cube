@@ -15,6 +15,7 @@ namespace Eccube\Twig\Extension;
 
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
+use Twig\Extension\CoreExtension;
 use Twig\Extension\SandboxExtension;
 use Twig\Sandbox\SecurityError;
 use Twig\TwigFunction;
@@ -40,13 +41,16 @@ class IgnoreTwigSandboxErrorExtension extends AbstractExtension
      * app_env = devの場合、エラーを表示する
      * app_env = prodの場合、エラーを表示しない
      *
+     * CoreExtension::include() を使用してSandbox SecurityErrorを捕捉し、
+     * 環境に応じて適切に処理します。
+     *
      * @param Environment $env
-     * @param $context
-     * @param $template
-     * @param $variables
-     * @param $withContext
-     * @param $ignoreMissing
-     * @param $sandboxed
+     * @param array<mixed> $context
+     * @param array<mixed>|string $template
+     * @param array<mixed> $variables
+     * @param bool $withContext
+     * @param bool $ignoreMissing
+     * @param bool $sandboxed
      *
      * @return string|null
      *
@@ -55,7 +59,7 @@ class IgnoreTwigSandboxErrorExtension extends AbstractExtension
     public function twig_include(Environment $env, $context, $template, $variables = [], $withContext = true, $ignoreMissing = false, $sandboxed = false): ?string
     {
         try {
-            return \twig_include($env, $context, $template, $variables, $withContext, $ignoreMissing, $sandboxed);
+            return CoreExtension::include($env, $context, $template, $variables, $withContext, $ignoreMissing, $sandboxed);
         } catch (SecurityError $e) {
             // devではエラー画面が表示されるようにする
             $appEnv = env('APP_ENV');

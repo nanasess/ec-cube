@@ -37,7 +37,12 @@ class RestrictFileUploadListener implements EventSubscriberInterface
         $this->requestContext = $requestContext;
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    /**
+     * @param RequestEvent $event
+     *
+     * @return void
+     */
+    public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
             return;
@@ -55,7 +60,7 @@ class RestrictFileUploadListener implements EventSubscriberInterface
     }
 
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'kernel.request' => ['onKernelRequest', 7], // RouterListener より必ず後で実行する

@@ -32,8 +32,13 @@ class HTMLPurifierTextTypeExtension extends AbstractTypeExtension
         $this->context = $context;
     }
 
+    /**
+     * @param OptionsResolver $resolver
+     *
+     * @return void
+     */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         if ($this->context->isFront()) {
             $resolver->setDefault('purify_html', true);
@@ -49,7 +54,7 @@ class HTMLPurifierTextTypeExtension extends AbstractTypeExtension
     }
 
     /**
-     * @return iterable
+     * @return iterable<mixed>
      */
     #[\Override]
     public static function getExtendedTypes(): iterable
@@ -57,8 +62,14 @@ class HTMLPurifierTextTypeExtension extends AbstractTypeExtension
         yield TextType::class;
     }
 
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
+     */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if ($this->context->isFront() && $options['purify_html']) {
             $builder->addEventSubscriber(

@@ -16,10 +16,11 @@ namespace Eccube\Form\Type\Admin;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Common\EccubeConfig;
+use Eccube\Entity\Customer;
 use Eccube\Entity\Master\OrderStatus;
 use Eccube\Entity\Order;
 use Eccube\Entity\Payment;
-use Eccube\Form\DataTransformer;
+use Eccube\Form\DataTransformer\EntityToIdTransformer;
 use Eccube\Form\Type\AddressType;
 use Eccube\Form\Type\KanaType;
 use Eccube\Form\Type\NameType;
@@ -87,9 +88,14 @@ class OrderType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', NameType::class, [
@@ -237,9 +243,9 @@ class OrderType extends AbstractType
 
         $builder
             ->add($builder->create('Customer', HiddenType::class)
-                ->addModelTransformer(new DataTransformer\EntityToIdTransformer(
+                ->addModelTransformer(new EntityToIdTransformer(
                     $this->entityManager,
-                    \Eccube\Entity\Customer::class
+                    Customer::class
                 )));
 
         $builder->addEventListener(FormEvents::POST_SET_DATA, $this->sortOrderItems(...));
@@ -253,9 +259,13 @@ class OrderType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Order::class,
@@ -266,7 +276,7 @@ class OrderType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'order';
     }
@@ -275,10 +285,12 @@ class OrderType extends AbstractType
      * 受注明細をソートする.
      *
      * @param FormEvent $event
+     *
+     * @return void
      */
-    public function sortOrderItems(FormEvent $event)
+    public function sortOrderItems(FormEvent $event): void
     {
-        /** @var Order $Order */
+        /** @var Order|null $Order */
         $Order = $event->getData();
         if (null === $Order) {
             return;
@@ -296,16 +308,18 @@ class OrderType extends AbstractType
      * ステータスのプルダウンは, ステートマシンで遷移可能なステータスのみ表示する.
      *
      * @param FormEvent $event
+     *
+     * @return void
      */
-    public function addOrderStatusForm(FormEvent $event)
+    public function addOrderStatusForm(FormEvent $event): void
     {
-        /** @var Order $Order */
+        /** @var Order|null $Order */
         $Order = $event->getData();
-        if (null === $Order || ($Order && !$Order->getId())) {
+        if (null === $Order || !$Order->getId()) {
             return;
         }
 
-        /** @var ArrayCollection|OrderStatus[] $OrderStatuses */
+        /** @var OrderStatus[] $OrderStatuses */
         $OrderStatuses = $this->orderStatusRepository->findBy([], ['sort_no' => 'ASC']);
         $OrderStatuses = new ArrayCollection($OrderStatuses);
 
@@ -339,10 +353,12 @@ class OrderType extends AbstractType
      * 複数配送時はShippingの編集は行わない.
      *
      * @param FormEvent $event
+     *
+     * @return void
      */
-    public function addShippingForm(FormEvent $event)
+    public function addShippingForm(FormEvent $event): void
     {
-        /** @var Order $Order */
+        /** @var Order|null $Order */
         $Order = $event->getData();
 
         // 複数配送時はShippingの編集は行わない
@@ -366,8 +382,10 @@ class OrderType extends AbstractType
      * - 受注ステータス(新規登録時)
      *
      * @param FormEvent $event
+     *
+     * @return void
      */
-    public function copyFields(FormEvent $event)
+    public function copyFields(FormEvent $event): void
     {
         /** @var Order $Order */
         $Order = $event->getData();
@@ -402,8 +420,10 @@ class OrderType extends AbstractType
      * 受注ステータスのバリデーションを行う.
      *
      * @param FormEvent $event
+     *
+     * @return void
      */
-    public function validateOrderStatus(FormEvent $event)
+    public function validateOrderStatus(FormEvent $event): void
     {
         /** @var Order $Order */
         $Order = $event->getData();
@@ -437,8 +457,10 @@ class OrderType extends AbstractType
      * 商品明細が1件も登録されていない場合はエラーとする.
      *
      * @param FormEvent $event
+     *
+     * @return void
      */
-    public function validateOrderItems(FormEvent $event)
+    public function validateOrderItems(FormEvent $event): void
     {
         /** @var Order $Order */
         $Order = $event->getData();
@@ -462,8 +484,10 @@ class OrderType extends AbstractType
      * 受注明細と, Order/Shippingの紐付けを行う.
      *
      * @param FormEvent $event
+     *
+     * @return void
      */
-    public function associateOrderAndShipping(FormEvent $event)
+    public function associateOrderAndShipping(FormEvent $event): void
     {
         /** @var Order $Order */
         $Order = $event->getData();

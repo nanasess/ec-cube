@@ -14,6 +14,7 @@
 namespace Eccube\Controller;
 
 use Eccube\Entity\BaseInfo;
+use Eccube\Entity\Customer;
 use Eccube\Entity\Master\CustomerStatus;
 use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
@@ -25,10 +26,14 @@ use Eccube\Repository\PageRepository;
 use Eccube\Service\CartService;
 use Eccube\Service\MailService;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception as HttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -89,7 +94,7 @@ class EntryController extends AbstractController
      * @param MailService $mailService
      * @param BaseInfoRepository $baseInfoRepository
      * @param CustomerRepository $customerRepository
-     * @param PasswordHasher $passwordHasher
+     * @param UserPasswordHasherInterface $passwordHasher
      * @param ValidatorInterface $validatorInterface
      * @param TokenStorageInterface $tokenStorage
      */
@@ -117,11 +122,15 @@ class EntryController extends AbstractController
 
     /**
      * 会員登録画面.
+     *
+     * @param Request $request
+     *
+     * @return Response|RedirectResponse|array<string, mixed>
      */
-    #[Route('/entry', name: 'entry', methods: ['GET', 'POST'])]
-    #[Route('/entry', name: 'entry_complete', methods: ['GET', 'POST'])]
-    #[Template('Entry/index.twig')]
-    public function index(Request $request)
+    #[Route(path: '/entry', name: 'entry', methods: ['GET', 'POST'])]
+    #[Route(path: '/entry', name: 'entry_complete', methods: ['GET', 'POST'])]
+    #[Template(template: 'Entry/index.twig')]
+    public function index(Request $request): Response|RedirectResponse|array
     {
         if ($this->isGranted('ROLE_USER')) {
             log_info('認証済のためログイン処理をスキップ');
@@ -129,10 +138,10 @@ class EntryController extends AbstractController
             return $this->redirectToRoute('mypage');
         }
 
-        /** @var \Eccube\Entity\Customer $Customer */
+        /** @var Customer $Customer */
         $Customer = $this->customerRepository->newCustomer();
 
-        /** @var \Symfony\Component\Form\FormBuilderInterface $builder */
+        /** @var FormBuilderInterface $builder */
         $builder = $this->formFactory->createBuilder(EntryType::class, $Customer);
 
         $event = new EventArgs(
@@ -144,7 +153,7 @@ class EntryController extends AbstractController
         );
         $this->eventDispatcher->dispatch($event, EccubeEvents::FRONT_ENTRY_INDEX_INITIALIZE);
 
-        /** @var \Symfony\Component\Form\FormInterface $form */
+        /** @var FormInterface $form */
         $form = $builder->getForm();
 
         $form->handleRequest($request);
@@ -219,20 +228,30 @@ class EntryController extends AbstractController
 
     /**
      * 会員登録完了画面.
+     *
+     * @return array<empty>
      */
-    #[Route('/entry/complete', name: 'entry_complete', methods: ['GET'])]
-    #[Template('Entry/complete.twig')]
-    public function complete()
+    #[Route(path: '/entry/complete', name: 'entry_complete', methods: ['GET'])]
+    #[Template(template: 'Entry/complete.twig')]
+    public function complete(): array
     {
         return [];
     }
 
     /**
      * 会員のアクティベート（本会員化）を行う.
+     *
+     * @param Request $request
+     * @param string $secret_key
+     * @param string|null $qtyInCart
+     *
+     * @return array<string, mixed>
+     *
+     * @throws HttpException\NotFoundHttpException
      */
-    #[Route('/entry/activate/{secret_key}/{qtyInCart}', name: 'entry_activate', methods: ['GET'])]
-    #[Template('Entry/activate.twig')]
-    public function activate(Request $request, $secret_key, $qtyInCart = null)
+    #[Route(path: '/entry/activate/{secret_key}/{qtyInCart}', name: 'entry_activate', methods: ['GET'])]
+    #[Template(template: 'Entry/activate.twig')]
+    public function activate(Request $request, $secret_key, $qtyInCart = null): array
     {
         $errors = $this->recursiveValidator->validate(
             $secret_key,
@@ -270,11 +289,11 @@ class EntryController extends AbstractController
      * 会員登録処理を行う
      *
      * @param Request $request
-     * @param $secret_key
+     * @param string $secret_key
      *
-     * @return \Eccube\Entity\Cart|mixed
+     * @return int
      */
-    private function entryActivate(Request $request, $secret_key)
+    private function entryActivate(Request $request, $secret_key): int
     {
         log_info('本会員登録開始');
         $Customer = $this->customerRepository->getProvisionalCustomerBySecretKey($secret_key);

@@ -13,11 +13,13 @@
 
 namespace Eccube\Service;
 
-use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Bundle\DoctrineBundle\Mapping\MappingDriver;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Tools\SchemaTool;
-use Eccube\Doctrine\ORM\Mapping\Driver\NopAnnotationDriver;
-use Eccube\Doctrine\ORM\Mapping\Driver\ReloadSafeAnnotationDriver;
+use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
+use Eccube\Doctrine\ORM\Mapping\Driver\NopAttributeDriver;
+use Eccube\Doctrine\ORM\Mapping\Driver\ReloadSafeAttributeDriver;
 use Eccube\Util\StringUtil;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -52,12 +54,13 @@ class SchemaService
      * Metadata を出力する一時ディレクトリを指定しない場合は内部で生成し, コールバック関数実行後に削除されます.
      *
      * @param callable $callback Metadata を生成した後に実行されるコールバック関数
-     * @param array $generatedFiles Proxy ファイルパスの配列
+     * @param array<mixed> $generatedFiles Proxy ファイルパスの配列
      * @param string $proxiesDirectory Proxy ファイルを格納したディレクトリ
-     * @param bool $saveMode UpdateSchema を即時実行する場合 true
      * @param string $outputDir Metadata の出力先ディレクトリ
+     *
+     * @return void
      */
-    public function executeCallback(callable $callback, $generatedFiles, $proxiesDirectory, $outputDir = null)
+    public function executeCallback(callable $callback, $generatedFiles, $proxiesDirectory, $outputDir = null): void
     {
         $createOutputDir = false;
         if (is_null($outputDir)) {
@@ -67,27 +70,39 @@ class SchemaService
         }
 
         try {
-            $chain = $this->entityManager->getConfiguration()->getMetadataDriverImpl()->getDriver();
-            $drivers = $chain->getDrivers();
+            $driver = $this->entityManager->getConfiguration()->getMetadataDriverImpl();
+
+            // DoctrineBundleのMappingDriverラッパーをアンラップ
+            if ($driver instanceof MappingDriver) {
+                $driver = $driver->getDriver();
+            }
+
+            if (!$driver instanceof MappingDriverChain) {
+                trigger_error('MappingDriverChain のインスタンスが必要です', E_USER_WARNING);
+
+                return;
+            }
+
+            $drivers = $driver->getDrivers();
             foreach ($drivers as $namespace => $oldDriver) {
-                if ('Eccube\Entity' === $namespace || preg_match('/^Plugin\\\\.*\\\\Entity$/', (string) $namespace)) {
-                    // Setup to AnnotationDriver
-                    $newDriver = new ReloadSafeAnnotationDriver(
-                        new AnnotationReader(),
-                        $oldDriver->getPaths()
-                    );
+                if ('Eccube\Entity' === $namespace || preg_match('/^Plugin\\\\.*\\\\Entity$/', $namespace)) {
+                    // Setup to AttributeDriver
+                    if (!$oldDriver instanceof AttributeDriver) {
+                        continue;
+                    }
+                    $newDriver = new ReloadSafeAttributeDriver($oldDriver->getPaths());
                     $newDriver->setFileExtension($oldDriver->getFileExtension());
                     $newDriver->addExcludePaths($oldDriver->getExcludePaths());
                     $newDriver->setTraitProxiesDirectory($proxiesDirectory);
                     $newDriver->setNewProxyFiles($generatedFiles);
                     $newDriver->setOutputDir($outputDir);
-                    $chain->addDriver($newDriver, $namespace);
+                    $driver->addDriver($newDriver, $namespace);
                 }
 
                 if ($this->pluginContext->isUninstall()) {
                     foreach ($this->pluginContext->getExtraEntityNamespaces() as $extraEntityNamespace) {
                         if ($extraEntityNamespace === $namespace) {
-                            $chain->addDriver(new NopAnnotationDriver(new AnnotationReader()), $namespace);
+                            $driver->addDriver(new NopAttributeDriver([]), $namespace);
                         }
                     }
                 }
@@ -111,31 +126,47 @@ class SchemaService
     /**
      * Doctrine Metadata を生成して UpdateSchema を実行する.
      *
-     * @param array $generatedFiles Proxy ファイルパスの配列
+     * @param array<mixed> $generatedFiles Proxy ファイルパスの配列
      * @param string $proxiesDirectory Proxy ファイルを格納したディレクトリ
      * @param bool $saveMode UpdateSchema を即時実行する場合 true
+     *
+     * @return void
      */
-    public function updateSchema($generatedFiles, $proxiesDirectory, $saveMode = false)
+    public function updateSchema($generatedFiles, $proxiesDirectory, $saveMode = false): void
     {
-        $this->executeCallback(function (SchemaTool $tool, array $metaData) use ($saveMode) {
-            $tool->updateSchema($metaData, $saveMode);
+        $this->executeCallback(function (SchemaTool $tool, array $metaData) {
+            $tool->updateSchema($metaData);
         }, $generatedFiles, $proxiesDirectory);
     }
 
     /**
      * ネームスペースに含まれるEntityのテーブルを削除する
      *
-     * @param $targetNamespace string 削除対象のネームスペース
+     * @param  string $targetNamespace 削除対象のネームスペース
+     *
+     * @return void
      */
-    public function dropTable($targetNamespace)
+    public function dropTable($targetNamespace): void
     {
-        $chain = $this->entityManager->getConfiguration()->getMetadataDriverImpl()->getDriver();
-        $drivers = $chain->getDrivers();
+        $driver = $this->entityManager->getConfiguration()->getMetadataDriverImpl();
+
+        // DoctrineBundleのMappingDriverラッパーをアンラップ
+        if ($driver instanceof MappingDriver) {
+            $driver = $driver->getDriver();
+        }
+
+        if (!$driver instanceof MappingDriverChain) {
+            trigger_error('MappingDriverChain のインスタンスが必要です', E_USER_WARNING);
+
+            return;
+        }
+
+        $drivers = $driver->getDrivers();
 
         $dropMetas = [];
-        foreach ($drivers as $namespace => $driver) {
+        foreach ($drivers as $namespace => $currentDriver) {
             if ($targetNamespace === $namespace) {
-                $allClassNames = $driver->getAllClassNames();
+                $allClassNames = $currentDriver->getAllClassNames();
 
                 foreach ($allClassNames as $className) {
                     $dropMetas[] = $this->entityManager->getMetadataFactory()->getMetadataFor($className);

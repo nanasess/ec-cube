@@ -20,7 +20,7 @@ use Eccube\Form\Type\SearchProductBlockType;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SearchProductController extends AbstractController
 {
@@ -34,10 +34,15 @@ class SearchProductController extends AbstractController
         $this->requestStack = $requestStack;
     }
 
-    #[Route('/block/search_product', name: 'block_search_product', methods: ['GET'])]
-    #[Route('/block/search_product_sp', name: 'block_search_product_sp', methods: ['GET'])]
-    #[Template('Block/search_product.twig')]
-    public function index(Request $request)
+    /**
+     * @param Request $request
+     *
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/block/search_product', name: 'block_search_product', methods: ['GET'])]
+    #[Route(path: '/block/search_product_sp', name: 'block_search_product_sp', methods: ['GET'])]
+    #[Template(template: 'Block/search_product.twig')]
+    public function index(Request $request): array
     {
         $builder = $this->formFactory
             ->createNamedBuilder('', SearchProductBlockType::class)

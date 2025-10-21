@@ -13,6 +13,7 @@
 
 namespace Eccube\Tests\Repository;
 
+use Doctrine\Common\Collections\Collection;
 use Eccube\Entity\Customer;
 use Eccube\Entity\Master\OrderStatus;
 use Eccube\Entity\Order;
@@ -20,6 +21,7 @@ use Eccube\Entity\Payment;
 use Eccube\Entity\Shipping;
 use Eccube\Repository\OrderRepository;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * OrderRepository test cases.
@@ -87,7 +89,7 @@ class OrderRepositoryTest extends EccubeTestCase
 
     public function testGetShippings()
     {
-        $this->assertInstanceOf(\Doctrine\Common\Collections\Collection::class, $this->Order->getShippings());
+        $this->assertInstanceOf(Collection::class, $this->Order->getShippings());
         $this->assertSame(1, $this->Order->getShippings()->count());
     }
 
@@ -101,8 +103,8 @@ class OrderRepositoryTest extends EccubeTestCase
 
         self::assertNull($Customer->getFirstBuyDate());
         self::assertNull($Customer->getLastBuyDate());
-        self::assertSame(0, $Customer->getBuyTimes());
-        self::assertSame(0, $Customer->getBuyTotal());
+        self::assertSame('0', $Customer->getBuyTimes());
+        self::assertSame('0', $Customer->getBuyTotal());
 
         $Order1 = $this->createOrder($Customer);
         $Order1->setOrderStatus($this->entityManager->find(OrderStatus::class, OrderStatus::NEW));
@@ -133,7 +135,7 @@ class OrderRepositoryTest extends EccubeTestCase
         self::assertSame('2', $Customer->getBuyTimes());
 
         // XXX SQLite の場合、小数点以下の '.00' が省略されるため、bcadd() で正規化して比較する
-        self::assertSame(bcadd($Order1->getTotal(), $Order2->getTotal(), 2), bcadd($Customer->getBuyTotal(), '0', 2));
+        self::assertSame(bcadd($Order1->getTotal(), $Order2->getTotal(), 2), bcadd((string) $Customer->getBuyTotal(), '0', 2));
     }
 
     public function testGetQueryBuilderBySearchDataForAdminMulti2147483648()
@@ -150,9 +152,7 @@ class OrderRepositoryTest extends EccubeTestCase
         self::assertEquals($Order, $actual[0]);
     }
 
-    /**
-     * @dataProvider dataGetQueryBuilderBySearchDataForAdmin_nameProvider
-     */
+    #[DataProvider(methodName: 'dataGetQueryBuilderBySearchDataForAdmin_nameProvider')]
     public function testGetQueryBuilderBySearchDataForAdminName(string $formName, string $searchWord, int $expected)
     {
         $this->Order
@@ -172,7 +172,7 @@ class OrderRepositoryTest extends EccubeTestCase
         self::assertCount($expected, $actual);
     }
 
-    public function dataGetQueryBuilderBySearchDataForAdmin_nameProvider()
+    public static function dataGetQueryBuilderBySearchDataForAdmin_nameProvider()
     {
         return [
             ['multi', '姓', 1],
@@ -223,9 +223,8 @@ class OrderRepositoryTest extends EccubeTestCase
      * AND 条件についてテストします。
      *
      * すべて一致する検索条件を、1項目ずつ一致しない値に置き換えて確認します。
-     *
-     * @dataProvider dataGetQueryBuilderBySearchDataForAdmin_testAndCondition
      */
+    #[DataProvider(methodName: 'dataGetQueryBuilderBySearchDataForAdmin_testAndCondition')]
     public function testGetQueryBuilderBySearchDataForAdminTestAndCondition(array $searchWord, int $expected)
     {
         // 基本の検索条件に一致するデータを作成します
@@ -305,7 +304,7 @@ class OrderRepositoryTest extends EccubeTestCase
         self::assertCount($expected, $actual);
     }
 
-    public function dataGetQueryBuilderBySearchDataForAdmin_testAndCondition()
+    public static function dataGetQueryBuilderBySearchDataForAdmin_testAndCondition()
     {
         return [
             // 基本の検索条件で検索結果が返ってくること

@@ -25,6 +25,7 @@ use Eccube\Service\PurchaseFlow\PurchaseContext;
 use Eccube\Service\PurchaseFlow\PurchaseException;
 use Eccube\Service\PurchaseFlow\PurchaseFlow;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PointDiffProcessorTest extends EccubeTestCase
 {
@@ -46,13 +47,12 @@ class PointDiffProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider usePointOverCustomerPointProvider
-     *
      * @param $beforeUsePoint int 編集前の利用ポイント
      * @param $afterUsePoint int 編集後の利用ポイント
      * @param $customerPoint int 保有ポイント
      * @param $isError boolean エラーかどうか
      */
+    #[DataProvider(methodName: 'usePointOverCustomerPointProvider')]
     public function testUsePointOverCustomerPoint($beforeUsePoint, $afterUsePoint, $customerPoint, $isError)
     {
         $Customer = new Customer();
@@ -88,7 +88,7 @@ class PointDiffProcessorTest extends EccubeTestCase
         }
     }
 
-    public function usePointOverCustomerPointProvider()
+    public static function usePointOverCustomerPointProvider()
     {
         return [
             [0, 0, 0, false],
@@ -117,12 +117,11 @@ class PointDiffProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider usePointOverPriceProvider
-     *
      * @param $beforeUsePoint int 編集前の利用ポイント
      * @param $afterUsePoint int 編集後の利用ポイント
      * @param $isError boolean エラーかどうか
      */
+    #[DataProvider(methodName: 'usePointOverPriceProvider')]
     public function testUsePointOverPrice($beforeUsePoint, $afterUsePoint, $isError)
     {
         $price = 100; // 商品の値段
@@ -163,7 +162,7 @@ class PointDiffProcessorTest extends EccubeTestCase
         }
     }
 
-    public function usePointOverPriceProvider()
+    public static function usePointOverPriceProvider()
     {
         return [
             [0, 0, false],
@@ -178,14 +177,13 @@ class PointDiffProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider useReduceCustomerPointProvider
-     *
      * @param $beforeUsePoint int 編集前の利用ポイント
      * @param $afterUsePoint int 編集後の利用ポイント
      * @param $userUsePoint int 期待する会員のポイント
      *
      * @throws PurchaseException
      */
+    #[DataProvider(methodName: 'useReduceCustomerPointProvider')]
     public function testReduceCustomerPoint($beforeUsePoint, $afterUsePoint, $userUsePoint)
     {
         $Customer = new Customer();
@@ -220,7 +218,7 @@ class PointDiffProcessorTest extends EccubeTestCase
         self::assertEquals($userUsePoint, $Customer->getPoint());
     }
 
-    public function useReduceCustomerPointProvider()
+    public static function useReduceCustomerPointProvider()
     {
         return [
             [0, 0, 100],
@@ -232,17 +230,16 @@ class PointDiffProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider usePointEachOrderStatusProvider
-     *
      * @param $orderStatusId int 受注ステータス
      * @param $isChange boolean 変更されたかどうか
      *
      * @throws PurchaseException
      */
+    #[DataProvider(methodName: 'usePointEachOrderStatusProvider')]
     public function testUsePointEachOrderStatus($orderStatusId, $isChange)
     {
         $Customer = new Customer();
-        $Customer->setPoint(100);
+        $Customer->setPoint('100');
 
         /* @var ProductClass $ProductClass */
         $ProductClass = $this->createProduct('テスト', 1)->getProductClasses()[0];
@@ -273,13 +270,13 @@ class PointDiffProcessorTest extends EccubeTestCase
         $purchaseFlow->commit($AfterOrder, $context);
 
         if ($isChange) {
-            self::assertSame(90, $Customer->getPoint());
+            self::assertSame('90', $Customer->getPoint());
         } else {
-            self::assertSame(100, $Customer->getPoint());
+            self::assertSame('100', $Customer->getPoint());
         }
     }
 
-    public function usePointEachOrderStatusProvider()
+    public static function usePointEachOrderStatusProvider()
     {
         return [
             [OrderStatus::NEW, true],

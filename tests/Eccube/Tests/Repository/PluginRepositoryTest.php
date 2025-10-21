@@ -16,6 +16,7 @@ namespace Eccube\Tests\Repository;
 use Eccube\Entity\Plugin;
 use Eccube\Repository\PluginRepository;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PluginRepositoryTest extends EccubeTestCase
 {
@@ -47,8 +48,11 @@ class PluginRepositoryTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider dataFormCodeProvider
+     * @param mixed $code
+     * @param mixed $search
+     * @param mixed $isNotNull
      */
+    #[DataProvider(methodName: 'dataFormCodeProvider')]
     public function testFindByCode($code, $search, $isNotNull)
     {
         $this->createPlugin($code);
@@ -63,7 +67,7 @@ class PluginRepositoryTest extends EccubeTestCase
         }
     }
 
-    public function dataFormCodeProvider()
+    public static function dataFormCodeProvider()
     {
         return [
             ['Enable1', 'Enable1', true],
@@ -83,7 +87,7 @@ class PluginRepositoryTest extends EccubeTestCase
         $faker = $this->getFaker();
         $Plugin = new Plugin();
         $Plugin->setCode($code)
-            ->setName($faker->word)
+            ->setName($faker->word())
             ->setVersion($faker->regexify('[0-9]\.[0-9]\.[0-9]'))
             ->setSource($faker->numberBetween(1000, 9999))
         ;

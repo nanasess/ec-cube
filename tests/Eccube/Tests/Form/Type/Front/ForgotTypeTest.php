@@ -15,6 +15,7 @@ namespace Eccube\Tests\Form\Type\Front;
 
 use Eccube\Form\Type\Front\ForgotType;
 use Eccube\Tests\Form\Type\AbstractTypeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\FormInterface;
 
 class ForgotTypeTest extends AbstractTypeTestCase
@@ -29,7 +30,7 @@ class ForgotTypeTest extends AbstractTypeTestCase
      *
      * @return array
      */
-    public function getInvalidTestData()
+    public static function getInvalidTestData()
     {
         return [
             [
@@ -73,8 +74,9 @@ class ForgotTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider getInvalidTestData
+     * @param mixed $data
      */
+    #[DataProvider(methodName: 'getInvalidTestData')]
     public function testInvalidData($data)
     {
         $this->form->submit($data);

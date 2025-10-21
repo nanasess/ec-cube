@@ -31,7 +31,7 @@ class CartServiceExtension extends AbstractExtension
     }
 
     #[\Override]
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('get_cart', $this->get_cart(...), ['is_safe' => ['all']]),
@@ -41,36 +41,48 @@ class CartServiceExtension extends AbstractExtension
         ];
     }
 
-    public function get_cart()
+    /**
+     * @return Cart|null
+     */
+    public function get_cart(): ?Cart
     {
         return $this->cartService->getCart();
     }
 
-    public function get_all_carts()
+    /**
+     * @return Cart[]
+     */
+    public function get_all_carts(): array
     {
         return $this->cartService->getCarts();
     }
 
-    public function get_carts_total_price()
+    /**
+     * @return string
+     */
+    public function get_carts_total_price(): string
     {
         $Carts = $this->cartService->getCarts();
-        $totalPrice = array_reduce($Carts, function ($total, Cart $Cart) {
-            $total += $Cart->getTotalPrice();
+        $totalPrice = array_reduce($Carts, function (string $total, Cart $Cart) {
+            $total = bcadd($total, $Cart->getTotalPrice());
 
             return $total;
-        }, 0);
+        }, '0');
 
         return $totalPrice;
     }
 
-    public function get_carts_total_quantity()
+    /**
+     * @return string
+     */
+    public function get_carts_total_quantity(): string
     {
         $Carts = $this->cartService->getCarts();
         $totalQuantity = array_reduce($Carts, function ($total, Cart $Cart) {
-            $total += $Cart->getTotalQuantity();
+            $total = bcadd($total, $Cart->getTotalQuantity());
 
             return $total;
-        }, 0);
+        }, '0');
 
         return $totalQuantity;
     }

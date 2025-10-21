@@ -14,6 +14,7 @@
 namespace Eccube\Form\Type\Admin;
 
 use Eccube\Common\EccubeConfig;
+use Eccube\Entity\Payment;
 use Eccube\Form\Type\PriceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -45,9 +46,14 @@ class PaymentRegisterType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('method', TextType::class, [
@@ -106,12 +112,16 @@ class PaymentRegisterType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => \Eccube\Entity\Payment::class,
+            'data_class' => Payment::class,
         ]);
     }
 
@@ -119,7 +129,7 @@ class PaymentRegisterType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'payment_register';
     }

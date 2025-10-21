@@ -13,28 +13,50 @@
 
 namespace Eccube\Service\Calculator;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Eccube\Entity\ItemInterface;
 use Eccube\Entity\Master\OrderItemType;
 use Eccube\Entity\Order;
+use Eccube\Entity\OrderItem;
 
-class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
+/**
+ * @extends ArrayCollection<int, mixed>
+ */
+class OrderItemCollection extends ArrayCollection
 {
+    /**
+     * @var string
+     */
     protected $type;
 
-    public function __construct($OrderItems, $type = null)
+    /**
+     * @param array<int, OrderItem>|null $OrderItems
+     * @param string|null $type
+     */
+    public function __construct($OrderItems = null, $type = null)
     {
         // $OrderItems が Collection だったら toArray(); する
         $this->type = is_null($type) ? Order::class : $type;
         parent::__construct($OrderItems);
     }
 
-    public function reduce(\Closure $func, $initial = null)
+    /**
+     * @param \Closure $func
+     * @param mixed|null $initial
+     *
+     * @return mixed|null
+     */
+    public function reduce(\Closure $func, $initial = null): mixed
     {
         return array_reduce($this->toArray(), $func, $initial);
     }
 
-    // 明細種別ごとに返すメソッド作る
-    public function getProductClasses()
+    /**
+     * 明細種別ごとに返すメソッド作る
+     *
+     * @return ArrayCollection<int, OrderItem>
+     */
+    public function getProductClasses(): ArrayCollection
     {
         return $this->filter(
             function (ItemInterface $OrderItem) {
@@ -42,7 +64,10 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
             });
     }
 
-    public function getDeliveryFees()
+    /**
+     * @return ArrayCollection<int, OrderItem>
+     */
+    public function getDeliveryFees(): ArrayCollection
     {
         return $this->filter(
             function (ItemInterface $OrderItem) {
@@ -50,7 +75,10 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
             });
     }
 
-    public function getCharges()
+    /**
+     * @return ArrayCollection<int, OrderItem>
+     */
+    public function getCharges(): ArrayCollection
     {
         return $this->filter(
             function (ItemInterface $OrderItem) {
@@ -58,7 +86,10 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
             });
     }
 
-    public function getDiscounts()
+    /**
+     * @return ArrayCollection<int, OrderItem>
+     */
+    public function getDiscounts(): ArrayCollection
     {
         return $this->filter(
             function (ItemInterface $OrderItem) {
@@ -70,12 +101,16 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
      * 同名の明細が存在するかどうか.
      *
      * TODO 暫定対応. 本来は明細種別でチェックする.
+     *
+     * @param string $productName
+     *
+     * @return bool
      */
-    public function hasProductByName($productName)
+    public function hasProductByName($productName): bool
     {
         $OrderItems = $this->filter(
             function (ItemInterface $OrderItem) use ($productName) {
-                /* @var OrderItem $OrderItem */
+                /** @var OrderItem $OrderItem */
                 return $OrderItem->getProductName() == $productName;
             });
 
@@ -89,7 +124,7 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
      *
      * @return bool
      */
-    public function hasItemByOrderItemType($OrderItemType)
+    public function hasItemByOrderItemType($OrderItemType): bool
     {
         $filteredItems = $this->filter(function (ItemInterface $OrderItem) use ($OrderItemType) {
             /* @var OrderItem $OrderItem */
@@ -99,7 +134,10 @@ class OrderItemCollection extends \Doctrine\Common\Collections\ArrayCollection
         return !$filteredItems->isEmpty();
     }
 
-    public function getType()
+    /**
+     * @return string
+     */
+    public function getType(): string
     {
         return $this->type;
     }

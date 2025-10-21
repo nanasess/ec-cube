@@ -13,7 +13,15 @@
 
 namespace Eccube\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Entity\Master\Country;
+use Eccube\Entity\Master\CustomerStatus;
+use Eccube\Entity\Master\Job;
+use Eccube\Entity\Master\Pref;
+use Eccube\Entity\Master\Sex;
+use Eccube\Repository\CustomerRepository;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\LegacyPasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -24,288 +32,232 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
 if (!class_exists(Customer::class)) {
     /**
      * Customer
-     *
-     * @ORM\Table(name="dtb_customer", uniqueConstraints={@ORM\UniqueConstraint(name="secret_key", columns={"secret_key"})}, indexes={@ORM\Index(name="dtb_customer_buy_times_idx", columns={"buy_times"}), @ORM\Index(name="dtb_customer_buy_total_idx", columns={"buy_total"}), @ORM\Index(name="dtb_customer_create_date_idx", columns={"create_date"}), @ORM\Index(name="dtb_customer_update_date_idx", columns={"update_date"}), @ORM\Index(name="dtb_customer_last_buy_date_idx", columns={"last_buy_date"}), @ORM\Index(name="dtb_customer_email_idx", columns={"email"})})
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\CustomerRepository")
      */
+    #[ORM\Table(name: 'dtb_customer')]
+    #[ORM\Index(columns: ['buy_times'], name: 'dtb_customer_buy_times_idx')]
+    #[ORM\Index(columns: ['buy_total'], name: 'dtb_customer_buy_total_idx')]
+    #[ORM\Index(columns: ['create_date'], name: 'dtb_customer_create_date_idx')]
+    #[ORM\Index(columns: ['update_date'], name: 'dtb_customer_update_date_idx')]
+    #[ORM\Index(name: 'dtb_customer_last_buy_date_idx', columns: ['last_buy_date'])]
+    #[ORM\Index(columns: ['email'], name: 'dtb_customer_email_idx')]
+    #[ORM\UniqueConstraint(name: 'secret_key', columns: ['secret_key'])]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: CustomerRepository::class)]
     class Customer extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface, LegacyPasswordAuthenticatedUserInterface, \Serializable, \Stringable
     {
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
         private $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="name01", type="string", length=255)
          */
+        #[ORM\Column(name: 'name01', type: 'string', length: 255)]
         private $name01;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="name02", type="string", length=255)
          */
+        #[ORM\Column(name: 'name02', type: 'string', length: 255)]
         private $name02;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="kana01", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'kana01', type: 'string', length: 255, nullable: true)]
         private $kana01;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="kana02", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'kana02', type: 'string', length: 255, nullable: true)]
         private $kana02;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="company_name", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'company_name', type: 'string', length: 255, nullable: true)]
         private $company_name;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="postal_code", type="string", length=8, nullable=true)
          */
+        #[ORM\Column(name: 'postal_code', type: 'string', length: 8, nullable: true)]
         private $postal_code;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="addr01", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'addr01', type: 'string', length: 255, nullable: true)]
         private $addr01;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="addr02", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'addr02', type: 'string', length: 255, nullable: true)]
         private $addr02;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="email", type="string", length=255)
          */
+        #[ORM\Column(name: 'email', type: 'string', length: 255)]
         private $email;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="phone_number", type="string", length=14, nullable=true)
          */
+        #[ORM\Column(name: 'phone_number', type: 'string', length: 14, nullable: true)]
         private $phone_number;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="birth", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'birth', type: 'datetimetz', nullable: true)]
         private $birth;
 
         /**
-         * @Assert\NotBlank()
-         *
-         * @Assert\Length(max=4096)
+         * @var string|null
          */
+        #[Assert\NotBlank]
+        #[Assert\Length(max: 4096)]
         private $plain_password;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="password", type="string", length=255)
          */
+        #[ORM\Column(name: 'password', type: 'string', length: 255)]
         private $password;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="salt", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'salt', type: 'string', length: 255, nullable: true)]
         private $salt;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="secret_key", type="string", length=255)
          */
+        #[ORM\Column(name: 'secret_key', type: 'string', length: 255)]
         private $secret_key;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="first_buy_date", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'first_buy_date', type: 'datetimetz', nullable: true)]
         private $first_buy_date;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="last_buy_date", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'last_buy_date', type: 'datetimetz', nullable: true)]
         private $last_buy_date;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="buy_times", type="decimal", precision=10, scale=0, nullable=true, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'buy_times', type: 'decimal', precision: 10, scale: 0, nullable: true, options: ['unsigned' => true, 'default' => 0])]
         private $buy_times = '0';
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="buy_total", type="decimal", precision=12, scale=2, nullable=true, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'buy_total', type: 'decimal', precision: 12, scale: 2, nullable: true, options: ['unsigned' => true, 'default' => 0])]
         private $buy_total = '0';
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="note", type="string", length=4000, nullable=true)
          */
+        #[ORM\Column(name: 'note', type: 'string', length: 4000, nullable: true)]
         private $note;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="reset_key", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'reset_key', type: 'string', length: 255, nullable: true)]
         private $reset_key;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="reset_expire", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'reset_expire', type: 'datetimetz', nullable: true)]
         private $reset_expire;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="point", type="decimal", precision=12, scale=0, options={"unsigned":false,"default":0})
          */
+        #[ORM\Column(name: 'point', type: 'decimal', precision: 12, scale: 0, options: ['unsigned' => false, 'default' => 0])]
         private $point = '0';
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\CustomerFavoriteProduct", mappedBy="Customer", cascade={"remove"})
+         * @var Collection<int, CustomerFavoriteProduct>
          */
+        #[ORM\OneToMany(mappedBy: 'Customer', targetEntity: CustomerFavoriteProduct::class, cascade: ['remove'])]
         private $CustomerFavoriteProducts;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\CustomerAddress", mappedBy="Customer", cascade={"remove"})
-         *
-         * @ORM\OrderBy({
-         *     "id"="ASC"
-         * })
+         * @var Collection<int, CustomerAddress>
          */
+        #[ORM\OneToMany(targetEntity: CustomerAddress::class, mappedBy: 'Customer', cascade: ['remove'])]
+        #[ORM\OrderBy(['id' => 'ASC'])]
         private $CustomerAddresses;
 
         /**
-         * @var \Doctrine\Common\Collections\Collection
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\Order", mappedBy="Customer")
+         * @var Collection<int, Order>
          */
+        #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'Customer')]
         private $Orders;
 
         /**
-         * @var Master\CustomerStatus
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\CustomerStatus")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="customer_status_id", referencedColumnName="id")
-         * })
+         * @var CustomerStatus|null
          */
+        #[ORM\ManyToOne(targetEntity: CustomerStatus::class)]
+        #[ORM\JoinColumn(name: 'customer_status_id', referencedColumnName: 'id')]
         private $Status;
 
         /**
-         * @var Master\Sex
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Sex")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="sex_id", referencedColumnName="id")
-         * })
+         * @var Sex|null
          */
+        #[ORM\ManyToOne(targetEntity: Sex::class)]
+        #[ORM\JoinColumn(name: 'sex_id', referencedColumnName: 'id')]
         private $Sex;
 
         /**
-         * @var Master\Job
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Job")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="job_id", referencedColumnName="id")
-         * })
+         * @var Job|null
          */
+        #[ORM\ManyToOne(targetEntity: Job::class)]
+        #[ORM\JoinColumn(name: 'job_id', referencedColumnName: 'id')]
         private $Job;
 
         /**
-         * @var Master\Country
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Country")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="country_id", referencedColumnName="id")
-         * })
+         * @var Country|null
          */
+        #[ORM\ManyToOne(targetEntity: Country::class)]
+        #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
         private $Country;
 
         /**
-         * @var Master\Pref
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Master\Pref")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="pref_id", referencedColumnName="id")
-         * })
+         * @var Pref|null
          */
+        #[ORM\ManyToOne(targetEntity: Pref::class)]
+        #[ORM\JoinColumn(name: 'pref_id', referencedColumnName: 'id')]
         private $Pref;
 
         /**
@@ -313,12 +265,12 @@ if (!class_exists(Customer::class)) {
          */
         public function __construct()
         {
-            $this->CustomerFavoriteProducts = new \Doctrine\Common\Collections\ArrayCollection();
-            $this->CustomerAddresses = new \Doctrine\Common\Collections\ArrayCollection();
-            $this->Orders = new \Doctrine\Common\Collections\ArrayCollection();
+            $this->CustomerFavoriteProducts = new ArrayCollection();
+            $this->CustomerAddresses = new ArrayCollection();
+            $this->Orders = new ArrayCollection();
 
-            $this->setBuyTimes(0);
-            $this->setBuyTotal(0);
+            $this->setBuyTimes('0');
+            $this->setBuyTotal('0');
         }
 
         /**
@@ -340,23 +292,30 @@ if (!class_exists(Customer::class)) {
         }
 
         /**
-         * {@inheritdoc}
+         * @return string
          */
-        public function getUsername()
+        public function getUsername(): string
         {
             return $this->email;
         }
 
         /**
          * {@inheritdoc}
+         *
+         * @return void
          */
         #[\Override]
         public function eraseCredentials(): void
         {
         }
 
+        /**
+         * @param ClassMetadata $metadata
+         *
+         * @return void
+         */
         // TODO: できればFormTypeで行いたい
-        public static function loadValidatorMetadata(ClassMetadata $metadata)
+        public static function loadValidatorMetadata(ClassMetadata $metadata): void
         {
             $metadata->addConstraint(new UniqueEntity([
                 'fields' => 'email',
@@ -368,9 +327,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -382,7 +341,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setName01($name01)
+        public function setName01($name01): Customer
         {
             $this->name01 = $name01;
 
@@ -392,9 +351,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get name01.
          *
-         * @return string
+         * @return string|null
          */
-        public function getName01()
+        public function getName01(): ?string
         {
             return $this->name01;
         }
@@ -406,7 +365,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setName02($name02)
+        public function setName02($name02): Customer
         {
             $this->name02 = $name02;
 
@@ -416,9 +375,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get name02.
          *
-         * @return string
+         * @return string|null
          */
-        public function getName02()
+        public function getName02(): ?string
         {
             return $this->name02;
         }
@@ -430,7 +389,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setKana01($kana01 = null)
+        public function setKana01($kana01 = null): Customer
         {
             $this->kana01 = $kana01;
 
@@ -442,7 +401,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getKana01()
+        public function getKana01(): ?string
         {
             return $this->kana01;
         }
@@ -454,7 +413,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setKana02($kana02 = null)
+        public function setKana02($kana02 = null): Customer
         {
             $this->kana02 = $kana02;
 
@@ -466,7 +425,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getKana02()
+        public function getKana02(): ?string
         {
             return $this->kana02;
         }
@@ -478,7 +437,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setCompanyName($companyName = null)
+        public function setCompanyName($companyName = null): Customer
         {
             $this->company_name = $companyName;
 
@@ -490,7 +449,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getCompanyName()
+        public function getCompanyName(): ?string
         {
             return $this->company_name;
         }
@@ -502,7 +461,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setPostalCode($postal_code = null)
+        public function setPostalCode($postal_code = null): Customer
         {
             $this->postal_code = $postal_code;
 
@@ -514,7 +473,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getPostalCode()
+        public function getPostalCode(): ?string
         {
             return $this->postal_code;
         }
@@ -526,7 +485,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setAddr01($addr01 = null)
+        public function setAddr01($addr01 = null): Customer
         {
             $this->addr01 = $addr01;
 
@@ -538,7 +497,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getAddr01()
+        public function getAddr01(): ?string
         {
             return $this->addr01;
         }
@@ -550,7 +509,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setAddr02($addr02 = null)
+        public function setAddr02($addr02 = null): Customer
         {
             $this->addr02 = $addr02;
 
@@ -562,7 +521,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getAddr02()
+        public function getAddr02(): ?string
         {
             return $this->addr02;
         }
@@ -574,7 +533,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setEmail($email)
+        public function setEmail($email): Customer
         {
             $this->email = $email;
 
@@ -584,9 +543,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get email.
          *
-         * @return string
+         * @return string|null
          */
-        public function getEmail()
+        public function getEmail(): ?string
         {
             return $this->email;
         }
@@ -598,7 +557,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setPhoneNumber($phone_number = null)
+        public function setPhoneNumber($phone_number = null): Customer
         {
             $this->phone_number = $phone_number;
 
@@ -610,7 +569,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getPhoneNumber()
+        public function getPhoneNumber(): ?string
         {
             return $this->phone_number;
         }
@@ -622,7 +581,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setBirth($birth = null)
+        public function setBirth($birth = null): Customer
         {
             $this->birth = $birth;
 
@@ -634,7 +593,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return \DateTime|null
          */
-        public function getBirth()
+        public function getBirth(): ?\DateTime
         {
             return $this->birth;
         }
@@ -644,7 +603,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return $this
          */
-        public function setPlainPassword(?string $password): self
+        public function setPlainPassword(?string $password): static
         {
             $this->plain_password = $password;
 
@@ -666,7 +625,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setPassword($password = null)
+        public function setPassword($password = null): Customer
         {
             $this->password = $password;
 
@@ -691,7 +650,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setSalt($salt = null)
+        public function setSalt($salt = null): Customer
         {
             $this->salt = $salt;
 
@@ -716,7 +675,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setSecretKey($secretKey)
+        public function setSecretKey($secretKey): Customer
         {
             $this->secret_key = $secretKey;
 
@@ -728,7 +687,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string
          */
-        public function getSecretKey()
+        public function getSecretKey(): string
         {
             return $this->secret_key;
         }
@@ -740,7 +699,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setFirstBuyDate($firstBuyDate = null)
+        public function setFirstBuyDate($firstBuyDate = null): Customer
         {
             $this->first_buy_date = $firstBuyDate;
 
@@ -752,7 +711,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return \DateTime|null
          */
-        public function getFirstBuyDate()
+        public function getFirstBuyDate(): ?\DateTime
         {
             return $this->first_buy_date;
         }
@@ -764,7 +723,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setLastBuyDate($lastBuyDate = null)
+        public function setLastBuyDate($lastBuyDate = null): Customer
         {
             $this->last_buy_date = $lastBuyDate;
 
@@ -776,7 +735,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return \DateTime|null
          */
-        public function getLastBuyDate()
+        public function getLastBuyDate(): ?\DateTime
         {
             return $this->last_buy_date;
         }
@@ -788,7 +747,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setBuyTimes($buyTimes = null)
+        public function setBuyTimes($buyTimes = null): Customer
         {
             $this->buy_times = $buyTimes;
 
@@ -800,7 +759,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getBuyTimes()
+        public function getBuyTimes(): ?string
         {
             return $this->buy_times;
         }
@@ -812,7 +771,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setBuyTotal($buyTotal = null)
+        public function setBuyTotal($buyTotal = null): Customer
         {
             $this->buy_total = $buyTotal;
 
@@ -824,7 +783,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getBuyTotal()
+        public function getBuyTotal(): ?string
         {
             return $this->buy_total;
         }
@@ -836,7 +795,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setNote($note = null)
+        public function setNote($note = null): Customer
         {
             $this->note = $note;
 
@@ -848,7 +807,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getNote()
+        public function getNote(): ?string
         {
             return $this->note;
         }
@@ -860,7 +819,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setResetKey($resetKey = null)
+        public function setResetKey($resetKey = null): Customer
         {
             $this->reset_key = $resetKey;
 
@@ -872,7 +831,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return string|null
          */
-        public function getResetKey()
+        public function getResetKey(): ?string
         {
             return $this->reset_key;
         }
@@ -884,7 +843,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setResetExpire($resetExpire = null)
+        public function setResetExpire($resetExpire = null): Customer
         {
             $this->reset_expire = $resetExpire;
 
@@ -896,7 +855,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return \DateTime|null
          */
-        public function getResetExpire()
+        public function getResetExpire(): ?\DateTime
         {
             return $this->reset_expire;
         }
@@ -908,7 +867,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): Customer
         {
             $this->create_date = $createDate;
 
@@ -918,9 +877,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -932,7 +891,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): Customer
         {
             $this->update_date = $updateDate;
 
@@ -942,9 +901,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
@@ -956,7 +915,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function addCustomerFavoriteProduct(CustomerFavoriteProduct $customerFavoriteProduct)
+        public function addCustomerFavoriteProduct(CustomerFavoriteProduct $customerFavoriteProduct): Customer
         {
             $this->CustomerFavoriteProducts[] = $customerFavoriteProduct;
 
@@ -970,7 +929,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeCustomerFavoriteProduct(CustomerFavoriteProduct $customerFavoriteProduct)
+        public function removeCustomerFavoriteProduct(CustomerFavoriteProduct $customerFavoriteProduct): bool
         {
             return $this->CustomerFavoriteProducts->removeElement($customerFavoriteProduct);
         }
@@ -978,9 +937,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get customerFavoriteProducts.
          *
-         * @return \Doctrine\Common\Collections\Collection
+         * @return Collection<int, CustomerFavoriteProduct>
          */
-        public function getCustomerFavoriteProducts()
+        public function getCustomerFavoriteProducts(): Collection
         {
             return $this->CustomerFavoriteProducts;
         }
@@ -992,7 +951,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function addCustomerAddress(CustomerAddress $customerAddress)
+        public function addCustomerAddress(CustomerAddress $customerAddress): Customer
         {
             $this->CustomerAddresses[] = $customerAddress;
 
@@ -1006,7 +965,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeCustomerAddress(CustomerAddress $customerAddress)
+        public function removeCustomerAddress(CustomerAddress $customerAddress): bool
         {
             return $this->CustomerAddresses->removeElement($customerAddress);
         }
@@ -1014,9 +973,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get customerAddresses.
          *
-         * @return \Doctrine\Common\Collections\Collection
+         * @return Collection<int, CustomerAddress>
          */
-        public function getCustomerAddresses()
+        public function getCustomerAddresses(): Collection
         {
             return $this->CustomerAddresses;
         }
@@ -1028,7 +987,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function addOrder(Order $order)
+        public function addOrder(Order $order): Customer
         {
             $this->Orders[] = $order;
 
@@ -1042,7 +1001,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return bool TRUE if this collection contained the specified element, FALSE otherwise.
          */
-        public function removeOrder(Order $order)
+        public function removeOrder(Order $order): bool
         {
             return $this->Orders->removeElement($order);
         }
@@ -1050,9 +1009,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get orders.
          *
-         * @return \Doctrine\Common\Collections\Collection
+         * @return Collection<int, Order>
          */
-        public function getOrders()
+        public function getOrders(): Collection
         {
             return $this->Orders;
         }
@@ -1060,11 +1019,11 @@ if (!class_exists(Customer::class)) {
         /**
          * Set status.
          *
-         * @param Master\CustomerStatus|null $status
+         * @param CustomerStatus|null $status
          *
          * @return Customer
          */
-        public function setStatus(?Master\CustomerStatus $status = null)
+        public function setStatus(?CustomerStatus $status = null): Customer
         {
             $this->Status = $status;
 
@@ -1074,9 +1033,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get status.
          *
-         * @return Master\CustomerStatus|null
+         * @return CustomerStatus|null
          */
-        public function getStatus()
+        public function getStatus(): ?CustomerStatus
         {
             return $this->Status;
         }
@@ -1084,11 +1043,11 @@ if (!class_exists(Customer::class)) {
         /**
          * Set sex.
          *
-         * @param Master\Sex|null $sex
+         * @param Sex|null $sex
          *
          * @return Customer
          */
-        public function setSex(?Master\Sex $sex = null)
+        public function setSex(?Sex $sex = null): Customer
         {
             $this->Sex = $sex;
 
@@ -1098,9 +1057,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get sex.
          *
-         * @return Master\Sex|null
+         * @return Sex|null
          */
-        public function getSex()
+        public function getSex(): ?Sex
         {
             return $this->Sex;
         }
@@ -1108,11 +1067,11 @@ if (!class_exists(Customer::class)) {
         /**
          * Set job.
          *
-         * @param Master\Job|null $job
+         * @param Job|null $job
          *
          * @return Customer
          */
-        public function setJob(?Master\Job $job = null)
+        public function setJob(?Job $job = null): Customer
         {
             $this->Job = $job;
 
@@ -1122,9 +1081,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get job.
          *
-         * @return Master\Job|null
+         * @return Job|null
          */
-        public function getJob()
+        public function getJob(): ?Job
         {
             return $this->Job;
         }
@@ -1132,11 +1091,11 @@ if (!class_exists(Customer::class)) {
         /**
          * Set country.
          *
-         * @param Master\Country|null $country
+         * @param Country|null $country
          *
          * @return Customer
          */
-        public function setCountry(?Master\Country $country = null)
+        public function setCountry(?Country $country = null): Customer
         {
             $this->Country = $country;
 
@@ -1146,9 +1105,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get country.
          *
-         * @return Master\Country|null
+         * @return Country|null
          */
-        public function getCountry()
+        public function getCountry(): ?Country
         {
             return $this->Country;
         }
@@ -1156,11 +1115,11 @@ if (!class_exists(Customer::class)) {
         /**
          * Set pref.
          *
-         * @param Master\Pref|null $pref
+         * @param Pref|null $pref
          *
          * @return Customer
          */
-        public function setPref(?Master\Pref $pref = null)
+        public function setPref(?Pref $pref = null): Customer
         {
             $this->Pref = $pref;
 
@@ -1170,9 +1129,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get pref.
          *
-         * @return Master\Pref|null
+         * @return Pref|null
          */
-        public function getPref()
+        public function getPref(): ?Pref
         {
             return $this->Pref;
         }
@@ -1184,7 +1143,7 @@ if (!class_exists(Customer::class)) {
          *
          * @return Customer
          */
-        public function setPoint($point)
+        public function setPoint($point): Customer
         {
             $this->point = $point;
 
@@ -1194,9 +1153,9 @@ if (!class_exists(Customer::class)) {
         /**
          * Get point
          *
-         * @return string
+         * @return string|null
          */
-        public function getPoint()
+        public function getPoint(): ?string
         {
             return $this->point;
         }
@@ -1211,10 +1170,10 @@ if (!class_exists(Customer::class)) {
          * @since 5.1.0
          */
         #[\Override]
-        public function serialize()
+        public function serialize(): string
         {
             // see https://symfony.com/doc/2.7/security/entity_provider.html#create-your-user-entity
-            // CustomerRepository::loadUserByUsername() で Status をチェックしているため、ここでは不要
+            // CustomerRepository::loadUserByIdentifier() で Status をチェックしているため、ここでは不要
             return serialize([
                 $this->id,
                 $this->email,
@@ -1237,7 +1196,7 @@ if (!class_exists(Customer::class)) {
          * @since 5.1.0
          */
         #[\Override]
-        public function unserialize($serialized)
+        public function unserialize($serialized): void
         {
             [$this->id, $this->email, $this->password, $this->salt] = unserialize($serialized);
         }
@@ -1246,6 +1205,21 @@ if (!class_exists(Customer::class)) {
         public function getUserIdentifier(): string
         {
             return $this->email;
+        }
+
+        public function __serialize(): array
+        {
+            return ['p' => $this->serialize()];
+        }
+
+        /**
+         * @param array<string, mixed> $data
+         */
+        public function __unserialize(array $data): void
+        {
+            if (isset($data['p']) && is_string($data['p'])) {
+                $this->unserialize($data['p']);
+            }
         }
     }
 }

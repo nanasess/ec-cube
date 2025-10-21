@@ -13,7 +13,6 @@
 
 namespace Eccube\Form\Type\Master;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Master\PageMax;
 use Eccube\Form\Type\MasterType;
 use Symfony\Component\Form\AbstractType;
@@ -24,19 +23,16 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PageMaxType extends AbstractType
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             $options = $event->getForm()->getConfig()->getOptions();
@@ -57,9 +53,13 @@ class PageMaxType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'class' => PageMax::class,
@@ -68,9 +68,11 @@ class PageMaxType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'page_max';
     }
@@ -79,7 +81,7 @@ class PageMaxType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getParent()
+    public function getParent(): ?string
     {
         return MasterType::class;
     }

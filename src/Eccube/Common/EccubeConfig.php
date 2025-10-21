@@ -15,6 +15,9 @@ namespace Eccube\Common;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
+/**
+ * @implements \ArrayAccess<string,mixed>
+ */
 class EccubeConfig implements \ArrayAccess
 {
     /**
@@ -28,21 +31,21 @@ class EccubeConfig implements \ArrayAccess
     }
 
     /**
-     * @param $key
+     * @param string $key
      *
      * @return mixed
      */
-    public function get($key)
+    public function get($key): mixed
     {
         return $this->container->get($key);
     }
 
     /**
-     * @param $key
+     * @param string $key
      *
      * @return bool
      */
-    public function has($key)
+    public function has($key): bool
     {
         return $this->container->has($key);
     }
@@ -54,7 +57,7 @@ class EccubeConfig implements \ArrayAccess
      */
     #[\ReturnTypeWillChange]
     #[\Override]
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->has($offset);
     }
@@ -66,7 +69,7 @@ class EccubeConfig implements \ArrayAccess
      */
     #[\ReturnTypeWillChange]
     #[\Override]
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->get($offset);
     }
@@ -77,7 +80,7 @@ class EccubeConfig implements \ArrayAccess
      */
     #[\ReturnTypeWillChange]
     #[\Override]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new \LogicException();
     }
@@ -89,7 +92,7 @@ class EccubeConfig implements \ArrayAccess
      */
     #[\ReturnTypeWillChange]
     #[\Override]
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new \LogicException();
     }

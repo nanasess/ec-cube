@@ -15,6 +15,7 @@ namespace Eccube\Tests\Form\Type\Admin;
 
 use Eccube\Form\Type\Admin\SearchCustomerType;
 use Eccube\Tests\Form\Type\AbstractTypeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\FormInterface;
 
 class SearchCustomerTypeTest extends AbstractTypeTestCase
@@ -60,10 +61,9 @@ class SearchCustomerTypeTest extends AbstractTypeTestCase
     /**
      * EC-CUBE 4.0.4 以前のバージョンで互換性を保つため yyyy-MM-dd のフォーマットもチェック
      *
-     * @dataProvider dataFormDateProvider
-     *
      * @param string $formName
      */
+    #[DataProvider(methodName: 'dataFormDateProvider')]
     public function testDateSearch(string $formName)
     {
         $formData = [
@@ -79,7 +79,7 @@ class SearchCustomerTypeTest extends AbstractTypeTestCase
      *
      * @return array
      */
-    public function dataFormDateProvider()
+    public static function dataFormDateProvider()
     {
         return [
             ['create_date_start'],
@@ -95,10 +95,9 @@ class SearchCustomerTypeTest extends AbstractTypeTestCase
     /**
      * EC-CUBE 4.0.5 以降で yyyy-MM-dd HH:mm:ss のフォーマットでの検索機能を追加
      *
-     * @dataProvider dataFormDateTimeProvider
-     *
      * @param string $formName
      */
+    #[DataProvider(methodName: 'dataFormDateTimeProvider')]
     public function testDateTimeSearch(string $formName)
     {
         $formData = [
@@ -114,7 +113,7 @@ class SearchCustomerTypeTest extends AbstractTypeTestCase
      *
      * @return array
      */
-    public function dataFormDateTimeProvider()
+    public static function dataFormDateTimeProvider()
     {
         return [
             ['create_datetime_start'],

@@ -15,6 +15,7 @@ namespace Eccube\Form\Type\Admin;
 
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\Category;
+use Eccube\Entity\Tag;
 use Eccube\Form\Type\Master\ProductStatusType;
 use Eccube\Form\Validator\TwigLint;
 use Eccube\Repository\CategoryRepository;
@@ -65,9 +66,14 @@ class ProductType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             // 商品規格情報
@@ -112,7 +118,7 @@ class ProductType extends AbstractType
 
             // 詳細な説明
             ->add('Tag', EntityType::class, [
-                'class' => \Eccube\Entity\Tag::class,
+                'class' => Tag::class,
                 'query_builder' => function ($er) {
                     return $er->createQueryBuilder('t')
                     ->orderBy('t.sort_no', 'DESC');
@@ -199,10 +205,12 @@ class ProductType extends AbstractType
     /**
      * 指定された複数ディレクトリのうち、いずれかのディレクトリ以下にファイルが存在するかを確認。
      *
-     * @param $form FormInterface
-     * @param $dirs array
+     * @param FormInterface $form
+     * @param array<int, string> $dirs
+     *
+     * @return void
      */
-    private function validateFilePath($form, $dirs)
+    private function validateFilePath($form, $dirs): void
     {
         foreach ($form->getData() as $fileName) {
             if (str_contains((string) $fileName, '..')) {
@@ -223,9 +231,13 @@ class ProductType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
     }
 
@@ -233,7 +245,7 @@ class ProductType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'admin_product';
     }

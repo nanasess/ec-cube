@@ -19,6 +19,8 @@ use Eccube\Request\Context;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Twig\Environment;
+use Twig\Loader\ChainLoader;
+use Twig\Loader\FilesystemLoader;
 
 class MobileTemplatePathListener implements EventSubscriberInterface
 {
@@ -50,7 +52,12 @@ class MobileTemplatePathListener implements EventSubscriberInterface
         $this->eccubeConfig = $eccubeConfig;
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    /**
+     * @param RequestEvent $event
+     *
+     * @return void
+     */
+    public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
             return;
@@ -75,16 +82,19 @@ class MobileTemplatePathListener implements EventSubscriberInterface
             ];
         }
 
-        $loader = new \Twig\Loader\ChainLoader([
-            new \Twig\Loader\FilesystemLoader($paths),
+        $loader = new ChainLoader([
+            new FilesystemLoader($paths),
             $this->twig->getLoader(),
         ]);
 
         $this->twig->setLoader($loader);
     }
 
+    /**
+     * @return array<string, array<string|int>>
+     */
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'kernel.request' => ['onKernelRequest', 512],

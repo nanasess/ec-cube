@@ -20,8 +20,10 @@ use Eccube\Form\Type\Front\ContactType;
 use Eccube\Repository\PageRepository;
 use Eccube\Service\MailService;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ContactController extends AbstractController
 {
@@ -51,11 +53,15 @@ class ContactController extends AbstractController
 
     /**
      * お問い合わせ画面.
+     *
+     * @param Request $request
+     *
+     * @return Response|RedirectResponse|array<string, mixed>
      */
-    #[Route('/contact', name: 'contact', methods: ['GET', 'POST'])]
-    #[Route('/contact', name: 'contact_confirm', methods: ['GET', 'POST'])]
-    #[Template('Contact/index.twig')]
-    public function index(Request $request)
+    #[Route(path: '/contact', name: 'contact', methods: ['GET', 'POST'])]
+    #[Route(path: '/contact', name: 'contact_confirm', methods: ['GET', 'POST'])]
+    #[Template(template: 'Contact/index.twig')]
+    public function index(Request $request): Response|RedirectResponse|array
     {
         $builder = $this->formFactory->createBuilder(ContactType::class);
 
@@ -126,10 +132,12 @@ class ContactController extends AbstractController
 
     /**
      * お問い合わせ完了画面.
+     *
+     * @return array<empty>
      */
-    #[Route('/contact/complete', name: 'contact_complete', methods: ['GET'])]
-    #[Template('Contact/complete.twig')]
-    public function complete()
+    #[Route(path: '/contact/complete', name: 'contact_complete', methods: ['GET'])]
+    #[Template(template: 'Contact/complete.twig')]
+    public function complete(): array
     {
         return [];
     }

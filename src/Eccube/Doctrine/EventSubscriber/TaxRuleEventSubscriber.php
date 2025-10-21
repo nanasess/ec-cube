@@ -13,13 +13,18 @@
 
 namespace Eccube\Doctrine\EventSubscriber;
 
-use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Eccube\Entity\ProductClass;
 use Eccube\Service\TaxRuleService;
 
-class TaxRuleEventSubscriber implements EventSubscriber
+#[AsDoctrineListener(event: Events::prePersist)]
+#[AsDoctrineListener(event: Events::postLoad)]
+#[AsDoctrineListener(event: Events::postPersist)]
+#[AsDoctrineListener(event: Events::postUpdate)]
+class TaxRuleEventSubscriber
 {
     /**
      * @var TaxRuleService
@@ -34,66 +39,78 @@ class TaxRuleEventSubscriber implements EventSubscriber
         $this->taxRuleService = $taxRuleService;
     }
 
-    public function getTaxRuleService()
+    /**
+     * @return object|null
+     */
+    public function getTaxRuleService(): ?object
     {
         return $this->taxRuleService;
     }
 
-    #[\Override]
-    public function getSubscribedEvents()
-    {
-        return [
-            Events::prePersist,
-            Events::postLoad,
-            Events::postPersist,
-            Events::postUpdate,
-        ];
-    }
-
-    public function prePersist(LifecycleEventArgs $args)
+    /**
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
+     *
+     * @return void
+     */
+    public function prePersist(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
 
         if ($entity instanceof ProductClass) {
-            $entity->setPrice01IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice01() === null ? '0' : $entity->getPrice01(),
+            $entity->setPrice01IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice01() ?? '0',
                 $entity->getProduct(), $entity));
-            $entity->setPrice02IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice02() === null ? '0' : $entity->getPrice02(),
+            $entity->setPrice02IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice02(),
                 $entity->getProduct(), $entity));
         }
     }
 
-    public function postLoad(LifecycleEventArgs $args)
+    /**
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
+     *
+     * @return void
+     */
+    public function postLoad(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
 
         if ($entity instanceof ProductClass) {
-            $entity->setPrice01IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice01() === null ? '0' : $entity->getPrice01(),
+            $entity->setPrice01IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice01() ?? '0',
                 $entity->getProduct(), $entity));
-            $entity->setPrice02IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice02() === null ? '0' : $entity->getPrice02(),
+            $entity->setPrice02IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice02(),
                 $entity->getProduct(), $entity));
         }
     }
 
-    public function postPersist(LifecycleEventArgs $args)
+    /**
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
+     *
+     * @return void
+     */
+    public function postPersist(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
 
         if ($entity instanceof ProductClass) {
-            $entity->setPrice01IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice01() === null ? '0' : $entity->getPrice01(),
+            $entity->setPrice01IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice01() ?? '0',
                 $entity->getProduct(), $entity));
-            $entity->setPrice02IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice02() === null ? '0' : $entity->getPrice02(),
+            $entity->setPrice02IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice02(),
                 $entity->getProduct(), $entity));
         }
     }
 
-    public function postUpdate(LifecycleEventArgs $args)
+    /**
+     * @param LifecycleEventArgs<EntityManagerInterface> $args
+     *
+     * @return void
+     */
+    public function postUpdate(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
 
         if ($entity instanceof ProductClass) {
-            $entity->setPrice01IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice01() === null ? '0' : $entity->getPrice01(),
+            $entity->setPrice01IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice01() ?? '0',
                 $entity->getProduct(), $entity));
-            $entity->setPrice02IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice02() === null ? '0' : $entity->getPrice02(),
+            $entity->setPrice02IncTax($this->getTaxRuleService()->getPriceIncTax($entity->getPrice02(),
                 $entity->getProduct(), $entity));
         }
     }

@@ -18,7 +18,7 @@ use Eccube\Repository\Master\ProductListOrderByRepository;
 use Eccube\Repository\ProductRepository;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class AutoNewItemController extends AbstractController
 {
@@ -43,11 +43,11 @@ class AutoNewItemController extends AbstractController
     /**
      * @param Request $request
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    #[Route('/block/auto_new_item', name: 'block_auto_new_item', methods: ['GET'])]
-    #[Template('Block/auto_new_item.twig')]
-    public function index(Request $request)
+    #[Route(path: '/block/auto_new_item', name: 'block_auto_new_item', methods: ['GET'])]
+    #[Template(template: 'Block/auto_new_item.twig')]
+    public function index(Request $request): array
     {
         $qb = $this->productRepository->getQueryBuilderBySearchData([
             'orderby' => $this->productListOrderByRepository->find($this->eccubeConfig['eccube_product_order_newer']),

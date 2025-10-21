@@ -15,6 +15,7 @@ namespace Eccube\Tests\Form\Type\Install;
 
 use Eccube\Form\Type\Install\Step1Type;
 use Eccube\Tests\Form\Type\AbstractTypeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\FormInterface;
 
 class Step1TypeTest extends AbstractTypeTestCase
@@ -31,7 +32,7 @@ class Step1TypeTest extends AbstractTypeTestCase
      *
      * @return array
      */
-    public function getValidTestData()
+    public static function getValidTestData()
     {
         return [
             [
@@ -68,8 +69,9 @@ class Step1TypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider getValidTestData
+     * @param mixed $data
      */
+    #[DataProvider(methodName: 'getValidTestData')]
     public function testValidData($data)
     {
         $this->form->submit($data);

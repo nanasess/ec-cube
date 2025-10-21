@@ -23,6 +23,7 @@ use Eccube\Repository\CustomerRepository;
 use Eccube\Repository\Master\PrefRepository;
 use Eccube\Repository\Master\SexRepository;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * CustomerRepository test cases.
@@ -601,12 +602,11 @@ class CustomerRepositoryGetQueryBuilderBySearchDataTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider dataFormDateProvider
-     *
      * @param string $formName
      * @param string $time
      * @param int $expected
      */
+    #[DataProvider(methodName: 'dataFormDateProvider')]
     public function testDate(string $formName, string $time, int $expected)
     {
         $this->Customer->setLastBuyDate(new \DateTime());
@@ -633,7 +633,7 @@ class CustomerRepositoryGetQueryBuilderBySearchDataTest extends EccubeTestCase
      *
      * @return array
      */
-    public function dataFormDateProvider()
+    public static function dataFormDateProvider()
     {
         return [
             ['create_date_start', 'today', 4],
@@ -652,12 +652,11 @@ class CustomerRepositoryGetQueryBuilderBySearchDataTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider dataFormDateTimeProvider
-     *
      * @param string $formName
      * @param string $time
      * @param int $expected
      */
+    #[DataProvider(methodName: 'dataFormDateTimeProvider')]
     public function testDateTime(string $formName, string $time, int $expected)
     {
         $this->Customer->setLastBuyDate(new \DateTime());
@@ -679,7 +678,7 @@ class CustomerRepositoryGetQueryBuilderBySearchDataTest extends EccubeTestCase
      *
      * @return array
      */
-    public function dataFormDateTimeProvider()
+    public static function dataFormDateTimeProvider()
     {
         return [
             ['create_datetime_start', '- 1 hour', 4],

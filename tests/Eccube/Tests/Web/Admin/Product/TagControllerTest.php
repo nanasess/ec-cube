@@ -16,6 +16,7 @@ namespace Eccube\Tests\Web\Admin\Product;
 use Eccube\Entity\Tag;
 use Eccube\Repository\TagRepository;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Response;
 
 class TagControllerTest extends AbstractAdminWebTestCase
@@ -66,9 +67,8 @@ class TagControllerTest extends AbstractAdminWebTestCase
     /**
      * @param $isSuccess
      * @param $expected
-     *
-     * @dataProvider dataSubmitProvider
      */
+    #[DataProvider(methodName: 'dataSubmitProvider')]
     public function testAddNew($isSuccess, $expected)
     {
         $formData = $this->createFormData();
@@ -163,7 +163,7 @@ class TagControllerTest extends AbstractAdminWebTestCase
         ];
     }
 
-    public function dataSubmitProvider()
+    public static function dataSubmitProvider()
     {
         return [
             [false, false],

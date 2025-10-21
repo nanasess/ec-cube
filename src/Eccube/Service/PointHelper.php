@@ -14,10 +14,13 @@
 namespace Eccube\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Eccube\Entity\ItemHolderInterface;
 use Eccube\Entity\Master\OrderItemType;
 use Eccube\Entity\Master\TaxDisplayType;
 use Eccube\Entity\Master\TaxType;
+use Eccube\Entity\Order;
 use Eccube\Entity\OrderItem;
 use Eccube\Repository\BaseInfoRepository;
 use Eccube\Service\PurchaseFlow\Processor\PointProcessor;
@@ -51,10 +54,10 @@ class PointHelper
      *
      * @return bool
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function isPointEnabled()
+    public function isPointEnabled(): bool
     {
         $BaseInfo = $this->baseInfoRepository->get();
 
@@ -64,31 +67,31 @@ class PointHelper
     /**
      * ポイントを金額に変換する.
      *
-     * @param $point ポイント
+     * @param string $point ポイント
      *
      * @return string 金額
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function pointToPrice($point)
+    public function pointToPrice($point): string
     {
         $BaseInfo = $this->baseInfoRepository->get();
 
-        return bcmul($point, $BaseInfo->getPointConversionRate(), 0);
+        return bcmul($point, (string) $BaseInfo->getPointConversionRate(), 0);
     }
 
     /**
      * ポイントを値引き額に変換する. マイナス値を返す.
      *
-     * @param $point ポイント
+     * @param string $point ポイント
      *
      * @return string 金額
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function pointToDiscount($point)
+    public function pointToDiscount($point): string
     {
         return bcmul($this->pointToPrice($point), '-1', 0);
     }
@@ -96,28 +99,37 @@ class PointHelper
     /**
      * 金額をポイントに変換する.
      *
-     * @param $price
+     * @param string $price
      *
      * @return string ポイント
      *
-     * @throws \Doctrine\ORM\NoResultException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
-    public function priceToPoint($price)
+    public function priceToPoint($price): string
     {
         $BaseInfo = $this->baseInfoRepository->get();
 
-        return bcfloor(bcdiv($price, $BaseInfo->getPointConversionRate(), 4));
+        return bcfloor(bcdiv($price, (string) $BaseInfo->getPointConversionRate(), 4));
     }
 
     /**
      * 明細追加処理.
      *
      * @param ItemHolderInterface $itemHolder
-     * @param int $discount
+     * @param string $discount
+     *
+     * @return void
+     *
+     * @throws \Exception
      */
-    public function addPointDiscountItem(ItemHolderInterface $itemHolder, $discount)
+    public function addPointDiscountItem(ItemHolderInterface $itemHolder, $discount): void
     {
+        // 注文明細以外は処理しない.
+        if ($itemHolder instanceof Order === false) {
+            return;
+        }
+
         $DiscountType = $this->entityManager->find(OrderItemType::class, OrderItemType::POINT);
         $TaxInclude = $this->entityManager->find(TaxDisplayType::class, TaxDisplayType::INCLUDED);
         $Taxation = $this->entityManager->find(TaxType::class, TaxType::NON_TAXABLE);
@@ -136,9 +148,9 @@ class PointHelper
         $OrderItem->setProductName($DiscountType->getName())
             ->setPrice($discount)
             ->setPointRate($pointRate)
-            ->setQuantity(1)
-            ->setTax(0)
-            ->setTaxRate(0)
+            ->setQuantity('1')
+            ->setTax('0')
+            ->setTaxRate('0')
             ->setRoundingType(null)
             ->setOrderItemType($DiscountType)
             ->setTaxDisplayType($TaxInclude)
@@ -152,28 +164,44 @@ class PointHelper
      * 既存のポイント明細を削除する.
      *
      * @param ItemHolderInterface $itemHolder
+     *
+     * @return void
      */
-    public function removePointDiscountItem(ItemHolderInterface $itemHolder)
+    public function removePointDiscountItem(ItemHolderInterface $itemHolder): void
     {
-        foreach ($itemHolder->getItems() as $item) {
-            if ($item->getProcessorName() == PointProcessor::class) {
-                $itemHolder->removeOrderItem($item);
-                $this->entityManager->remove($item);
+        if ($itemHolder instanceof Order) {
+            foreach ($itemHolder->getItems() as $item) {
+                if ($item instanceof OrderItem && $item->getProcessorName() == PointProcessor::class) {
+                    $itemHolder->removeOrderItem($item);
+                    $this->entityManager->remove($item);
+                }
             }
         }
     }
 
-    public function prepare(ItemHolderInterface $itemHolder, $point)
+    /**
+     * @param ItemHolderInterface $itemHolder
+     * @param string $point
+     *
+     * @return void
+     */
+    public function prepare(ItemHolderInterface $itemHolder, $point): void
     {
         // ユーザの保有ポイントを減算
         $Customer = $itemHolder->getCustomer();
-        $Customer->setPoint($Customer->getPoint() - $point);
+        $Customer->setPoint(bcsub($Customer->getPoint(), $point));
     }
 
-    public function rollback(ItemHolderInterface $itemHolder, $point)
+    /**
+     * @param ItemHolderInterface $itemHolder
+     * @param string $point
+     *
+     * @return void
+     */
+    public function rollback(ItemHolderInterface $itemHolder, $point): void
     {
         // 利用したポイントをユーザに戻す.
         $Customer = $itemHolder->getCustomer();
-        $Customer->setPoint($Customer->getPoint() + $point);
+        $Customer->setPoint(bcadd($Customer->getPoint(), $point));
     }
 }

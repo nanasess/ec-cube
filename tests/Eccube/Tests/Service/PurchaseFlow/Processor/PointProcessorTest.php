@@ -27,6 +27,7 @@ use Eccube\Service\PurchaseFlow\PurchaseContext;
 use Eccube\Service\PurchaseFlow\PurchaseException;
 use Eccube\Service\PurchaseFlow\PurchaseFlow;
 use Eccube\Tests\EccubeTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class PointProcessorTest extends EccubeTestCase
 {
@@ -73,12 +74,11 @@ class PointProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider usePointOverCustomerPointProvider
-     *
      * @param $usePoint int 利用ポイント
      * @param $customerPoint int 保有ポイント
      * @param $isError boolean エラーかどうか
      */
+    #[DataProvider(methodName: 'usePointOverCustomerPointProvider')]
     public function testUsePointOverCustomerPointShoppingFlow($usePoint, $customerPoint, $isError)
     {
         $Customer = new Customer();
@@ -105,7 +105,7 @@ class PointProcessorTest extends EccubeTestCase
         }
     }
 
-    public function usePointOverCustomerPointProvider()
+    public static function usePointOverCustomerPointProvider()
     {
         return [
             [0, 0, false],
@@ -118,13 +118,12 @@ class PointProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider usePointOverPriceProvider
-     *
      * @param $usePoint int 利用ポイント
      * @param $isError boolean エラーかどうか
      *
      * @group decimal
      */
+    #[DataProvider(methodName: 'usePointOverPriceProvider')]
     public function testUsePointOverPrice($usePoint, $isError)
     {
         $price = 100; // 商品の値段
@@ -156,24 +155,23 @@ class PointProcessorTest extends EccubeTestCase
     }
 
     /**
-     * @dataProvider usePointOverPriceProvider
-     *
-     * @param $usePoint int 利用ポイント
-     * @param $isError boolean エラーかどうか
+     * @param string $usePoint  利用ポイント
+     * @param bool $isError エラーかどうか
      *
      * @group decimal
      */
+    #[DataProvider(methodName: 'usePointOverPriceProvider')]
     public function testUsePointOverPriceShoppingFlow($usePoint, $isError)
     {
-        $price = 100; // 商品の値段
+        $price = '100'; // 商品の値段
 
         $Customer = new Customer();
-        $Customer->setPoint(10000);
+        $Customer->setPoint('10000');
 
         /* @var ProductClass $ProductClass */
         $ProductClass = $this->createProduct('テスト', 1)->getProductClasses()[0];
         $Order = new Order();
-        $Order->setTotal(100);
+        $Order->setTotal('100');
         $Order->setCustomer($Customer);
         $Order->setUsePoint($usePoint);
         $Order->addOrderItem($this->newOrderItem($ProductClass, $price, 1));
@@ -189,17 +187,17 @@ class PointProcessorTest extends EccubeTestCase
             self::assertSame($price, $Order->getUsePoint());
         } else {
             self::assertNull($result);
-            self::assertEquals($usePoint, $Order->getUsePoint());
+            self::assertSame($usePoint, $Order->getUsePoint());
         }
     }
 
-    public function usePointOverPriceProvider()
+    public static function usePointOverPriceProvider()
     {
         return [
-            [0, false],
-            [99, false],
-            [100, false],
-            [101, true],
+            ['0', false],
+            ['99', false],
+            ['100', false],
+            ['101', true],
         ];
     }
 
@@ -227,22 +225,21 @@ class PointProcessorTest extends EccubeTestCase
         $purchaseFlow->prepare($Order, $context);
         $purchaseFlow->commit($Order, $context);
 
-        self::assertSame(90, $Customer->getPoint());
+        self::assertSame('90', $Customer->getPoint());
     }
 
     /**
-     * @dataProvider useAddPointProvider
-     *
-     * @param $price int 商品の値段
-     * @param $usePoint int 利用ポイント
-     * @param $addPoint int 期待する付与ポイント
+     * @param string $price 商品の値段
+     * @param string $usePoint 利用ポイント
+     * @param string $addPoint 期待する付与ポイント
      *
      * @group decimal
      */
+    #[DataProvider(methodName: 'useAddPointProvider')]
     public function testAddPoint($price, $usePoint, $addPoint)
     {
         $Customer = new Customer();
-        $Customer->setPoint(1000);
+        $Customer->setPoint('1000');
 
         /* @var ProductClass $ProductClass */
         $ProductClass = $this->createProduct('テスト', 1)->getProductClasses()[0];
@@ -258,30 +255,29 @@ class PointProcessorTest extends EccubeTestCase
         $context = new PurchaseContext(null, $Customer);
         $purchaseFlow->validate($Order, $context);
 
-        self::assertEquals($addPoint, $Order->getAddPoint());
+        self::assertSame($addPoint, $Order->getAddPoint());
     }
 
-    public function useAddPointProvider()
+    public static function useAddPointProvider()
     {
         return [
-            [200, 0, 2],
-            [200, 100, 1],
-            [200, 200, 0],
-            [1000, 0, 10],
-            [1000, 100, 9],
-            [1000, 200, 8],
+            ['200', '0', '2'],
+            ['200', '100', '1'],
+            ['200', '200', '0'],
+            ['1000', '0', '10'],
+            ['1000', '100', '9'],
+            ['1000', '200', '8'],
         ];
     }
 
     /**
-     * @dataProvider useAddPointExcludeShippingFeeProvider
-     *
      * @param $price int 商品の値段
      * @param $deliveryFee int
      * @param $addPoint int 期待する付与ポイント
      *
      * @group decimal
      */
+    #[DataProvider(methodName: 'useAddPointExcludeShippingFeeProvider')]
     public function testAddPointExcludeShippingFee($price, $deliveryFee, $addPoint)
     {
         $Customer = new Customer();
@@ -316,10 +312,10 @@ class PointProcessorTest extends EccubeTestCase
         $context = new PurchaseContext(null, $Customer);
         $purchaseFlow->validate($Order, $context);
 
-        self::assertEquals($addPoint, $Order->getAddPoint());
+        self::assertSame((string) $addPoint, $Order->getAddPoint());
     }
 
-    public function useAddPointExcludeShippingFeeProvider()
+    public static function useAddPointExcludeShippingFeeProvider()
     {
         return [
             [200, 200, 2],
@@ -331,14 +327,13 @@ class PointProcessorTest extends EccubeTestCase
     /**
      * ポイント換算レートのテスト
      *
-     * @dataProvider pointConversionRateProvider
-     *
      * @param $pointConversionRate int 商品の値段
      *
      * @throws PurchaseException
      *
      * @group decimal
      */
+    #[DataProvider(methodName: 'pointConversionRateProvider')]
     public function testPointConversionRate($pointConversionRate)
     {
         $productPrice = 1000;
@@ -377,7 +372,7 @@ class PointProcessorTest extends EccubeTestCase
         self::assertEquals($productPrice + $discountPrice, $Order->getTotal());
     }
 
-    public function pointConversionRateProvider()
+    public static function pointConversionRateProvider()
     {
         return [
             [1],
@@ -389,12 +384,11 @@ class PointProcessorTest extends EccubeTestCase
     /**
      * ポイント付与率のテスト
      *
-     * @dataProvider basicPointRateProvider
-     *
      * @param $basicPointRate int 商品の値段
      *
      * @group decimal
      */
+    #[DataProvider(methodName: 'basicPointRateProvider')]
     public function testBasicPointRate($basicPointRate)
     {
         $ProductPrice = 1000;
@@ -415,10 +409,10 @@ class PointProcessorTest extends EccubeTestCase
         $context = new PurchaseContext(null, $Customer);
         $purchaseFlow->validate($Order, $context);
 
-        self::assertEquals($ProductPrice * $basicPointRate / 100, $Order->getAddPoint());
+        self::assertSame((string) ($ProductPrice * $basicPointRate / 100), $Order->getAddPoint());
     }
 
-    public function basicPointRateProvider()
+    public static function basicPointRateProvider()
     {
         return [
             [1],

@@ -14,67 +14,47 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\ProductCategoryRepository;
 
 if (!class_exists(ProductCategory::class)) {
     /**
      * ProductCategory
-     *
-     * @ORM\Table(name="dtb_product_category")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\ProductCategoryRepository")
      */
+    #[ORM\Table(name: 'dtb_product_category')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: ProductCategoryRepository::class)]
     class ProductCategory extends AbstractEntity
     {
         /**
          * @var int
-         *
-         * @ORM\Column(name="product_id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="NONE")
          */
+        #[ORM\Column(name: 'product_id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'NONE')]
         private $product_id;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="category_id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="NONE")
          */
+        #[ORM\Column(name: 'category_id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'NONE')]
         private $category_id;
 
         /**
-         * @var Product
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Product", inversedBy="ProductCategories")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="product_id", referencedColumnName="id")
-         * })
+         * @var Product|null
          */
+        #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'ProductCategories')]
+        #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id')]
         private $Product;
 
         /**
-         * @var Category
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Category", inversedBy="ProductCategories")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="category_id", referencedColumnName="id")
-         * })
+         * @var Category|null
          */
+        #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'ProductCategories')]
+        #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
         private $Category;
 
         /**
@@ -84,7 +64,7 @@ if (!class_exists(ProductCategory::class)) {
          *
          * @return ProductCategory
          */
-        public function setProductId($productId)
+        public function setProductId($productId): ProductCategory
         {
             $this->product_id = $productId;
 
@@ -96,7 +76,7 @@ if (!class_exists(ProductCategory::class)) {
          *
          * @return int
          */
-        public function getProductId()
+        public function getProductId(): int
         {
             return $this->product_id;
         }
@@ -108,7 +88,7 @@ if (!class_exists(ProductCategory::class)) {
          *
          * @return ProductCategory
          */
-        public function setCategoryId($categoryId)
+        public function setCategoryId($categoryId): ProductCategory
         {
             $this->category_id = $categoryId;
 
@@ -120,7 +100,7 @@ if (!class_exists(ProductCategory::class)) {
          *
          * @return int
          */
-        public function getCategoryId()
+        public function getCategoryId(): int
         {
             return $this->category_id;
         }
@@ -132,7 +112,7 @@ if (!class_exists(ProductCategory::class)) {
          *
          * @return ProductCategory
          */
-        public function setProduct(?Product $product = null)
+        public function setProduct(?Product $product = null): ProductCategory
         {
             $this->Product = $product;
 
@@ -144,7 +124,7 @@ if (!class_exists(ProductCategory::class)) {
          *
          * @return Product|null
          */
-        public function getProduct()
+        public function getProduct(): ?Product
         {
             return $this->Product;
         }
@@ -156,7 +136,7 @@ if (!class_exists(ProductCategory::class)) {
          *
          * @return ProductCategory
          */
-        public function setCategory(?Category $category = null)
+        public function setCategory(?Category $category = null): ProductCategory
         {
             $this->Category = $category;
 
@@ -168,7 +148,7 @@ if (!class_exists(ProductCategory::class)) {
          *
          * @return Category|null
          */
-        public function getCategory()
+        public function getCategory(): ?Category
         {
             return $this->Category;
         }

@@ -17,6 +17,7 @@ use Doctrine\DBAL\DriverManager;
 use Dotenv\Dotenv;
 use Eccube\Common\EccubeConfig;
 use Eccube\Util\StringUtil;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,10 +26,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
+#[AsCommand(name: 'eccube:install', description: 'Install EC-CUBE')]
 class InstallerCommand extends Command
 {
-    protected static $defaultName = 'eccube:install';
-
     /**
      * @var EccubeConfig
      */
@@ -44,6 +44,9 @@ class InstallerCommand extends Command
      */
     protected $databaseUrl;
 
+    /**
+     * @var object
+     */
     private $envFileUpdater;
 
     public function __construct(EccubeConfig $eccubeConfig)
@@ -54,21 +57,70 @@ class InstallerCommand extends Command
 
         /* env更新処理無名クラス */
         $this->envFileUpdater = new class {
+            /**
+             * @var array<mixed>|false|string
+             */
             public $appEnv;
+
+            /**
+             * @var array<mixed>|false|string
+             */
             public $appDebug;
+
+            /**
+             * @var bool|float|int|string|null
+             */
             public $databaseUrl;
+
+            /**
+             * @var false|mixed|string
+             */
             public $serverVersion;
+
+            /**
+             * @var string
+             */
             public $databaseCharset;
+
+            /**
+             * @var string|null
+             */
             public $mailerDsn;
+
+            /**
+             * @var string|null
+             */
             public $authMagic;
+
+            /**
+             * @var string|null
+             */
             public $adminRoute;
+
+            /**
+             * @var string|null
+             */
             public $templateCode;
+
+            /**
+             * @var string|null
+             */
             public $locale;
+
+            /**
+             * @var string|null
+             */
             public $trustedHosts;
 
+            /**
+             * @var string|null
+             */
             public $envDir;
 
-            private function getEnvParameters()
+            /**
+             * @return array<string, mixed>
+             */
+            private function getEnvParameters(): array
             {
                 return [
                     'APP_ENV' => $this->appEnv,
@@ -87,8 +139,10 @@ class InstallerCommand extends Command
 
             /**
              * envファイル更新処理
+             *
+             * @return void
              */
-            public function updateEnvFile()
+            public function updateEnvFile(): void
             {
                 // $envDir = $this->eccubeConfig->get('kernel.project_dir');
                 $envFile = $this->envDir.'/.env';
@@ -105,15 +159,22 @@ class InstallerCommand extends Command
         };
     }
 
+    /**
+     * @return void
+     */
     #[\Override]
-    protected function configure()
+    protected function configure(): void
     {
-        $this
-            ->setDescription('Install EC-CUBE');
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
+     * @return void
+     */
     #[\Override]
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         $this->io->title('EC-CUBE Installer Interactive Wizard');
         $this->io->text([
@@ -211,14 +272,20 @@ class InstallerCommand extends Command
         $this->envFileUpdater->updateEnvFile();
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     *
+     * @return void
+     */
     #[\Override]
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $this->io = new SymfonyStyle($input, $output);
     }
 
     #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // Process実行時に, APP_ENV/APP_DEBUGが子プロセスに引き継がれてしまうため,
         // 生成された.envをロードして上書きする.
@@ -267,7 +334,12 @@ class InstallerCommand extends Command
         return 0;
     }
 
-    protected function getDatabaseName($databaseUrl)
+    /**
+     * @param string $databaseUrl
+     *
+     * @return string
+     */
+    protected function getDatabaseName($databaseUrl): string
     {
         if (str_starts_with((string) $databaseUrl, 'sqlite')) {
             return 'sqlite';
@@ -282,7 +354,14 @@ class InstallerCommand extends Command
         throw new \LogicException(sprintf('Database Url %s is invalid.', $databaseUrl));
     }
 
-    protected function getDatabaseServerVersion($databaseUrl)
+    /**
+     * @param string $databaseUrl
+     *
+     * @return false|string
+     *
+     * @throws \Doctrine\DBAL\Exception
+     */
+    protected function getDatabaseServerVersion($databaseUrl): false|string
     {
         try {
             $conn = DriverManager::getConnection([

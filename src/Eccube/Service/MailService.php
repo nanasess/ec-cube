@@ -27,12 +27,12 @@ use Eccube\Event\EventArgs;
 use Eccube\Repository\BaseInfoRepository;
 use Eccube\Repository\MailHistoryRepository;
 use Eccube\Repository\MailTemplateRepository;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -55,7 +55,7 @@ class MailService
     protected $mailHistoryRepository;
 
     /**
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -70,7 +70,7 @@ class MailService
     protected $eccubeConfig;
 
     /**
-     * @var \Twig\Environment
+     * @var Environment
      */
     protected $twig;
 
@@ -82,7 +82,7 @@ class MailService
      * @param MailHistoryRepository $mailHistoryRepository
      * @param BaseInfoRepository $baseInfoRepository
      * @param EventDispatcherInterface $eventDispatcher
-     * @param \Twig\Environment $twig
+     * @param Environment $twig
      * @param EccubeConfig $eccubeConfig
      */
     public function __construct(
@@ -91,7 +91,7 @@ class MailService
         MailHistoryRepository $mailHistoryRepository,
         BaseInfoRepository $baseInfoRepository,
         EventDispatcherInterface $eventDispatcher,
-        \Twig\Environment $twig,
+        Environment $twig,
         EccubeConfig $eccubeConfig,
     ) {
         $this->mailer = $mailer;
@@ -106,10 +106,16 @@ class MailService
     /**
      * Send customer confirm mail.
      *
-     * @param $Customer 会員情報
+     * @param Customer $Customer 会員情報
      * @param string $activateUrl アクティベート用url
+     *
+     * @return void
+     *
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function sendCustomerConfirmMail(Customer $Customer, $activateUrl)
+    public function sendCustomerConfirmMail(Customer $Customer, $activateUrl): void
     {
         log_info('仮会員登録メール送信開始');
 
@@ -167,9 +173,15 @@ class MailService
     /**
      * Send customer complete mail.
      *
-     * @param $Customer 会員情報
+     * @param Customer $Customer 会員情報
+     *
+     * @return void
+     *
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function sendCustomerCompleteMail(Customer $Customer)
+    public function sendCustomerCompleteMail(Customer $Customer): void
     {
         log_info('会員登録完了メール送信開始');
 
@@ -226,8 +238,14 @@ class MailService
      *
      * @param $Customer Customer
      * @param $email string
+     *
+     * @return void
+     *
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function sendCustomerWithdrawMail(Customer $Customer, string $email)
+    public function sendCustomerWithdrawMail(Customer $Customer, string $email): void
     {
         log_info('退会手続き完了メール送信開始');
 
@@ -283,9 +301,15 @@ class MailService
     /**
      * Send contact mail.
      *
-     * @param $formData お問い合わせ内容
+     * @param array<string, string> $formData お問い合わせ内容
+     *
+     * @return void
+     *
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function sendContactMail($formData)
+    public function sendContactMail($formData): void
     {
         log_info('お問い合わせ受付メール送信開始');
 
@@ -345,7 +369,7 @@ class MailService
      *
      * @return Email
      */
-    public function sendOrderMail(Order $Order)
+    public function sendOrderMail(Order $Order): Email
     {
         log_info('受注メール送信開始');
 
@@ -416,10 +440,16 @@ class MailService
     /**
      * Send admin customer confirm mail.
      *
-     * @param $Customer 会員情報
+     * @param Customer $Customer 会員情報
      * @param string $activateUrl アクティベート用url
+     *
+     * @return void
+     *
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function sendAdminCustomerConfirmMail(Customer $Customer, $activateUrl)
+    public function sendAdminCustomerConfirmMail(Customer $Customer, $activateUrl): void
     {
         log_info('仮会員登録再送メール送信開始');
 
@@ -480,15 +510,16 @@ class MailService
      * Send admin order mail.
      *
      * @param Order $Order 受注情報
-     * @param $formData 入力内容
+     * @param array<string, string> $formData 入力内容
      *
      * @return Email
      *
-     * @throws \Twig_Error_Loader
-     * @throws \Twig_Error_Runtime
-     * @throws \Twig_Error_Syntax
+     * @throws LoaderError  When the template cannot be found
+     * @throws SyntaxError  When an error occurred during compilation
+     * @throws RuntimeError When an error occurred during rendering
+     * @throws TransportExceptionInterface
      */
-    public function sendAdminOrderMail(Order $Order, $formData)
+    public function sendAdminOrderMail(Order $Order, $formData): Email
     {
         log_info('受注管理通知メール送信開始');
 
@@ -525,10 +556,16 @@ class MailService
     /**
      * Send password reset notification mail.
      *
-     * @param $Customer 会員情報
+     * @param Customer $Customer 会員情報
      * @param string $reset_url
+     *
+     * @return void
+     *
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function sendPasswordResetNotificationMail(Customer $Customer, $reset_url)
+    public function sendPasswordResetNotificationMail(Customer $Customer, $reset_url): void
     {
         log_info('パスワード再発行メール送信開始');
 
@@ -587,10 +624,16 @@ class MailService
     /**
      * Send password reset notification mail.
      *
-     * @param $Customer 会員情報
+     * @param Customer $Customer 会員情報
      * @param string $password
+     *
+     * @return void
+     *
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function sendPasswordResetCompleteMail(Customer $Customer, $password)
+    public function sendPasswordResetCompleteMail(Customer $Customer, $password): void
     {
         log_info('パスワード変更完了メール送信開始');
 
@@ -651,9 +694,13 @@ class MailService
      *
      * @param Shipping $Shipping
      *
-     * @throws \Twig_Error
+     * @return void
+     *
+     * @throws LoaderError  When the template cannot be found
+     * @throws SyntaxError  When an error occurred during compilation
+     * @throws RuntimeError When an error occurred during rendering
      */
-    public function sendShippingNotifyMail(Shipping $Shipping)
+    public function sendShippingNotifyMail(Shipping $Shipping): void
     {
         log_info('出荷通知メール送信処理開始', ['id' => $Shipping->getId()]);
 
@@ -714,11 +761,15 @@ class MailService
      *
      * @return string
      *
-     * @throws \Twig_Error
+     * @throws LoaderError  When the template cannot be found
+     * @throws SyntaxError  When an error occurred during compilation
+     * @throws RuntimeError When an error occurred during rendering
      */
-    public function getShippingNotifyMailBody(Shipping $Shipping, Order $Order, $templateName = null, $is_html = false)
+    public function getShippingNotifyMailBody(Shipping $Shipping, Order $Order, $templateName = null, $is_html = false): string
     {
-        $ShippingItems = array_filter($Shipping->getOrderItems()->toArray(), function (OrderItem $OrderItem) use ($Order) {
+        /** @var OrderItem[] $OrderItems */
+        $OrderItems = $Shipping->getOrderItems()->toArray();
+        $ShippingItems = array_filter($OrderItems, function (OrderItem $OrderItem) use ($Order) {
             return $OrderItem->getOrderId() === $Order->getId();
         });
 
@@ -746,10 +797,7 @@ class MailService
      * 会員情報変更時にメール通知
      *
      * @param Customer $Customer
-     * @param array $userData
-     *  - userAgent
-     *  - ipAddress
-     *  - preEmail
+     * @param array{userAgent: string, ipAddress: string, preEmail: string|null}|array{userAgent:string|null,ipAddress:string|null} $userData
      * @param string $eventName
      *
      * @return void
@@ -759,7 +807,7 @@ class MailService
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public function sendCustomerChangeNotifyMail(Customer $Customer, array $userData, string $eventName)
+    public function sendCustomerChangeNotifyMail(Customer $Customer, array $userData, string $eventName): void
     {
         log_info('会員情報変更通知メール送信処理開始');
         log_info($eventName);
@@ -834,7 +882,7 @@ class MailService
      *
      * @return string|null  存在する場合はファイル名を返す
      */
-    public function getHtmlTemplate($templateName)
+    public function getHtmlTemplate($templateName): ?string
     {
         // メールテンプレート名からHTMLメール用テンプレート名を生成
         $fileName = explode('.', $templateName);

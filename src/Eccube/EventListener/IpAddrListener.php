@@ -38,7 +38,14 @@ class IpAddrListener implements EventSubscriberInterface
         $this->requestContext = $requestContext;
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    /**
+     * @param RequestEvent $event
+     *
+     * @return void
+     *
+     * @throws AccessDeniedHttpException|\Exception
+     */
+    public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
             return;
@@ -76,7 +83,13 @@ class IpAddrListener implements EventSubscriberInterface
         }
     }
 
-    private function isClientIpInList($hostList, $clientIp)
+    /**
+     * @param array<int, string> $hostList
+     * @param string|null $clientIp
+     *
+     * @return bool
+     */
+    private function isClientIpInList($hostList, $clientIp): bool
     {
         log_debug('Host List: '.implode(',', $hostList));
         if ($hostList) {
@@ -90,8 +103,11 @@ class IpAddrListener implements EventSubscriberInterface
         return true;
     }
 
+    /**
+     * @return array<string, array<int, string|int>>
+     */
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'kernel.request' => ['onKernelRequest', 512],

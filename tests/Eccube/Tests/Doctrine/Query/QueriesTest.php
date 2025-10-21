@@ -57,9 +57,12 @@ class QueriesTest_Customizer implements QueryCustomizer
     public $customized = false;
 
     /**
+     * @param mixed $params
+     * @param mixed $queryKey
+     *
      * @return void
      */
-    public function customize(QueryBuilder $builder, $params, $queryKey)
+    public function customize(QueryBuilder $builder, $params, $queryKey): void
     {
         $this->customized = true;
     }
@@ -69,7 +72,7 @@ class QueriesTest_Customizer implements QueryCustomizer
      *
      * @return string
      */
-    public function getQueryKey()
+    public function getQueryKey(): string
     {
         return QueriesTest::class;
     }
@@ -78,16 +81,19 @@ class QueriesTest_Customizer implements QueryCustomizer
 class QueriesTest_CustomizerWithoutAnnotation implements QueryCustomizer
 {
     /**
+     * @param mixed $params
+     * @param mixed $queryKey
+     *
      * @return void
      */
-    public function customize(QueryBuilder $builder, $params, $queryKey)
+    public function customize(QueryBuilder $builder, $params, $queryKey): void
     {
     }
 
     /**
      * @return string
      */
-    public function getQueryKey()
+    public function getQueryKey(): string
     {
         return '';
     }

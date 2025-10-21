@@ -14,14 +14,17 @@
 namespace Eccube\EventListener;
 
 use Eccube\Common\EccubeConfig;
+use Eccube\Entity\Customer;
+use Eccube\Entity\Member;
 use Eccube\Request\Context;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class RateLimiterListener implements EventSubscriberInterface
 {
@@ -36,7 +39,15 @@ class RateLimiterListener implements EventSubscriberInterface
         $this->requestContext = $requestContext;
     }
 
-    public function onController(ControllerEvent $event)
+    /**
+     * @param ControllerEvent $event
+     *
+     * @return void
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function onController(ControllerEvent $event): void
     {
         if (!$event->isMainRequest()) {
             return;
@@ -76,12 +87,11 @@ class RateLimiterListener implements EventSubscriberInterface
             /** @var RateLimiterFactory $factory */
             $factory = $this->locator->get($limiterId);
             if (in_array('customer', $config['type']) || in_array('user', $config['type'])) {
+                /** @var Customer|Member $User */
                 $User = $this->requestContext->getCurrentUser();
-                if ($User instanceof UserInterface) {
-                    $limiter = $factory->create($User->getId());
-                    if (!$limiter->consume()->isAccepted()) {
-                        throw new TooManyRequestsHttpException();
-                    }
+                $limiter = $factory->create((string) $User->getId());
+                if (!$limiter->consume()->isAccepted()) {
+                    throw new TooManyRequestsHttpException();
                 }
             }
             if (in_array('ip', $config['type'])) {
@@ -97,7 +107,7 @@ class RateLimiterListener implements EventSubscriberInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::CONTROLLER => ['onController', 0],

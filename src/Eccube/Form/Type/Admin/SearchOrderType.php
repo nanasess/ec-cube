@@ -15,6 +15,7 @@ namespace Eccube\Form\Type\Admin;
 
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\Shipping;
+use Eccube\Form\EventListener\ConvertKanaListener;
 use Eccube\Form\Type\Master\OrderStatusType;
 use Eccube\Form\Type\Master\PaymentType;
 use Eccube\Form\Type\PhoneNumberType;
@@ -45,9 +46,14 @@ class SearchOrderType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             // 受注ID・注文者名・注文者（フリガナ）・注文者会社名
@@ -78,7 +84,7 @@ class SearchOrderType extends AbstractType
                         ]),
                     ],
                 ])
-                ->addEventSubscriber(new \Eccube\Form\EventListener\ConvertKanaListener('CV')
+                ->addEventSubscriber(new ConvertKanaListener('CV')
                 ))
             ->add('company_name', TextType::class, [
                 'label' => 'admin.order.orderer_company_name',
@@ -467,7 +473,7 @@ class SearchOrderType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'admin_search_order';
     }

@@ -31,10 +31,12 @@ use Eccube\Service\PurchaseFlow\PurchaseContext;
 use Eccube\Service\PurchaseFlow\PurchaseFlow;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bridge\Twig\Attribute\Template;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class MypageController extends AbstractController
@@ -94,10 +96,15 @@ class MypageController extends AbstractController
 
     /**
      * ログイン画面.
+     *
+     * @param Request $request
+     * @param AuthenticationUtils $utils
+     *
+     * @return RedirectResponse|array<string, mixed>
      */
-    #[Route('/mypage/login', name: 'mypage_login', methods: ['GET', 'POST'])]
-    #[Template('Mypage/login.twig')]
-    public function login(Request $request, AuthenticationUtils $utils)
+    #[Route(path: '/mypage/login', name: 'mypage_login', methods: ['GET', 'POST'])]
+    #[Template(template: 'Mypage/login.twig')]
+    public function login(Request $request, AuthenticationUtils $utils): RedirectResponse|array
     {
         if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
             log_info('認証済のためログイン処理をスキップ');
@@ -136,11 +143,17 @@ class MypageController extends AbstractController
 
     /**
      * マイページ.
+     *
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     *
+     * @return array<string, mixed>
      */
-    #[Route('/mypage/', name: 'mypage', methods: ['GET'])]
-    #[Template('Mypage/index.twig')]
-    public function index(Request $request, PaginatorInterface $paginator)
+    #[Route(path: '/mypage/', name: 'mypage', methods: ['GET'])]
+    #[Template(template: 'Mypage/index.twig')]
+    public function index(Request $request, PaginatorInterface $paginator): array
     {
+        /** @var Customer $Customer */
         $Customer = $this->getUser();
 
         // 購入処理中/決済処理中ステータスの受注を非表示にする.
@@ -173,10 +186,15 @@ class MypageController extends AbstractController
 
     /**
      * 購入履歴詳細を表示する.
+     *
+     * @param Request $request
+     * @param string|int $order_no
+     *
+     * @return array<string, mixed>
      */
-    #[Route('/mypage/history/{order_no}', name: 'mypage_history', methods: ['GET'])]
-    #[Template('Mypage/history.twig')]
-    public function history(Request $request, $order_no)
+    #[Route(path: '/mypage/history/{order_no}', name: 'mypage_history', methods: ['GET'])]
+    #[Template(template: 'Mypage/history.twig')]
+    public function history(Request $request, $order_no): array
     {
         $this->entityManager->getFilters()
             ->enable('incomplete_order_status_hidden');
@@ -195,7 +213,7 @@ class MypageController extends AbstractController
         );
         $this->eventDispatcher->dispatch($event, EccubeEvents::FRONT_MYPAGE_MYPAGE_HISTORY_INITIALIZE);
 
-        /** @var Order $Order */
+        /** @var Order|null $Order */
         $Order = $event->getArgument('Order');
 
         if (!$Order) {
@@ -218,9 +236,16 @@ class MypageController extends AbstractController
 
     /**
      * 再購入を行う.
+     *
+     * @param Request $request
+     * @param int|string $order_no
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws NotFoundHttpException
      */
-    #[Route('/mypage/order/{order_no}', name: 'mypage_order', methods: ['PUT'])]
-    public function order(Request $request, $order_no)
+    #[Route(path: '/mypage/order/{order_no}', name: 'mypage_order', methods: ['PUT'])]
+    public function order(Request $request, $order_no): RedirectResponse|Response
     {
         $this->isTokenValid();
 
@@ -228,7 +253,7 @@ class MypageController extends AbstractController
 
         $Customer = $this->getUser();
 
-        /** @var Order $Order */
+        /** @var Order|null $Order */
         $Order = $this->orderRepository->findOneBy(
             [
                 'order_no' => $order_no,
@@ -306,14 +331,22 @@ class MypageController extends AbstractController
 
     /**
      * お気に入り商品を表示する.
+     *
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     *
+     * @return array<string, mixed>
+     *
+     * @throws NotFoundHttpException
      */
-    #[Route('/mypage/favorite', name: 'mypage_favorite', methods: ['GET'])]
-    #[Template('Mypage/favorite.twig')]
-    public function favorite(Request $request, PaginatorInterface $paginator)
+    #[Route(path: '/mypage/favorite', name: 'mypage_favorite', methods: ['GET'])]
+    #[Template(template: 'Mypage/favorite.twig')]
+    public function favorite(Request $request, PaginatorInterface $paginator): array
     {
         if (!$this->BaseInfo->isOptionFavoriteProduct()) {
             throw new NotFoundHttpException();
         }
+        /** @var Customer $Customer */
         $Customer = $this->getUser();
 
         // paginator
@@ -342,12 +375,19 @@ class MypageController extends AbstractController
 
     /**
      * お気に入り商品を削除する.
+     *
+     * @param Request $request
+     * @param Product $Product
+     *
+     * @return RedirectResponse
+     *
+     * @throws BadRequestHttpException
      */
-    #[Route('/mypage/favorite/{id}/delete', name: 'mypage_favorite_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function delete(Request $request, Product $Product)
+    #[Route(path: '/mypage/favorite/{id}/delete', name: 'mypage_favorite_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function delete(Request $request, Product $Product): RedirectResponse
     {
         $this->isTokenValid();
-
+        /** @var Customer $Customer */
         $Customer = $this->getUser();
 
         log_info('お気に入り商品削除開始', [$Customer->getId(), $Product->getId()]);

@@ -15,6 +15,7 @@ namespace Eccube\Tests\Web\Admin\Setting\System;
 
 use Eccube\Entity\Master\LoginHistoryStatus;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class LoginHistoryControllerTest extends AbstractAdminWebTestCase
 {
@@ -127,8 +128,10 @@ class LoginHistoryControllerTest extends AbstractAdminWebTestCase
     }
 
     /**
-     * @dataProvider dataStatusProvider
+     * @param mixed $status
+     * @param mixed $count
      */
+    #[DataProvider(methodName: 'dataStatusProvider')]
     public function testIndexWithPostSearchByStatus($status, $count)
     {
         $post = [
@@ -149,7 +152,7 @@ class LoginHistoryControllerTest extends AbstractAdminWebTestCase
     /**
      * @return array[]
      */
-    public function dataStatusProvider()
+    public static function dataStatusProvider()
     {
         return [
             [[LoginHistoryStatus::SUCCESS], 5],

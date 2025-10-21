@@ -13,6 +13,7 @@
 
 namespace Eccube\Service;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\UnitOfWork;
 use Eccube\Entity\Cart;
@@ -29,6 +30,7 @@ use Eccube\Session\Session;
 use Eccube\Util\StringUtil;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class CartService
 {
@@ -123,7 +125,7 @@ class CartService
      *
      * @return Cart[]
      */
-    public function getCarts($empty_delete = false)
+    public function getCarts($empty_delete = false): array
     {
         if (null !== $this->carts) {
             if ($empty_delete) {
@@ -159,7 +161,7 @@ class CartService
      *
      * @return Cart[]
      */
-    public function getPersistedCarts()
+    public function getPersistedCarts(): array
     {
         return $this->cartRepository->findBy(['Customer' => $this->getUser()]);
     }
@@ -169,7 +171,7 @@ class CartService
      *
      * @return Cart[]
      */
-    public function getSessionCarts()
+    public function getSessionCarts(): array
     {
         $cartKeys = $this->session->get('cart_keys', []);
 
@@ -182,8 +184,10 @@ class CartService
 
     /**
      * 会員が保持する永続化されたカートと、非会員時のカートをマージする.
+     *
+     * @return void
      */
-    public function mergeFromPersistedCart()
+    public function mergeFromPersistedCart(): void
     {
         $persistedCarts = $this->getPersistedCarts();
         $sessionCarts = $this->getSessionCarts();
@@ -209,7 +213,7 @@ class CartService
     /**
      * @return Cart|null
      */
-    public function getCart()
+    public function getCart(): ?Cart
     {
         $Carts = $this->getCarts();
 
@@ -234,11 +238,11 @@ class CartService
     }
 
     /**
-     * @param CartItem[] $cartItems
+     * @param array<int, CartItem>|Collection<int, CartItem> $cartItems
      *
      * @return CartItem[]
      */
-    protected function mergeAllCartItems($cartItems = [])
+    protected function mergeAllCartItems($cartItems = []): array
     {
         /** @var CartItem[] $allCartItems */
         $allCartItems = [];
@@ -251,19 +255,19 @@ class CartService
     }
 
     /**
-     * @param $cartItems
-     * @param $allCartItems
+     * @param array<int, CartItem>|Collection<int, CartItem> $cartItems
+     * @param array<int, CartItem>|Collection<int, CartItem> $allCartItems
      *
-     * @return array
+     * @return array<mixed>
      */
-    protected function mergeCartItems($cartItems, $allCartItems)
+    protected function mergeCartItems($cartItems, $allCartItems): array
     {
         foreach ($cartItems as $item) {
             $itemExists = false;
             foreach ($allCartItems as $itemInArray) {
                 // 同じ明細があればマージする
                 if ($this->cartItemComparator->compare($item, $itemInArray)) {
-                    $itemInArray->setQuantity($itemInArray->getQuantity() + $item->getQuantity());
+                    $itemInArray->setQuantity(bcadd($itemInArray->getQuantity(), $item->getQuantity()));
                     $itemExists = true;
                     break;
                 }
@@ -276,7 +280,12 @@ class CartService
         return $allCartItems;
     }
 
-    protected function restoreCarts($cartItems)
+    /**
+     * @param array<int, CartItem> $cartItems
+     *
+     * @return void
+     */
+    protected function restoreCarts($cartItems): void
     {
         foreach ($this->getCarts() as $Cart) {
             foreach ($Cart->getCartItems() as $i) {
@@ -293,14 +302,16 @@ class CartService
 
         foreach ($cartItems as $item) {
             $allocatedId = $this->cartItemAllocator->allocate($item);
-            $cartKey = $this->createCartKey($allocatedId, $this->getUser());
+            /** @var Customer $Customer */
+            $Customer = $this->getUser();
+            $cartKey = $this->createCartKey($allocatedId, $Customer);
 
             if (isset($Carts[$cartKey])) {
                 $Cart = $Carts[$cartKey];
                 $Cart->addCartItem($item);
                 $item->setCart($Cart);
             } else {
-                /** @var Cart $Cart */
+                /** @var Cart|null $Cart */
                 $Cart = $this->cartRepository->findOneBy(['cart_key' => $cartKey]);
                 if ($Cart) {
                     foreach ($Cart->getCartItems() as $i) {
@@ -324,12 +335,12 @@ class CartService
     /**
      * カートに商品を追加します.
      *
-     * @param $ProductClass ProductClass 商品規格
-     * @param $quantity int 数量
+     * @param ProductClass|int $ProductClass  商品規格
+     * @param string $quantity 数量
      *
      * @return bool 商品を追加できた場合はtrue
      */
-    public function addProduct($ProductClass, $quantity = 1)
+    public function addProduct($ProductClass, $quantity = '1'): bool
     {
         if (!$ProductClass instanceof ProductClass) {
             $ProductClassId = $ProductClass;
@@ -361,7 +372,12 @@ class CartService
         return true;
     }
 
-    public function removeProduct($ProductClass)
+    /**
+     * @param int|ProductClass $ProductClass
+     *
+     * @return bool
+     */
+    public function removeProduct($ProductClass): bool
     {
         if (!$ProductClass instanceof ProductClass) {
             $ProductClassId = $ProductClass;
@@ -392,11 +408,16 @@ class CartService
         return true;
     }
 
-    public function save()
+    /**
+     * @return void
+     */
+    public function save(): void
     {
         $cartKeys = [];
         foreach ($this->carts as $Cart) {
-            $Cart->setCustomer($this->getUser());
+            /** @var Customer $Customer */
+            $Customer = $this->getUser();
+            $Cart->setCustomer($Customer);
             $this->entityManager->persist($Cart);
             foreach ($Cart->getCartItems() as $item) {
                 $this->entityManager->persist($item);
@@ -409,11 +430,11 @@ class CartService
     }
 
     /**
-     * @param  string $pre_order_id
+     * @param  string|null $pre_order_id
      *
      * @return CartService
      */
-    public function setPreOrderId($pre_order_id)
+    public function setPreOrderId($pre_order_id): CartService
     {
         $this->getCart()->setPreOrderId($pre_order_id);
 
@@ -423,7 +444,7 @@ class CartService
     /**
      * @return string|null
      */
-    public function getPreOrderId()
+    public function getPreOrderId(): ?string
     {
         $Cart = $this->getCart();
         if (!empty($Cart)) {
@@ -436,7 +457,7 @@ class CartService
     /**
      * @return CartService
      */
-    public function clear()
+    public function clear(): CartService
     {
         $Carts = $this->getCarts();
         if (!empty($Carts)) {
@@ -465,8 +486,10 @@ class CartService
 
     /**
      * @param CartItemComparator $cartItemComparator
+     *
+     * @return void
      */
-    public function setCartItemComparator($cartItemComparator)
+    public function setCartItemComparator($cartItemComparator): void
     {
         $this->cartItemComparator = $cartItemComparator;
     }
@@ -475,8 +498,10 @@ class CartService
      * カートキーで指定したインデックスにあるカートを優先にする
      *
      * @param string $cartKey カートキー
+     *
+     * @return void
      */
-    public function setPrimary($cartKey)
+    public function setPrimary($cartKey): void
     {
         $Carts = $this->getCarts();
         $primary = $Carts[0];
@@ -495,15 +520,18 @@ class CartService
         $this->save();
     }
 
-    protected function getUser()
+    /**
+     * @return UserInterface|null
+     */
+    protected function getUser(): ?UserInterface
     {
         if (null === $token = $this->tokenStorage->getToken()) {
-            return;
+            return null;
         }
 
         if (!is_object($user = $token->getUser())) {
             // e.g. anonymous authentication
-            return;
+            return null;
         }
 
         return $user;
@@ -511,8 +539,11 @@ class CartService
 
     /**
      * @param string $allocatedId
+     * @param Customer|null $Customer
+     *
+     * @return string
      */
-    protected function createCartKey($allocatedId, ?Customer $Customer = null)
+    protected function createCartKey($allocatedId, ?Customer $Customer = null): string
     {
         if ($Customer instanceof Customer) {
             return $Customer->getId().'_'.$allocatedId;

@@ -14,6 +14,7 @@
 namespace Eccube\Tests\Form\Type;
 
 use Eccube\Form\Type\PhoneNumberType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormInterface;
 
@@ -34,7 +35,7 @@ class PhoneNumberTypeTest extends AbstractTypeTestCase
      *
      * @return array
      */
-    public function getValidTestData()
+    public static function getValidTestData()
     {
         return [
             [
@@ -111,8 +112,9 @@ class PhoneNumberTypeTest extends AbstractTypeTestCase
     }
 
     /**
-     * @dataProvider getValidTestData
+     * @param mixed $data
      */
+    #[DataProvider(methodName: 'getValidTestData')]
     public function testValidData($data)
     {
         $this->form->submit($data);

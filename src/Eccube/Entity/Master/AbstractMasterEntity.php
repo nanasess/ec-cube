@@ -14,13 +14,13 @@
 namespace Eccube\Entity\Master;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Entity\AbstractEntity;
 
 /**
- * AbstractMasterentity
- *
- * @ORM\MappedSuperclass
+ * AbstractMasterEntity
  */
-abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implements \Stringable
+#[ORM\MappedSuperclass]
+abstract class AbstractMasterEntity extends AbstractEntity implements \Stringable
 {
     /**
      * @return string
@@ -28,32 +28,27 @@ abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implem
     #[\Override]
     public function __toString(): string
     {
-        return (string) $this->getName();
+        return $this->getName();
     }
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="smallint", options={"unsigned":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="NONE")
+     * @var int|null
      */
+    #[ORM\Id]
+    #[ORM\Column(name: 'id', type: 'smallint', options: ['unsigned' => true])]
+    #[ORM\GeneratedValue(strategy: 'NONE')]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255)
      */
+    #[ORM\Column(name: 'name', type: 'string', length: 255)]
     protected $name;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="sort_no", type="smallint", options={"unsigned":true})
      */
+    #[ORM\Column(name: 'sort_no', type: 'smallint', options: ['unsigned' => true])]
     protected $sort_no;
 
     /**
@@ -63,7 +58,7 @@ abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implem
      *
      * @return $this
      */
-    public function setId($id)
+    public function setId($id): static
     {
         $this->id = $id;
 
@@ -73,9 +68,9 @@ abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implem
     /**
      * Get id.
      *
-     * @return int
+     * @return int|null
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -87,7 +82,7 @@ abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implem
      *
      * @return $this
      */
-    public function setName($name)
+    public function setName($name): static
     {
         $this->name = $name;
 
@@ -99,7 +94,7 @@ abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implem
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -111,7 +106,7 @@ abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implem
      *
      * @return $this
      */
-    public function setSortNo($sortNo)
+    public function setSortNo($sortNo): static
     {
         $this->sort_no = $sortNo;
 
@@ -123,27 +118,40 @@ abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implem
      *
      * @return int
      */
-    public function getSortNo()
+    public function getSortNo(): int
     {
         return $this->sort_no;
     }
 
-    public function __get($name)
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function __get($name): mixed
     {
         return self::getConstantValue($name);
     }
 
-    public function __set($name, $value)
-    {
-        throw new \InvalidArgumentException();
-    }
-
-    public static function __callStatic($name, $arguments)
+    /**
+     * @param string $name
+     * @param mixed $arguments
+     *
+     * @return mixed
+     */
+    public static function __callStatic($name, $arguments): mixed
     {
         return self::getConstantValue($name);
     }
 
-    protected static function getConstantValue($name)
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     *
+     * @throws \ReflectionException
+     */
+    protected static function getConstantValue($name): mixed
     {
         if (in_array($name, ['id', 'name', 'sortNo'])) {
             throw new \InvalidArgumentException();

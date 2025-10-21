@@ -19,22 +19,22 @@ use Eccube\Repository\DeliveryRepository;
 use Eccube\Repository\ProductRepository;
 use Eccube\Tests\Fixture\Generator;
 use Faker\Factory as Faker;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'eccube:fixtures:generate', description: 'Dummy data generator')]
 class GenerateDummyDataCommand extends Command
 {
-    protected static $defaultName = 'eccube:fixtures:generate';
-
     /**
      * @var Generator
      */
     protected $generator;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     protected $entityManager;
 
@@ -57,11 +57,13 @@ class GenerateDummyDataCommand extends Command
         $this->productRepository = $productRepository;
     }
 
+    /**
+     * @return void
+     */
     #[\Override]
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Dummy data generator')
             ->addOption('with-locale', null, InputOption::VALUE_REQUIRED, 'Set to the locale.', 'ja_JP')
             ->addOption('without-image', null, InputOption::VALUE_NONE, 'Do not generate images.')
             ->addOption('products', null, InputOption::VALUE_REQUIRED, 'Number of Products.', 100)
@@ -83,7 +85,7 @@ EOF
     }
 
     #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locale = $input->getOption('with-locale');
         $notImage = $input->getOption('without-image');
@@ -183,7 +185,7 @@ EOF
                 }
                 $this->entityManager->flush();
                 $j++;
-                if ($output->getVerbosity() >= OutputInterface::VERBOSITY_NORMAL && ($j % 100) === 0 && $j > 0) {
+                if ($output->getVerbosity() >= OutputInterface::VERBOSITY_NORMAL && ($j % 100) === 0) {
                     $output->writeln(' ...'.$j);
                 }
             }

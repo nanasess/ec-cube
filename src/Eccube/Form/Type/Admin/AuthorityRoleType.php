@@ -13,6 +13,8 @@
 
 namespace Eccube\Form\Type\Admin;
 
+use Eccube\Entity\AuthorityRole;
+use Eccube\Entity\Master\Authority;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -25,19 +27,20 @@ use Symfony\Component\Validator\Constraints\Regex;
 
 class AuthorityRoleType extends AbstractType
 {
-    public function __construct()
-    {
-    }
-
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('Authority', EntityType::class, [
-                'class' => \Eccube\Entity\Master\Authority::class,
+                'class' => Authority::class,
                 'expanded' => false,
                 'multiple' => false,
                 'required' => false,
@@ -69,12 +72,16 @@ class AuthorityRoleType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => \Eccube\Entity\AuthorityRole::class,
+            'data_class' => AuthorityRole::class,
         ]);
     }
 
@@ -82,7 +89,7 @@ class AuthorityRoleType extends AbstractType
      * {@inheritdoc}
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'admin_authority_role';
     }

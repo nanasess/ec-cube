@@ -19,6 +19,7 @@ use Eccube\Entity\Master\ProductStatus;
 use Eccube\Entity\ProductStock;
 use Eccube\Repository\CategoryRepository;
 use Eccube\Repository\Master\ProductStatusRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * ProductRepository#getQueryBuilderBySearchDataAdmin test cases.
@@ -229,12 +230,11 @@ class ProductRepositoryGetQueryBuilderBySearchDataAdminTest extends AbstractProd
     }
 
     /**
-     * @dataProvider dataFormDateProvider
-     *
      * @param string $formName
      * @param string $time
      * @param int $expected
      */
+    #[DataProvider(methodName: 'dataFormDateProvider')]
     public function testDate(string $formName, string $time, int $expected)
     {
         $this->searchData = [
@@ -258,7 +258,7 @@ class ProductRepositoryGetQueryBuilderBySearchDataAdminTest extends AbstractProd
      *
      * @return array
      */
-    public function dataFormDateProvider()
+    public static function dataFormDateProvider()
     {
         return [
             ['create_date_start', 'today', 3],
@@ -273,12 +273,11 @@ class ProductRepositoryGetQueryBuilderBySearchDataAdminTest extends AbstractProd
     }
 
     /**
-     * @dataProvider dataFormDateTimeProvider
-     *
      * @param string $formName
      * @param string $time
      * @param int $expected
      */
+    #[DataProvider(methodName: 'dataFormDateTimeProvider')]
     public function testDateTime(string $formName, string $time, int $expected)
     {
         $this->searchData = [
@@ -297,7 +296,7 @@ class ProductRepositoryGetQueryBuilderBySearchDataAdminTest extends AbstractProd
      *
      * @return array
      */
-    public function dataFormDateTimeProvider()
+    public static function dataFormDateTimeProvider()
     {
         return [
             ['create_datetime_start', '- 1 hour', 3],

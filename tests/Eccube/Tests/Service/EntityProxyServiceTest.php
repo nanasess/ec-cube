@@ -13,7 +13,7 @@
 
 namespace Eccube\Tests\Service;
 
-use Eccube\Annotation\EntityExtension;
+use Eccube\Attribute\EntityExtension;
 use Eccube\Entity\Product;
 use Eccube\Service\EntityProxyService;
 use Eccube\Tests\EccubeTestCase;
@@ -86,7 +86,7 @@ class EntityProxyServiceTest extends EccubeTestCase
         self::assertNotNull($sequence);
     }
 
-    public function testGenerateFromOriginalFile()
+    public function testGenerateFromOriginalFile(): never
     {
         $this->markTestIncomplete();
 

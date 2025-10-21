@@ -18,7 +18,7 @@ use Eccube\Controller\AbstractController;
 use Eccube\Repository\CalendarRepository;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class CalendarController extends AbstractController
 {
@@ -35,9 +35,14 @@ class CalendarController extends AbstractController
         $this->calendarRepository = $calendarRepository;
     }
 
-    #[Route('/block/calendar', name: 'block_calendar', methods: ['GET'])]
-    #[Template('Block/calendar.twig')]
-    public function index(Request $request)
+    /**
+     * @param Request $request
+     *
+     * @return array<string, mixed>
+     */
+    #[Route(path: '/block/calendar', name: 'block_calendar', methods: ['GET'])]
+    #[Template(template: 'Block/calendar.twig')]
+    public function index(Request $request): array
     {
         $today = Carbon::now();
         $firstDateOfThisMonth = $today->copy()->startOfMonth();
@@ -81,13 +86,13 @@ class CalendarController extends AbstractController
     /**
      * カレンダー配列に定休日と今日フラグを設定します
      *
-     * @param array $targetMonthCalendar カレンダー配列
-     * @param array $holidayListOfTwoMonths 定休日リスト
+     * @param array<mixed> $targetMonthCalendar カレンダー配列
+     * @param array<mixed> $holidayListOfTwoMonths 定休日リスト
      * @param Carbon $targetDate ターゲット日
      *
-     * @return array カレンダーの配列
+     * @return array<int, array<string, string>> カレンダーの配列
      */
-    private function setHolidayAndTodayFlag($targetMonthCalendar, $holidayListOfTwoMonths, Carbon $targetDate)
+    private function setHolidayAndTodayFlag($targetMonthCalendar, $holidayListOfTwoMonths, Carbon $targetDate): array
     {
         for ($i = 0; $i < count($targetMonthCalendar); $i++) {
             // カレンダー配列の日が空の場合は処理をスキップ
@@ -124,9 +129,9 @@ class CalendarController extends AbstractController
      *
      * @param Carbon $firstDateOfTargetMonth 月初日
      *
-     * @return array カレンダーの配列
+     * @return array<int, array<string, string>> カレンダーの配列
      */
-    private function createCalendar(Carbon $firstDateOfTargetMonth)
+    private function createCalendar(Carbon $firstDateOfTargetMonth): array
     {
         // 週のうちの何日目か 0 (日曜)から 6 (土曜)を取得
         $firstDayOfWeek = $firstDateOfTargetMonth->dayOfWeek;
@@ -183,7 +188,7 @@ class CalendarController extends AbstractController
      *
      * @return string 曜日の文字 : Sun(日曜)からSat(土曜)
      */
-    private function getDayOfWeekString($dayOfWeekNumber)
+    private function getDayOfWeekString($dayOfWeekNumber): string
     {
         $weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 

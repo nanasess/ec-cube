@@ -912,7 +912,7 @@ class ShoppingControllerWithMultipleTest extends AbstractShoppingControllerTestC
     /**
      * Test add multi shipping
      */
-    public function testAddMultiShippingWithoutCart()
+    public function testAddMultiShippingWithoutCart(): never
     {
         $this->markTestIncomplete('カートのクリア処理');
 
@@ -1250,8 +1250,8 @@ class ShoppingControllerWithMultipleTest extends AbstractShoppingControllerTestC
 
         // 完了画面
         $this->scenarioComplete(
-            $this->generateUrl('shopping_confirm'),
             $Customer,
+            $this->generateUrl('shopping_confirm'),
             [
                 [
                     'Delivery' => 1,

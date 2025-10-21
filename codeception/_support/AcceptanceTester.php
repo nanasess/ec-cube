@@ -20,6 +20,8 @@ use Codeception\Step\Assertion;
 use Codeception\Step\Condition;
 use Codeception\Util\Fixtures;
 use Eccube\Common\Constant;
+use Eccube\Entity\ProductClass;
+use Eccube\Entity\ProductStock;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Interactions\DragAndDropBy;
@@ -126,16 +128,16 @@ class AcceptanceTester extends Actor
         $entityManager = Fixtures::get('entityManager');
 
         if (!is_array($stock)) {
-            $pc = $entityManager->getRepository(Eccube\Entity\ProductClass::class)->findOneBy(['Product' => $pid]);
+            $pc = $entityManager->getRepository(ProductClass::class)->findOneBy(['Product' => $pid]);
             $pc->setStock($stock);
             $pc->setStockUnlimited(Constant::DISABLED);
-            $ps = $entityManager->getRepository(Eccube\Entity\ProductStock::class)->findOneBy(['ProductClass' => $pc->getId()]);
+            $ps = $entityManager->getRepository(ProductStock::class)->findOneBy(['ProductClass' => $pc->getId()]);
             $ps->setStock($stock);
             $entityManager->persist($pc);
             $entityManager->persist($ps);
             $entityManager->flush();
         } else {
-            $pcs = $entityManager->getRepository(Eccube\Entity\ProductClass::class)
+            $pcs = $entityManager->getRepository(ProductClass::class)
                 ->createQueryBuilder('o')
                 ->where('o.Product = '.$pid)
                 ->andwhere('o.ClassCategory1 > 0')
@@ -145,7 +147,7 @@ class AcceptanceTester extends Actor
                 $pc->setStock($stock[$key]);
                 $pc->setStockUnlimited(Constant::DISABLED);
                 $pc->setSaleLimit(2);
-                $ps = $entityManager->getRepository(Eccube\Entity\ProductStock::class)->findOneBy(['ProductClass' => $pc->getId()]);
+                $ps = $entityManager->getRepository(ProductStock::class)->findOneBy(['ProductClass' => $pc->getId()]);
                 $ps->setStock($stock[$key]);
                 $entityManager->persist($pc);
                 $entityManager->persist($ps);
@@ -169,6 +171,7 @@ class AcceptanceTester extends Actor
     }
 
     /**
+     * @param mixed $retryCount
      * @param string|$fileNameRegex ファイル名のパターン(CI環境で同時実行したときに区別するため)
      *
      * @return string ファイルパス
@@ -260,6 +263,9 @@ class AcceptanceTester extends Actor
      * AcceptanceTesterActions から移植
      *
      * @see \Codeception\Module\WebDriver::see()
+     *
+     * @param mixed $text
+     * @param mixed|null $selector
      */
     public function see($text, $selector = null): void
     {
@@ -271,6 +277,9 @@ class AcceptanceTester extends Actor
      * AcceptanceTesterActions から移植
      *
      * @see \Codeception\Module\WebDriver::seeInField()
+     *
+     * @param mixed $field
+     * @param mixed $value
      */
     public function seeInField($field, $value): void
     {
@@ -282,6 +291,8 @@ class AcceptanceTester extends Actor
      * AcceptanceTesterActions から移植
      *
      * @see \Codeception\Module\WebDriver::waitForText()
+     *
+     * @param mixed|null $selector
      */
     public function waitForText(string $text, int $timeout = 10, $selector = null): void
     {
@@ -293,6 +304,8 @@ class AcceptanceTester extends Actor
      * AcceptanceTesterActions から移植
      *
      * @see \Codeception\Module\WebDriver::amOnPage()
+     *
+     * @param mixed $page
      */
     public function amOnPage($page): void
     {
@@ -305,6 +318,7 @@ class AcceptanceTester extends Actor
      * AcceptanceTesterActions から移植
      *
      * @param string|array $link
+     * @param mixed|null $context
      *
      * @see \Codeception\Module\WebDriver::click()
      */

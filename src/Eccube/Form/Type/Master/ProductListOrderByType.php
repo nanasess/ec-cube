@@ -25,9 +25,14 @@ class ProductListOrderByType extends AbstractType
 {
     /**
      * {@inheritdoc}
+     *
+     * @param FormBuilderInterface $builder
+     * @param array<string, mixed> $options
+     *
+     * @return void
      */
     #[\Override]
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
             $options = $event->getForm()->getConfig()->getOptions();
@@ -39,9 +44,13 @@ class ProductListOrderByType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @param OptionsResolver $resolver
+     *
+     * @return void
      */
     #[\Override]
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'class' => ProductListOrderBy::class,
@@ -50,18 +59,22 @@ class ProductListOrderByType extends AbstractType
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     #[\Override]
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'product_list_order_by';
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return string
      */
     #[\Override]
-    public function getParent()
+    public function getParent(): string
     {
         return MasterType::class;
     }

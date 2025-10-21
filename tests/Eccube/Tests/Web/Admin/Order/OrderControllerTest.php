@@ -27,6 +27,7 @@ use Eccube\Repository\Master\SexRepository;
 use Eccube\Repository\OrderRepository;
 use Eccube\Repository\PaymentRepository;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Mime\Email;
@@ -339,9 +340,8 @@ class OrderControllerTest extends AbstractAdminWebTestCase
 
     /**
      * @param int $orderStatusId
-     *
-     * @dataProvider dataBulkOrderStatusProvider
      */
+    #[DataProvider(methodName: 'dataBulkOrderStatusProvider')]
     public function testBulkOrderStatus($orderStatusId)
     {
         $this->markTestIncomplete('使用していないルーティングのためスキップ.');
@@ -385,7 +385,7 @@ class OrderControllerTest extends AbstractAdminWebTestCase
     /**
      * @return array
      */
-    public function dataBulkOrderStatusProvider()
+    public static function dataBulkOrderStatusProvider()
     {
         return [
             [OrderStatus::PAID],

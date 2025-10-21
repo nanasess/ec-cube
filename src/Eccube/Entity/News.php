@@ -14,23 +14,18 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\NewsRepository;
 
 if (!class_exists(News::class)) {
     /**
      * News
-     *
-     * @ORM\Table(name="dtb_news")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\NewsRepository")
-     *
-     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
      */
+    #[ORM\Table(name: 'dtb_news')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: NewsRepository::class)]
+    #[ORM\Cache(usage: 'NONSTRICT_READ_WRITE')]
     class News extends AbstractEntity implements \Stringable
     {
         /**
@@ -39,94 +34,79 @@ if (!class_exists(News::class)) {
         #[\Override]
         public function __toString(): string
         {
-            return (string) $this->getTitle();
+            return $this->getTitle();
         }
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+        /**  @phpstan-ignore-next-line Doctrine ORMによって自動生成されるため、setterは不要 */
         private $id;
 
         /**
          * @var \DateTime|null
-         *
-         * @ORM\Column(name="publish_date", type="datetimetz", nullable=true)
          */
+        #[ORM\Column(name: 'publish_date', type: 'datetimetz', nullable: true)]
         private $publish_date;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="title", type="string", length=255)
          */
+        #[ORM\Column(name: 'title', type: 'string', length: 255)]
         private $title;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="description", type="text", nullable=true)
          */
+        #[ORM\Column(name: 'description', type: 'text', nullable: true)]
         private $description;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="url", type="string", length=4000, nullable=true)
          */
+        #[ORM\Column(name: 'url', type: 'string', length: 4000, nullable: true)]
         private $url;
 
         /**
          * @var bool
-         *
-         * @ORM\Column(name="link_method", type="boolean", options={"default":false})
          */
+        #[ORM\Column(name: 'link_method', type: 'boolean', options: ['default' => false])]
         private $link_method = false;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
          * @var bool
-         *
-         * @ORM\Column(name="visible", type="boolean", options={"default":true})
          */
+        #[ORM\Column(name: 'visible', type: 'boolean', options: ['default' => true])]
         private $visible;
 
         /**
-         * @var Member
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Member")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
-         * })
+         * @var Member|null
          */
+        #[ORM\ManyToOne(targetEntity: Member::class)]
+        #[ORM\JoinColumn(name: 'creator_id', referencedColumnName: 'id')]
         private $Creator;
 
         /**
          * Get id.
          *
-         * @return int
+         * @return int|null
          */
-        public function getId()
+        public function getId(): ?int
         {
             return $this->id;
         }
@@ -138,7 +118,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setPublishDate($publishDate = null)
+        public function setPublishDate($publishDate = null): News
         {
             $this->publish_date = $publishDate;
 
@@ -150,7 +130,7 @@ if (!class_exists(News::class)) {
          *
          * @return \DateTime|null
          */
-        public function getPublishDate()
+        public function getPublishDate(): ?\DateTime
         {
             return $this->publish_date;
         }
@@ -162,7 +142,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setTitle($title)
+        public function setTitle($title): News
         {
             $this->title = $title;
 
@@ -174,7 +154,7 @@ if (!class_exists(News::class)) {
          *
          * @return string
          */
-        public function getTitle()
+        public function getTitle(): string
         {
             return $this->title;
         }
@@ -186,7 +166,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setDescription($description = null)
+        public function setDescription($description = null): News
         {
             $this->description = $description;
 
@@ -198,7 +178,7 @@ if (!class_exists(News::class)) {
          *
          * @return string|null
          */
-        public function getDescription()
+        public function getDescription(): ?string
         {
             return $this->description;
         }
@@ -210,7 +190,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setUrl($url = null)
+        public function setUrl($url = null): News
         {
             $this->url = $url;
 
@@ -222,7 +202,7 @@ if (!class_exists(News::class)) {
          *
          * @return string|null
          */
-        public function getUrl()
+        public function getUrl(): ?string
         {
             return $this->url;
         }
@@ -234,7 +214,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setLinkMethod($linkMethod)
+        public function setLinkMethod($linkMethod): News
         {
             $this->link_method = $linkMethod;
 
@@ -246,7 +226,7 @@ if (!class_exists(News::class)) {
          *
          * @return bool
          */
-        public function isLinkMethod()
+        public function isLinkMethod(): bool
         {
             return $this->link_method;
         }
@@ -258,7 +238,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setCreateDate($createDate)
+        public function setCreateDate($createDate): News
         {
             $this->create_date = $createDate;
 
@@ -268,9 +248,9 @@ if (!class_exists(News::class)) {
         /**
          * Get createDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getCreateDate()
+        public function getCreateDate(): ?\DateTime
         {
             return $this->create_date;
         }
@@ -282,7 +262,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setUpdateDate($updateDate)
+        public function setUpdateDate($updateDate): News
         {
             $this->update_date = $updateDate;
 
@@ -292,17 +272,17 @@ if (!class_exists(News::class)) {
         /**
          * Get updateDate.
          *
-         * @return \DateTime
+         * @return \DateTime|null
          */
-        public function getUpdateDate()
+        public function getUpdateDate(): ?\DateTime
         {
             return $this->update_date;
         }
 
         /**
-         * @return int
+         * @return bool
          */
-        public function isVisible()
+        public function isVisible(): bool
         {
             return $this->visible;
         }
@@ -312,7 +292,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setVisible($visible)
+        public function setVisible($visible): News
         {
             $this->visible = $visible;
 
@@ -326,7 +306,7 @@ if (!class_exists(News::class)) {
          *
          * @return News
          */
-        public function setCreator(?Member $creator = null)
+        public function setCreator(?Member $creator = null): News
         {
             $this->Creator = $creator;
 
@@ -338,7 +318,7 @@ if (!class_exists(News::class)) {
          *
          * @return Member|null
          */
-        public function getCreator()
+        public function getCreator(): ?Member
         {
             return $this->Creator;
         }
