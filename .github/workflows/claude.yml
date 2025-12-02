@@ -37,6 +37,11 @@ jobs:
           path: doc4.ec-cube.net
           fetch-depth: 1
 
+      - name: Install PHP dependencies
+        uses: php-actions/composer@v6
+        with:
+          args: --no-dev --prefer-dist --no-interaction
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
@@ -55,10 +60,12 @@ jobs:
             ## 情報ソース
             回答の際は、以下の情報ソースを参照してください：
 
-            1. **このリポジトリのソースコード** - 実装の詳細を確認
-            2. **EC-CUBE公式ドキュメント** - `doc4.ec-cube.net/` ディレクトリにclone済み
+            1. **このリポジトリのソースコード** - `src/Eccube/` 以下の実装を確認
+            2. **依存パッケージのソースコード** - `vendor/` 以下（Symfony等）の実装を確認
+               - Symfonyの機能については `vendor/symfony/` を参照
+            3. **EC-CUBE公式ドキュメント** - `doc4.ec-cube.net/` ディレクトリにclone済み
                - Grep/Read ツールで `doc4.ec-cube.net/` 内のMarkdownファイルを検索・参照
-            3. **EC-CUBE本体のIssue/PR** (EC-CUBE/ec-cube)
+            4. **EC-CUBE本体のIssue/PR** (EC-CUBE/ec-cube)
                - `gh search issues --repo EC-CUBE/ec-cube "<検索キーワード>"` で関連Issue検索
                - `gh search prs --repo EC-CUBE/ec-cube "<検索キーワード>"` で関連PR検索
                - `gh issue view <番号> --repo EC-CUBE/ec-cube` で詳細確認
