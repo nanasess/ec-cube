@@ -56,7 +56,15 @@ jobs:
           # 日本語で回答し、Issue/PRコメントで回答するように設定
           prompt: |
             日本語で回答してください。
-            Issue や PR のコメントで質問された場合は、`gh issue comment` または `gh pr comment` コマンドを使用してコメントで回答してください。
+
+            ## 対応するIssue
+            - リポジトリ: ${{ github.repository }}
+            - Issue番号: #${{ github.event.issue.number }}
+            - タイトル: ${{ github.event.issue.title }}
+            - 質問内容:
+            ${{ github.event.issue.body }}
+
+            上記の質問に対して、`gh issue comment ${{ github.event.issue.number }} --body "回答内容"` コマンドを使用してIssueにコメントで回答してください。
 
             ## 情報ソース
             回答の際は、以下の情報ソースを参照してください：
