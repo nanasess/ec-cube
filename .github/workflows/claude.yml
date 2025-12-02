@@ -66,5 +66,5 @@ jobs:
             回答には参照した情報ソースへのリンクを含めてください。
 
           # Issue/PRコメントの読み書き、GitHub検索を許可
-          allowed_tools: 'Bash(gh issue comment:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh search:*)'
+          claude_args: '--allowed-tools "Bash(gh issue comment:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh search:*)"'
 
