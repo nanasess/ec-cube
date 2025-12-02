@@ -1,0 +1,51 @@
+name: 🤖 仕様質問(Ask Claude)
+description: EC-CUBEの仕様や実装について@claudeに質問
+labels: question
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## @claude への質問
+        EC-CUBEの仕様、実装方法、カスタマイズについて質問できます。
+        質問内容に `@claude` を含めると、AIが回答します。
+
+        ⚠️ **注意**: 脆弱性に関する質問は[問い合わせフォーム](https://www.ec-cube.net/contact/)へ
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: カテゴリ
+      options:
+        - 機能仕様（購入フロー、会員機能など）
+        - 管理画面の使い方
+        - カスタマイズ方法（プラグイン開発、テンプレート編集）
+        - データベース・エンティティ
+        - イベント・フックポイント
+        - 設定・環境構築
+        - その他
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: 質問内容
+      description: |
+        `@claude` を含めて質問してください。
+        具体的なコードや設定ファイルがあれば記載すると、より正確な回答が得られます。
+      placeholder: |
+        @claude
+
+        EC-CUBEの購入フローで、在庫チェックはどのタイミングで行われますか？
+        PurchaseFlowのどのプロセッサーで処理されていますか？
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 補足情報（任意）
+      description: EC-CUBEのバージョン、関連するコード、試したことなど
+      placeholder: |
+        EC-CUBE: 4.3.x
+        PHP: 8.2.x

@@ -30,6 +30,13 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Checkout EC-CUBE documentation
+        uses: actions/checkout@v4
+        with:
+          repository: EC-CUBE/doc4.ec-cube.net
+          path: doc4.ec-cube.net
+          fetch-depth: 1
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
@@ -45,6 +52,19 @@ jobs:
             日本語で回答してください。
             Issue や PR のコメントで質問された場合は、`gh issue comment` または `gh pr comment` コマンドを使用してコメントで回答してください。
 
-          # Issue/PRコメントの読み書きを許可
-          allowed_tools: 'Bash(gh issue comment:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh pr view:*)'
+            ## 情報ソース
+            回答の際は、以下の情報ソースを参照してください：
+
+            1. **このリポジトリのソースコード** - 実装の詳細を確認
+            2. **EC-CUBE公式ドキュメント** - `doc4.ec-cube.net/` ディレクトリにclone済み
+               - Grep/Read ツールで `doc4.ec-cube.net/` 内のMarkdownファイルを検索・参照
+            3. **EC-CUBE本体のIssue/PR** (EC-CUBE/ec-cube)
+               - `gh search issues --repo EC-CUBE/ec-cube "<検索キーワード>"` で関連Issue検索
+               - `gh search prs --repo EC-CUBE/ec-cube "<検索キーワード>"` で関連PR検索
+               - `gh issue view <番号> --repo EC-CUBE/ec-cube` で詳細確認
+
+            回答には参照した情報ソースへのリンクを含めてください。
+
+          # Issue/PRコメントの読み書き、GitHub検索を許可
+          allowed_tools: 'Bash(gh issue comment:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh search:*)'
 
