@@ -76,3 +76,6 @@ jobs:
           # Issue/PRコメントの読み書き、GitHub検索を許可
           claude_args: '--allowed-tools "Bash(gh issue comment:*),Bash(gh pr comment:*),Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh search:*)"'
 
+          # デバッグ用：Claudeの出力を表示
+          show_full_output: true
+
