@@ -88,3 +88,16 @@ jobs:
           # デバッグ用：Claudeの出力を表示
           show_full_output: true
 
+      - name: Upload Claude Code artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-code-outputs-${{ github.event.issue.number }}
+          path: |
+            *.csv
+            *.md
+            *.txt
+            *.json
+            *.html
+          if-no-files-found: ignore
+
