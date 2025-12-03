@@ -82,7 +82,7 @@ jobs:
             回答には参照した情報ソースへのリンクを含めてください。
 
           # Issue/PRコメントの読み書き、GitHub検索、ファイル書き込みを許可
-          claude_args: '--allowed-tools "Bash(gh:*),Write(/home/runner/work/*:*)"'
+          claude_args: '--allowedTools "Bash(gh issue comment:*),Bash(gh issue view:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh search:*),Write"'
 
           # デバッグ用：Claudeの出力を表示
           show_full_output: true
