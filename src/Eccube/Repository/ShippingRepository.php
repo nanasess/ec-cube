@@ -54,7 +54,7 @@ class ShippingRepository extends AbstractRepository
         }
         // multi
         if (isset($searchData['multi']) && StringUtil::isNotBlank($searchData['multi'])) {
-            $multi = preg_match('/^\d{0,10}$/', $searchData['multi']) ? $searchData['multi'] : null;
+            $multi = preg_match('/^\d{0,10}$/', (string) $searchData['multi']) ? $searchData['multi'] : null;
             $qb
                 ->andWhere('s.id = :multi OR s.name01 LIKE :likemulti OR s.name02 LIKE :likemulti OR '.
                             's.kana01 LIKE :likemulti OR s.kana02 LIKE :likemulti OR s.company_name LIKE :likemulti')
@@ -126,7 +126,7 @@ class ShippingRepository extends AbstractRepository
 
         // tel
         if (isset($searchData['phone_number']) && StringUtil::isNotBlank($searchData['phone_number'])) {
-            $tel = preg_replace('/[^0-9]/', '', $searchData['phone_number']);
+            $tel = preg_replace('/[^0-9]/', '', (string) $searchData['phone_number']);
             $qb
                 ->andWhere('s.phone_number LIKE :phone_number')
                 ->setParameter('phone_number', '%'.$tel.'%');

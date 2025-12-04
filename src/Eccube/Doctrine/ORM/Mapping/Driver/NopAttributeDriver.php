@@ -11,19 +11,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Eccube\Annotation;
+namespace Eccube\Doctrine\ORM\Mapping\Driver;
 
-use Doctrine\Common\Annotations\Annotation\Target;
-use Doctrine\ORM\Mapping\Annotation;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 
-/**
- * @Annotation
- * @Target("CLASS")
- */
-final class EntityExtension implements Annotation
+class NopAttributeDriver extends AttributeDriver
 {
-    /**
-     * @var string
-     */
-    public $value;
+    #[\Override]
+    public function getAllClassNames(): array
+    {
+        return [];
+    }
 }

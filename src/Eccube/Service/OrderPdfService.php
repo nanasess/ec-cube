@@ -188,7 +188,7 @@ class OrderPdfService extends Fpdi
         }
 
         // 出荷番号をStringからarrayに変換
-        $ids = explode(',', $formData['ids']);
+        $ids = explode(',', (string) $formData['ids']);
 
         foreach ($ids as $id) {
             $this->lastOrderId = $id;
@@ -268,6 +268,7 @@ class OrderPdfService extends Fpdi
     /**
      * フッターに発行日を出力する.
      */
+    #[\Override]
     public function Footer()
     {
         $this->Cell(0, 0, $this->issueDate, 0, 0, 'R');
@@ -317,7 +318,7 @@ class OrderPdfService extends Fpdi
         $this->lfText(125, 72, $text, 8); // TEL・FAX
 
         // メールアドレス
-        if (strlen($this->baseInfoRepository->getEmail01()) > 0) {
+        if (strlen((string) $this->baseInfoRepository->getEmail01()) > 0) {
             $text = 'Email: '.$this->baseInfoRepository->getEmail01();
             $this->lfText(125, 75, $text, 8); // Email
         }

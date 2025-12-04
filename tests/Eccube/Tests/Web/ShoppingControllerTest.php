@@ -487,7 +487,7 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
         $crawler = $this->scenarioConfirm($Customer);
         // お届け先の設定
         $shipping_url = $crawler->filter('a.btn-shipping')->attr('href');
-        $crawler = $this->scenarioComplete($client, $shipping_url);
+        $crawler = $this->scenarioComplete(null, $shipping_url, $client);
 
         // お届け先一覧
         $shipping_url = str_replace('shipping_change', 'shipping', $shipping_url);
@@ -524,7 +524,7 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
         $this->assertTrue($client->getResponse()->isRedirect($this->generateUrl('shopping')));
 
         // ご注文完了
-        $this->scenarioComplete($client, $this->generateUrl('shopping_confirm'));
+        $this->scenarioComplete(null, $this->generateUrl('shopping_confirm'), $client);
 
         $this->baseInfoRepository->get();
         $Messages = $this->getMailCatcherMessages();

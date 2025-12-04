@@ -15,7 +15,7 @@ namespace Eccube\Controller\Admin\Content;
 
 use Eccube\Controller\AbstractController;
 use Eccube\Util\FilesystemUtil;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -50,11 +50,8 @@ class FileController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/%eccube_admin_route%/content/file_manager", name="admin_content_file", methods={"GET", "POST"})
-     *
-     * @Template("@admin/Content/file.twig")
-     */
+    #[Route('/%eccube_admin_route%/content/file_manager', name: 'admin_content_file', methods: ['GET', 'POST'])]
+    #[Template('@admin/Content/file.twig')]
     public function index(Request $request)
     {
         $this->addInfoOnce('admin.common.restrict_file_upload_info', 'admin');
@@ -85,7 +82,7 @@ class FileController extends AbstractController
         $nowDirList = json_encode(explode('/', trim(str_replace($htmlDir, '', $nowDir), '/')));
         $jailNowDir = $this->getJailDir($nowDir);
         $isTopDir = ($topDir === $jailNowDir);
-        $parentDir = substr($nowDir, 0, strrpos($nowDir, '/'));
+        $parentDir = substr((string) $nowDir, 0, strrpos((string) $nowDir, '/'));
 
         if ('POST' === $request->getMethod()) {
             switch ($request->get('mode')) {
@@ -119,9 +116,7 @@ class FileController extends AbstractController
         ];
     }
 
-    /**
-     * @Route("/%eccube_admin_route%/content/file_view", name="admin_content_file_view", methods={"GET"})
-     */
+    #[Route('/%eccube_admin_route%/content/file_view', name: 'admin_content_file_view', methods: ['GET'])]
     public function view(Request $request)
     {
         $file = $this->convertStrToServer($this->getUserDataDir($request->get('file')));
@@ -203,9 +198,7 @@ class FileController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/%eccube_admin_route%/content/file_delete", name="admin_content_file_delete", methods={"DELETE"})
-     */
+    #[Route('/%eccube_admin_route%/content/file_delete', name: 'admin_content_file_delete', methods: ['DELETE'])]
     public function delete(Request $request)
     {
         $this->isTokenValid();
@@ -226,12 +219,10 @@ class FileController extends AbstractController
         }
 
         // 削除実行時のカレントディレクトリを表示させる
-        return $this->redirectToRoute('admin_content_file', ['tree_select_file' => dirname($selectFile)]);
+        return $this->redirectToRoute('admin_content_file', ['tree_select_file' => dirname((string) $selectFile)]);
     }
 
-    /**
-     * @Route("/%eccube_admin_route%/content/file_download", name="admin_content_file_download", methods={"GET"})
-     */
+    #[Route('/%eccube_admin_route%/content/file_download', name: 'admin_content_file_download', methods: ['GET'])]
     public function download(Request $request)
     {
         $topDir = $this->getUserDataDir();
@@ -239,7 +230,7 @@ class FileController extends AbstractController
         if ($this->checkDir($file, $topDir)) {
             if (!is_dir($file)) {
                 setlocale(LC_ALL, 'ja_JP.UTF-8');
-                $pathParts = pathinfo($file);
+                $pathParts = pathinfo((string) $file);
 
                 $patterns = [
                     '/[a-zA-Z0-9!"#$%&()=~^|@`:*;+{}]/',
@@ -248,7 +239,7 @@ class FileController extends AbstractController
                 ];
 
                 $str = preg_replace($patterns, '', $pathParts['basename']);
-                if (strlen($str) === 0) {
+                if (strlen((string) $str) === 0) {
                     return (new BinaryFileResponse($file))->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
                 } else {
                     return new BinaryFileResponse($file, 200, [
@@ -303,15 +294,15 @@ class FileController extends AbstractController
             $filename = $this->convertStrToServer($file->getClientOriginalName());
             try {
                 // フォルダの存在チェック
-                if (is_dir(rtrim($nowDir, '/\\').\DIRECTORY_SEPARATOR.$filename)) {
+                if (is_dir(rtrim((string) $nowDir, '/\\').\DIRECTORY_SEPARATOR.$filename)) {
                     throw new UnsupportedMediaTypeHttpException(trans('admin.content.file.same_name_folder_exists'));
                 }
                 // 英数字, 半角スペース, _-.() のみ許可
-                if (!preg_match('/\A[a-zA-Z0-9_\-\.\(\) ]+\Z/', $filename)) {
+                if (!preg_match('/\A[a-zA-Z0-9_\-\.\(\) ]+\Z/', (string) $filename)) {
                     throw new UnsupportedMediaTypeHttpException(trans('admin.content.file.folder_name_symbol_error'));
                 }
                 // dotファイルはアップロード不可
-                if (strpos($filename, '.') === 0) {
+                if (str_starts_with((string) $filename, '.')) {
                     throw new UnsupportedMediaTypeHttpException(trans('admin.content.file.dotfile_error'));
                 }
                 // 許可した拡張子以外アップロード不可
@@ -391,13 +382,13 @@ class FileController extends AbstractController
 
         $openDirs = [];
         if ($request->get('tree_status')) {
-            $openDirs = explode('|', $request->get('tree_status'));
+            $openDirs = explode('|', (string) $request->get('tree_status'));
         }
 
         foreach ($finder as $dirs) {
             $path = $this->normalizePath($dirs->getRealPath());
             $type = (iterator_count(Finder::create()->in($path)->directories())) ? '_parent' : '_child';
-            $depth = count(explode('/', $path)) - $defaultDepth;
+            $depth = count(explode('/', (string) $path)) - $defaultDepth;
             $tree[] = [
                 'path' => $path,
                 'type' => $type,
@@ -419,7 +410,7 @@ class FileController extends AbstractController
             $acceptPath = realpath($topDir);
             $targetPath = $file->getRealPath();
 
-            return strpos($targetPath, $acceptPath) === 0;
+            return str_starts_with($targetPath, (string) $acceptPath);
         };
 
         $finder = Finder::create()
@@ -431,14 +422,14 @@ class FileController extends AbstractController
         $dirFinder = $finder->directories();
         try {
             $dirs = $dirFinder->getIterator();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $dirs = [];
         }
 
         $fileFinder = $finder->files();
         try {
             $files = $fileFinder->getIterator();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $files = [];
         }
 
@@ -490,13 +481,13 @@ class FileController extends AbstractController
      */
     protected function checkDir($targetDir, $topDir)
     {
-        if (strpos($targetDir, '..') !== false) {
+        if (str_contains((string) $targetDir, '..')) {
             return false;
         }
         $targetDir = realpath($targetDir);
         $topDir = realpath($topDir);
 
-        return strpos($targetDir, $topDir) === 0;
+        return str_starts_with($targetDir, (string) $topDir);
     }
 
     /**
@@ -530,6 +521,6 @@ class FileController extends AbstractController
         $realpath = realpath($path);
         $jailPath = str_replace(realpath($this->getUserDataDir()), '', $realpath);
 
-        return $jailPath ? $jailPath : '/';
+        return $jailPath ?: '/';
     }
 }

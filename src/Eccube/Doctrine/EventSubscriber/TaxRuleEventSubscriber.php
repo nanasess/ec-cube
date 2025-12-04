@@ -14,8 +14,8 @@
 namespace Eccube\Doctrine\EventSubscriber;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Eccube\Entity\ProductClass;
 use Eccube\Service\TaxRuleService;
 
@@ -39,6 +39,7 @@ class TaxRuleEventSubscriber implements EventSubscriber
         return $this->taxRuleService;
     }
 
+    #[\Override]
     public function getSubscribedEvents()
     {
         return [
@@ -61,7 +62,7 @@ class TaxRuleEventSubscriber implements EventSubscriber
         }
     }
 
-    public function postLoad(LifecycleEventArgs $args)
+    public function postLoad(LifecycleEventArgs $args): void
     {
         $entity = $args->getObject();
 

@@ -18,68 +18,48 @@ use Doctrine\ORM\Mapping as ORM;
 if (!class_exists(CartItem::class)) {
     /**
      * CartItem
-     *
-     * @ORM\Table(name="dtb_cart_item")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\CartItemRepository")
      */
+    #[ORM\Table(name: 'dtb_cart_item')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: \Eccube\Repository\CartItemRepository::class)]
     class CartItem extends AbstractEntity implements ItemInterface
     {
         use PointRateTrait;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
         private $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="price", type="decimal", precision=12, scale=2, options={"default":0})
          */
+        #[ORM\Column(name: 'price', type: 'decimal', precision: 12, scale: 2, options: ['default' => 0])]
         private $price = '0';
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="quantity", type="decimal", precision=10, scale=0, options={"default":0})
          */
+        #[ORM\Column(name: 'quantity', type: 'decimal', precision: 10, scale: 0, options: ['default' => 0])]
         private $quantity = '0';
 
         /**
          * @var ProductClass
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\ProductClass")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="product_class_id", referencedColumnName="id")
-         * })
          */
+        #[ORM\ManyToOne(targetEntity: ProductClass::class)]
+        #[ORM\JoinColumn(name: 'product_class_id', referencedColumnName: 'id')]
         private $ProductClass;
 
         /**
          * @var Cart
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Cart", inversedBy="CartItems", cascade={"persist"})
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="cart_id", referencedColumnName="id", onDelete="CASCADE")
-         * })
          */
+        #[ORM\ManyToOne(targetEntity: Cart::class, inversedBy: 'CartItems', cascade: ['persist'])]
+        #[ORM\JoinColumn(name: 'cart_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
         private $Cart;
 
         /**
@@ -117,6 +97,7 @@ if (!class_exists(CartItem::class)) {
         /**
          * @return string
          */
+        #[\Override]
         public function getPrice()
         {
             return $this->price;
@@ -127,6 +108,7 @@ if (!class_exists(CartItem::class)) {
          *
          * @return CartItem
          */
+        #[\Override]
         public function setQuantity($quantity)
         {
             $this->quantity = $quantity;
@@ -137,6 +119,7 @@ if (!class_exists(CartItem::class)) {
         /**
          * @return string
          */
+        #[\Override]
         public function getQuantity()
         {
             return $this->quantity;
@@ -155,6 +138,7 @@ if (!class_exists(CartItem::class)) {
          *
          * @return bool 商品明細の場合 true
          */
+        #[\Override]
         public function isProduct()
         {
             return true;
@@ -165,6 +149,7 @@ if (!class_exists(CartItem::class)) {
          *
          * @return bool 送料明細の場合 true
          */
+        #[\Override]
         public function isDeliveryFee()
         {
             return false;
@@ -175,6 +160,7 @@ if (!class_exists(CartItem::class)) {
          *
          * @return bool 手数料明細の場合 true
          */
+        #[\Override]
         public function isCharge()
         {
             return false;
@@ -185,6 +171,7 @@ if (!class_exists(CartItem::class)) {
          *
          * @return bool 値引き明細の場合 true
          */
+        #[\Override]
         public function isDiscount()
         {
             return false;
@@ -195,6 +182,7 @@ if (!class_exists(CartItem::class)) {
          *
          * @return bool 税額明細の場合 true
          */
+        #[\Override]
         public function isTax()
         {
             return false;
@@ -205,11 +193,13 @@ if (!class_exists(CartItem::class)) {
          *
          * @return bool ポイント明細の場合 true
          */
+        #[\Override]
         public function isPoint()
         {
             return false;
         }
 
+        #[\Override]
         public function getOrderItemType()
         {
             // TODO OrderItemType::PRODUCT
@@ -236,6 +226,7 @@ if (!class_exists(CartItem::class)) {
         /**
          * @return ProductClass
          */
+        #[\Override]
         public function getProductClass()
         {
             return $this->ProductClass;

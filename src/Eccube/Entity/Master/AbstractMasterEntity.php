@@ -16,43 +16,38 @@ namespace Eccube\Entity\Master;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * AbstractMasterentity
- *
- * @ORM\MappedSuperclass
+ * AbstractMasterEntity
  */
-abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity
+#[ORM\MappedSuperclass]
+abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity implements \Stringable
 {
     /**
      * @return string
      */
-    public function __toString()
+    #[\Override]
+    public function __toString(): string
     {
         return (string) $this->getName();
     }
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="id", type="smallint", options={"unsigned":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="NONE")
      */
+    #[ORM\Id]
+    #[ORM\Column(name: 'id', type: 'smallint', options: ['unsigned' => true])]
+    #[ORM\GeneratedValue(strategy: 'NONE')]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255)
      */
+    #[ORM\Column(name: 'name', type: 'string', length: 255)]
     protected $name;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="sort_no", type="smallint", options={"unsigned":true})
      */
+    #[ORM\Column(name: 'sort_no', type: 'smallint', options: ['unsigned' => true])]
     protected $sort_no;
 
     /**
@@ -132,10 +127,13 @@ abstract class AbstractMasterEntity extends \Eccube\Entity\AbstractEntity
         return self::getConstantValue($name);
     }
 
-    public function __set($name, $value)
-    {
-        throw new \InvalidArgumentException();
-    }
+    // TODO:一時コメントアウト、orm3から遅延初期化される影響でエラーになる。
+    //    public function __set($name, $value)
+    //    {
+    //        //throw new \InvalidArgumentException();
+    //        //trigger_error(\sprintf('%s: unknown property "%s"', static::class, $name), E_USER_WARNING);
+    //        //log_warning(\sprintf('%s: unknown property "%s"', static::class, $name));
+    //    }
 
     public static function __callStatic($name, $arguments)
     {

@@ -86,7 +86,7 @@ class TaxRuleRepository extends AbstractRepository
         try {
             $CurrentRule = $this->getByRule();
             $RoundingType = $CurrentRule->getRoundingType();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             // quiet
         }
         $TaxRule = new TaxRule();
@@ -164,14 +164,15 @@ class TaxRuleRepository extends AbstractRepository
         }
 
         $parameters = [];
+        $apply_date = new \DateTime();
         $qb = $this->createQueryBuilder('t')
-            ->where('t.apply_date < :apply_date');
-        $parameters[':apply_date'] = new \DateTime();
+            ->where('t.apply_date < :apply_date')
+            ->setParameter('apply_date', $apply_date);
 
         // Pref
         if ($Pref) {
             $qb->andWhere('t.Pref IS NULL OR t.Pref = :Pref');
-            $parameters['Pref'] = $Pref;
+            $qb->setParameter('Pref', $Pref);
         } else {
             $qb->andWhere('t.Pref IS NULL');
         }
@@ -179,7 +180,7 @@ class TaxRuleRepository extends AbstractRepository
         // Country
         if ($Country) {
             $qb->andWhere('t.Country IS NULL OR t.Country = :Country');
-            $parameters['Country'] = $Country;
+            $qb->setParameter('Country', $Country);
         } else {
             $qb->andWhere('t.Country IS NULL');
         }
@@ -193,7 +194,7 @@ class TaxRuleRepository extends AbstractRepository
         // Product
         if ($Product && $productId > 0) {
             $qb->andWhere('t.Product IS NULL OR t.Product = :Product');
-            $parameters['Product'] = $Product;
+            $qb->setParameter('Product', $Product);
         } else {
             $qb->andWhere('t.Product IS NULL');
         }
@@ -201,13 +202,12 @@ class TaxRuleRepository extends AbstractRepository
         // ProductClass
         if ($ProductClass && '0' !== $productClassId) {
             $qb->andWhere('t.ProductClass IS NULL OR t.ProductClass = :ProductClass');
-            $parameters['ProductClass'] = $ProductClass;
+            $qb->setParameter('ProductClass', $ProductClass);
         } else {
             $qb->andWhere('t.ProductClass IS NULL');
         }
 
         $TaxRules = $qb
-            ->setParameters($parameters)
             ->orderBy('t.apply_date', 'DESC') // 実際は usort() でソートする
             ->getQuery()
             ->getResult();
@@ -216,7 +216,7 @@ class TaxRuleRepository extends AbstractRepository
         // 後に書いてあるほど優先される
         $priorityKeys = [];
         foreach ($this->eccubeConfig['eccube_tax_rule_priority'] as $priorityKey) {
-            $priorityKeys[] = str_replace('_', '', preg_replace('/_id\z/', '', $priorityKey));
+            $priorityKeys[] = str_replace('_', '', preg_replace('/_id\z/', '', (string) $priorityKey));
         }
 
         foreach ($TaxRules as $TaxRule) {
@@ -269,6 +269,7 @@ class TaxRuleRepository extends AbstractRepository
      *
      * @throws NoResultException
      */
+    #[\Override]
     public function delete($TaxRule)
     {
         if (!$TaxRule instanceof TaxRule) {

@@ -13,18 +13,18 @@
 
 namespace Eccube\Doctrine\ORM\Mapping\Driver;
 
-use Doctrine\ORM\Mapping\MappingException;
+use Doctrine\Persistence\Mapping\MappingException;
 use Eccube\Util\StringUtil;
 use PhpCsFixer\Tokenizer\Token;
 use PhpCsFixer\Tokenizer\Tokens;
 
 /**
- * 同じプロセス内で新しく生成されたProxyクラスからマッピングメタデータを抽出するためのAnnotationDriver.
+ * 同じプロセス内で新しく生成されたProxyクラスからマッピングメタデータを抽出するためのAttributeDriver.
  *
  * 同じプロセス内で、Proxy元のEntityがロードされた後に同じFQCNを持つProxyをロードしようとすると、Fatalエラーが発生する.
  * このエラーを回避するために、新しく生成されたProxyクラスは一時的にクラス名を変更してからロードして、マッピングメタデータを抽出する.
  */
-class ReloadSafeAnnotationDriver extends AnnotationDriver
+class ReloadSafeAttributeDriver extends TraitProxyAttributeDriver
 {
     /**
      * @var array 新しく生成されたProxyファイルのリスト
@@ -50,15 +50,18 @@ class ReloadSafeAnnotationDriver extends AnnotationDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @throws MappingException
      */
-    public function getAllClassNames()
+    #[\Override]
+    public function getAllClassNames(): ?array
     {
         if ($this->classNames !== null) {
             return $this->classNames;
         }
 
         if (!$this->paths) {
-            throw MappingException::pathRequired();
+            throw MappingException::pathRequiredForDriver(static::class);
         }
 
         foreach ($this->paths as $path) {
@@ -78,7 +81,7 @@ class ReloadSafeAnnotationDriver extends AnnotationDriver
             foreach ($iterator as $file) {
                 $sourceFile = $file[0];
 
-                if (!preg_match('(^phar:)i', $sourceFile)) {
+                if (!preg_match('(^phar:)i', (string) $sourceFile)) {
                     $sourceFile = realpath($sourceFile);
                 }
 
@@ -86,7 +89,7 @@ class ReloadSafeAnnotationDriver extends AnnotationDriver
                     $exclude = str_replace('\\', '/', realpath($excludePath));
                     $current = str_replace('\\', '/', $sourceFile);
 
-                    if (strpos($current, $exclude) !== false) {
+                    if (str_contains($current, $exclude)) {
                         continue 2;
                     }
                 }
@@ -100,7 +103,7 @@ class ReloadSafeAnnotationDriver extends AnnotationDriver
                 }
 
                 // Replace /path/to/ec-cube to proxies path
-                $proxyFile = str_replace($projectDir, $this->trait_proxies_directory, $path).'/'.basename($sourceFile);
+                $proxyFile = str_replace($projectDir, $this->trait_proxies_directory, $path).'/'.basename((string) $sourceFile);
                 if (file_exists($proxyFile)) {
                     $sourceFile = $proxyFile;
                 }

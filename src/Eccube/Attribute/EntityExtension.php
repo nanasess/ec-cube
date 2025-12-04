@@ -11,15 +11,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Eccube\Annotation;
+namespace Eccube\Attribute;
 
-use Doctrine\Common\Annotations\Annotation\Target;
-use Doctrine\ORM\Mapping\Annotation;
-
-/**
- * @Annotation
- * @Target("CLASS")
- */
-final class CartFlow implements Annotation
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
+final class EntityExtension
 {
+    public function __construct(public string $value)
+    {
+    }
 }

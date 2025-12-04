@@ -14,68 +14,58 @@
 namespace Eccube\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Eccube\Repository\TradeLawRepository;
 
 if (!class_exists(TradeLaw::class)) {
     /**
      * TradeLaw
-     *
-     * @ORM\Table(name="dtb_tradelaw")
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\TradeLawRepository")
      */
-    class TradeLaw extends AbstractEntity
+    #[ORM\Table(name: 'dtb_tradelaw')]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: TradeLawRepository::class)]
+    class TradeLaw extends AbstractEntity implements \Stringable
     {
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
         private int $id;
 
         /**
          * @var ?string
-         *
-         * @ORM\Column(name="name", type="string", length=255, nullable=true)
          */
-        private ?string $name;
+        #[ORM\Column(name: 'name', type: 'string', length: 255, nullable: true)]
+        private ?string $name = null;
 
         /**
          * @var ?string
-         *
-         * @ORM\Column(name="description", type="string", length=4000, nullable=true)
          */
-        private ?string $description;
+        #[ORM\Column(name: 'description', type: 'string', length: 4000, nullable: true)]
+        private ?string $description = null;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="sort_no", type="smallint", nullable=false)
          */
+        #[ORM\Column(name: 'sort_no', type: 'smallint', nullable: false)]
         private int $sortNo;
 
         /**
          * @var bool
-         *
-         * @ORM\Column(name="display_order_screen", type="boolean")
          */
+        #[ORM\Column(name: 'display_order_screen', type: 'boolean')]
         private bool $displayOrderScreen = false;
 
         /**
          * @return string
          */
-        public function __toString()
+        #[\Override]
+        public function __toString(): string
         {
-            return $this->getName();
+            return (string) $this->getName();
         }
 
         /**

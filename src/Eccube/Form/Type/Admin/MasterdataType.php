@@ -13,10 +13,8 @@
 
 namespace Eccube\Form\Type\Admin;
 
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
-use Doctrine\Common\Persistence\Mapping\Driver\MappingDriverChain;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Eccube\Entity\Master\CustomerOrderStatus;
 use Eccube\Entity\Master\OrderStatus;
 use Eccube\Entity\Master\OrderStatusColor;
@@ -48,37 +46,31 @@ class MasterdataType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $masterdata = [];
 
-        /** @var MappingDriverChain $driverChain */
-        $driverChain = $this->entityManager->getConfiguration()->getMetadataDriverImpl()->getDriver();
-        /** @var MappingDriver[] $drivers */
-        $drivers = $driverChain->getDrivers();
+        // AttributeDriver でも有効なメタデータ一括取得に変更
+        foreach ($this->entityManager->getMetadataFactory()->getAllMetadata() as $meta) {
+            // 抽象クラスは除外
+            $rc = $meta->getReflectionClass();
+            if ($rc && $rc->isAbstract()) {
+                continue;
+            }
 
-        foreach ($drivers as $namespace => $driver) {
-            if ($namespace == 'Eccube\Entity') {
-                $classNames = $driver->getAllClassNames();
-                foreach ($classNames as $className) {
-                    /** @var ClassMetadata $meta */
-                    $meta = $this->entityManager->getMetadataFactory()->getMetadataFor($className);
+            // OrderStatus/OrderStatusColor/CustomerOrderStatus は対象外
+            if (in_array($meta->getName(), [OrderStatus::class, OrderStatusColor::class, CustomerOrderStatus::class], true)) {
+                continue;
+            }
 
-                    // OrderStatus/OrderStatusColorは対象外
-                    // @see https://github.com/EC-CUBE/ec-cube/pull/4844
-                    if (in_array($meta->getName(), [OrderStatus::class, OrderStatusColor::class, CustomerOrderStatus::class])) {
-                        continue;
-                    }
-
-                    if (strpos($meta->rootEntityName, 'Master') !== false
-                        && $meta->hasField('id')
-                        && $meta->hasField('name')
-                        && $meta->hasField('sort_no')
-                    ) {
-                        $metadataName = str_replace('\\', '-', $meta->getName());
-                        $masterdata[$metadataName] = $meta->getTableName();
-                    }
-                }
+            if (str_contains($meta->rootEntityName, 'Master')
+                && $meta->hasField('id')
+                && $meta->hasField('name')
+                && $meta->hasField('sort_no')
+            ) {
+                $metadataName = str_replace('\\', '-', $meta->getName());
+                $masterdata[$metadataName] = $meta->getTableName();
             }
         }
 
@@ -97,6 +89,7 @@ class MasterdataType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBlockPrefix()
     {
         return 'admin_system_masterdata';

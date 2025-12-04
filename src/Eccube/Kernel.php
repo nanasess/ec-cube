@@ -22,16 +22,16 @@ use Eccube\DependencyInjection\Compiler\PaymentMethodPass;
 use Eccube\DependencyInjection\Compiler\PluginPass;
 use Eccube\DependencyInjection\Compiler\PurchaseFlowPass;
 use Eccube\DependencyInjection\Compiler\QueryCustomizerPass;
+use Eccube\DependencyInjection\Compiler\StripReportFieldsArgPass;
 use Eccube\DependencyInjection\Compiler\TwigBlockPass;
 use Eccube\DependencyInjection\Compiler\TwigExtensionPass;
 use Eccube\DependencyInjection\Compiler\WebServerDocumentRootPass;
 use Eccube\DependencyInjection\EccubeExtension;
-use Eccube\DependencyInjection\Facade\AnnotationReaderFacade;
 use Eccube\DependencyInjection\Facade\LoggerFacade;
 use Eccube\DependencyInjection\Facade\TranslatorFacade;
 use Eccube\Doctrine\DBAL\Types\UTCDateTimeType;
 use Eccube\Doctrine\DBAL\Types\UTCDateTimeTzType;
-use Eccube\Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Eccube\Doctrine\ORM\Mapping\Driver\TraitProxyAttributeDriver;
 use Eccube\Doctrine\Query\QueryCustomizer;
 use Eccube\Service\Payment\PaymentMethodInterface;
 use Eccube\Service\PurchaseFlow\DiscountProcessor;
@@ -46,7 +46,6 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -64,11 +63,13 @@ class Kernel extends BaseKernel
         $this->loadEntityProxies();
     }
 
+    #[\Override]
     public function getCacheDir(): string
     {
         return $this->getProjectDir().'/var/cache/'.$this->environment;
     }
 
+    #[\Override]
     public function getLogDir(): string
     {
         return $this->getProjectDir().'/var/log';
@@ -79,6 +80,7 @@ class Kernel extends BaseKernel
         return $this->getProjectDir().'/app/config/eccube';
     }
 
+    #[\Override]
     public function registerBundles(): iterable
     {
         $contents = require $this->getProjectDir().'/app/config/eccube/bundles.php';
@@ -126,7 +128,8 @@ class Kernel extends BaseKernel
      *
      * @see \Symfony\Component\HttpKernel\Kernel::boot()
      */
-    public function boot()
+    #[\Override]
+    public function boot(): void
     {
         // Symfonyがsrc/Eccube/Entity以下を読み込む前にapp/proxy/entity以下をロードする
         // $this->loadEntityProxies();
@@ -150,16 +153,9 @@ class Kernel extends BaseKernel
         if ($Translator !== null && $Translator instanceof \Symfony\Contracts\Translation\TranslatorInterface) {
             TranslatorFacade::init($Translator);
         }
-
-        /** @var AnnotationReaderFacade $AnnotationReaderFacade */
-        $AnnotationReaderFacade = $container->get(AnnotationReaderFacade::class);
-        $AnnotationReader = $AnnotationReaderFacade->getAnnotationReader();
-        if ($AnnotationReader !== null && $AnnotationReader instanceof \Doctrine\Common\Annotations\Reader) {
-            AnnotationReaderFacade::init($AnnotationReader);
-        }
     }
 
-    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader)
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
         $confDir = $this->getProjectDir().'/app/config/eccube';
         $loader->load($confDir.'/services'.self::CONFIG_EXTS, 'glob');
@@ -180,7 +176,7 @@ class Kernel extends BaseKernel
         $loader->load($dir.'/services_'.$this->environment.self::CONFIG_EXTS, 'glob');
     }
 
-    protected function configureRoutes(RoutingConfigurator $routes)
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $container = $this->getContainer();
 
@@ -210,7 +206,7 @@ class Kernel extends BaseKernel
         foreach ($plugins as $plugin) {
             $dir = $pluginDir.'/'.$plugin.'/Controller';
             if (file_exists($dir)) {
-                $builder = $routes->import($dir, 'annotation');
+                $builder = $routes->import($dir, 'Attribute');
                 $builder->schemes($scheme);
             }
             if (file_exists($pluginDir.'/'.$plugin.'/Resource/config')) {
@@ -220,7 +216,8 @@ class Kernel extends BaseKernel
         }
     }
 
-    protected function build(ContainerBuilder $container)
+    #[\Override]
+    protected function build(ContainerBuilder $container): void
     {
         $this->addEntityExtensionPass($container);
 
@@ -276,22 +273,22 @@ class Kernel extends BaseKernel
         $container->registerForAutoconfiguration(PurchaseProcessor::class)
             ->addTag(PurchaseFlowPass::PURCHASE_PROCESSOR_TAG);
         $container->addCompilerPass(new PurchaseFlowPass());
+        $container->addCompilerPass(new StripReportFieldsArgPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
     }
 
-    protected function addEntityExtensionPass(ContainerBuilder $container)
+    protected function addEntityExtensionPass(ContainerBuilder $container): void
     {
         $projectDir = $container->getParameter('kernel.project_dir');
 
         // Eccube
         $paths = ['%kernel.project_dir%/src/Eccube/Entity'];
         $namespaces = ['Eccube\\Entity'];
-        $reader = new Reference('annotation_reader');
-        $driver = new Definition(AnnotationDriver::class, [$reader, $paths]);
+        $driver = new Definition(TraitProxyAttributeDriver::class, [$paths]);
         $driver->addMethodCall('setTraitProxiesDirectory', [$projectDir.'/app/proxy/entity']);
         $container->addCompilerPass(new DoctrineOrmMappingsPass($driver, $namespaces, []));
 
         // Customize
-        $container->addCompilerPass(DoctrineOrmMappingsPass::createAnnotationMappingDriver(
+        $container->addCompilerPass(DoctrineOrmMappingsPass::createAttributeMappingDriver(
             ['Customize\\Entity'],
             ['%kernel.project_dir%/app/Customize/Entity']
         ));
@@ -311,15 +308,14 @@ class Kernel extends BaseKernel
             if (file_exists($pluginDir.'/'.$code.'/Entity')) {
                 $paths = ['%kernel.project_dir%/app/Plugin/'.$code.'/Entity'];
                 $namespaces = ['Plugin\\'.$code.'\\Entity'];
-                $reader = new Reference('annotation_reader');
-                $driver = new Definition(AnnotationDriver::class, [$reader, $paths]);
+                $driver = new Definition(TraitProxyAttributeDriver::class, [$paths]);
                 $driver->addMethodCall('setTraitProxiesDirectory', [$projectDir.'/app/proxy/entity']);
                 $container->addCompilerPass(new DoctrineOrmMappingsPass($driver, $namespaces, []));
             }
         }
     }
 
-    protected function loadEntityProxies()
+    protected function loadEntityProxies(): void
     {
         // see https://github.com/EC-CUBE/ec-cube/issues/4727
         // キャッシュクリアなど、コード内でコマンドを利用している場合に2回実行されてしまう

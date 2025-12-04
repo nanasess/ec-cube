@@ -41,6 +41,7 @@ class LogListener implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function getSubscribedEvents()
     {
         return [
@@ -144,7 +145,7 @@ class LogListener implements EventSubscriberInterface
         } else {
             $message = sprintf(
                 '%s: %s (uncaught exception) at %s line %s',
-                get_class($e),
+                $e::class,
                 $e->getMessage(),
                 $e->getFile(),
                 $e->getLine()

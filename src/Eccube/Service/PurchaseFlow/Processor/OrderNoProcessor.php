@@ -49,6 +49,7 @@ class OrderNoProcessor implements ItemHolderPreprocessor
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function process(ItemHolderInterface $itemHolder, PurchaseContext $context)
     {
         $Order = $itemHolder;
@@ -101,7 +102,7 @@ class OrderNoProcessor implements ItemHolderPreprocessor
                         }
 
                         return $Order->getId();
-                    }, $format);
+                    }, (string) $format);
 
                     $tempOrder = $this->orderRepository->findOneBy([
                         'order_no' => $orderNo,

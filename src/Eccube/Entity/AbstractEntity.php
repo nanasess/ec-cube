@@ -18,17 +18,17 @@ use Doctrine\Inflector\Inflector;
 use Doctrine\Inflector\NoopWordInflector;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\MappedSuperclass;
-use Doctrine\ORM\Proxy\Proxy;
-use Eccube\DependencyInjection\Facade\AnnotationReaderFacade;
+use Doctrine\Persistence\Proxy;
 use Eccube\Util\StringUtil;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
-/** @MappedSuperclass */
+#[MappedSuperclass]
 abstract class AbstractEntity implements \ArrayAccess
 {
     #[\ReturnTypeWillChange]
+    #[\Override]
     public function offsetExists($offset)
     {
         $inflector = new Inflector(new NoopWordInflector(), new NoopWordInflector());
@@ -41,11 +41,13 @@ abstract class AbstractEntity implements \ArrayAccess
     }
 
     #[\ReturnTypeWillChange]
+    #[\Override]
     public function offsetSet($offset, $value)
     {
     }
 
     #[\ReturnTypeWillChange]
+    #[\Override]
     public function offsetGet($offset)
     {
         $inflector = new Inflector(new NoopWordInflector(), new NoopWordInflector());
@@ -63,6 +65,7 @@ abstract class AbstractEntity implements \ArrayAccess
     }
 
     #[\ReturnTypeWillChange]
+    #[\Override]
     public function offsetUnset($offset)
     {
     }
@@ -110,7 +113,7 @@ abstract class AbstractEntity implements \ArrayAccess
      *
      * @return array
      */
-    public function toArray(array $excludeAttribute = ['__initializer__', '__cloner__', '__isInitialized__'], ?\ReflectionClass $parentClass = null)
+    public function toArray(array $excludeAttribute = ['__initializer__', '__cloner__', '__isInitialized__'], ?\ReflectionClass $parentClass = null): array
     {
         if (is_object($parentClass)) {
             $objReflect = $parentClass;
@@ -245,9 +248,8 @@ abstract class AbstractEntity implements \ArrayAccess
         $Properties = $PropReflect->getProperties();
 
         foreach ($Properties as $Property) {
-            $AnnotationReader = AnnotationReaderFacade::create();
-            $anno = $AnnotationReader->getPropertyAnnotation($Property, Id::class);
-            if ($anno) {
+            $attribute = $Property->getAttributes(Id::class);
+            if ($attribute) {
                 $Property->setAccessible(true);
                 $Result[$Property->getName()] = $Property->getValue($Entity);
             }

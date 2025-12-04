@@ -60,10 +60,9 @@ class CustomerFavoriteProductRepository extends AbstractRepository
         $qb = $this->createQueryBuilder('cf')
             ->select('COUNT(cf.Product)')
             ->andWhere('cf.Customer = :Customer AND cf.Product = :Product')
-            ->setParameters([
-                'Customer' => $Customer,
-                'Product' => $Product,
-            ]);
+            ->setParameter('Customer', $Customer)
+            ->setParameter('Product', $Product)
+        ;
         $count = $qb
             ->getQuery()
             ->getSingleScalarResult();
@@ -95,6 +94,7 @@ class CustomerFavoriteProductRepository extends AbstractRepository
      *
      * @param CustomerFavoriteProduct $CustomerFavoriteProduct
      */
+    #[\Override]
     public function delete($CustomerFavoriteProduct)
     {
         $em = $this->getEntityManager();

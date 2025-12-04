@@ -108,7 +108,7 @@ class SystemService implements EventSubscriberInterface
     {
         try {
             $ret = ini_set('memory_limit', $memory);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -222,6 +222,7 @@ class SystemService implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function getSubscribedEvents()
     {
         return [KernelEvents::TERMINATE => 'disableMaintenanceEvent'];

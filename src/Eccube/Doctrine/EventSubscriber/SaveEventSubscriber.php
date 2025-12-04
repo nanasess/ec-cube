@@ -14,8 +14,8 @@
 namespace Eccube\Doctrine\EventSubscriber;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Eccube\Common\EccubeConfig;
 use Eccube\Entity\Member;
 use Eccube\Request\Context;
@@ -44,6 +44,7 @@ class SaveEventSubscriber implements EventSubscriber
     /**
      * @return array
      */
+    #[\Override]
     public function getSubscribedEvents()
     {
         return [

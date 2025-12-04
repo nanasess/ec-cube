@@ -13,6 +13,7 @@
 
 namespace Eccube\Form\Type\Front;
 
+use Eccube\Entity\CustomerAddress;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,6 +23,7 @@ class ShoppingShippingType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
     }
@@ -29,16 +31,18 @@ class ShoppingShippingType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => \Eccube\Entity\CustomerAddress::class,
+            'data_class' => CustomerAddress::class,
         ]);
     }
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getParent()
     {
         return CustomerAddressType::class;
@@ -47,6 +51,7 @@ class ShoppingShippingType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBlockPrefix()
     {
         return 'shopping_shipping';

@@ -48,6 +48,7 @@ class PluginGenerateCommand extends Command
         $this->eccubeConfig = $eccubeConfig;
     }
 
+    #[\Override]
     protected function configure()
     {
         $this
@@ -57,12 +58,14 @@ class PluginGenerateCommand extends Command
             ->setDescription('Generate plugin skeleton.');
     }
 
+    #[\Override]
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
         $this->fs = new Filesystem();
     }
 
+    #[\Override]
     protected function interact(InputInterface $input, OutputInterface $output)
     {
         if (null !== $input->getArgument('name') && null !== $input->getArgument('code') && null !== $input->getArgument('ver')) {
@@ -85,7 +88,7 @@ class PluginGenerateCommand extends Command
         if (null !== $code) {
             $this->io->text(' > <info>code</info>: '.$code);
         } else {
-            $code = $this->io->ask('code', 'Sample', [$this, 'validateCode']);
+            $code = $this->io->ask('code', 'Sample', $this->validateCode(...));
             $input->setArgument('code', $code);
         }
 
@@ -94,11 +97,12 @@ class PluginGenerateCommand extends Command
         if (null !== $version) {
             $this->io->text(' > <info>ver</info>: '.$version);
         } else {
-            $version = $this->io->ask('ver', '1.0.0', [$this, 'validateVersion']);
+            $version = $this->io->ask('ver', '1.0.0', $this->validateVersion(...));
             $input->setArgument('ver', $version);
         }
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $name = $input->getArgument('name');
@@ -130,10 +134,10 @@ class PluginGenerateCommand extends Command
         if (empty($code)) {
             throw new InvalidArgumentException('The code can not be empty.');
         }
-        if (strlen($code) > 255) {
+        if (strlen((string) $code) > 255) {
             throw new InvalidArgumentException('The code can enter up to 255 characters');
         }
-        if (1 !== preg_match('/^\w+$/', $code)) {
+        if (1 !== preg_match('/^\w+$/', (string) $code)) {
             throw new InvalidArgumentException('The code [a-zA-Z_] is available.');
         }
 
@@ -178,7 +182,7 @@ class PluginGenerateCommand extends Command
      */
     protected function createConfig($pluginDir, $name, $code, $version)
     {
-        $lowerCode = mb_strtolower($code);
+        $lowerCode = mb_strtolower((string) $code);
         $source = <<<EOL
 {
   "name": "ec-cube/$lowerCode",
@@ -368,10 +372,8 @@ class ConfigController extends AbstractController
         \$this->configRepository = \$configRepository;
     }
 
-    /**
-     * @Route("/%eccube_admin_route%/{$snakecased}/config", name="{$snakecased}_admin_config")
-     * @Template("@{$code}/admin/config.twig")
-     */
+     #[Route('/%eccube_admin_route%/{$snakecased}/config', name: '{$snakecased}_admin_config', methods: ['GET', 'POST'])]
+     #[Template("@{$code}/admin/config.twig")]
     public function index(Request \$request)
     {
         \$Config = \$this->configRepository->get();
@@ -407,26 +409,24 @@ use Doctrine\\ORM\\Mapping as ORM;
 if (!class_exists('\\Plugin\\{$code}\\Entity\\Config', false)) {
     /**
      * Config
-     *
-     * @ORM\Table(name="plg_{$snakecased}_config")
-     * @ORM\Entity(repositoryClass="Plugin\\{$code}\\Repository\\ConfigRepository")
      */
+    #[ORM\Table(name: "plg_{$snakecased}_config")]
+    #[ORM\Entity(repositoryClass: "Plugin\\{$code}\\Repository\\ConfigRepository")]
     class Config
     {
         /**
          * @var int
          *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         * @ORM\Id
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Id]
+        #[ORM\Column(name: "id", type: "integer", options: ["unsigned" => true])]
+        #[ORM\GeneratedValue(strategy: "IDENTITY")]
         private \$id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="name", type="string", length=255)
          */
+        #[ORM\Column(name: "name", type: "string", length: 255)]
         private \$name;
 
         /**

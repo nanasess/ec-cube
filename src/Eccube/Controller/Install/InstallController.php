@@ -13,20 +13,19 @@
 
 namespace Eccube\Controller\Install;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Tools\Setup;
 use Eccube\Common\Constant;
 use Eccube\Controller\AbstractController;
 use Eccube\Doctrine\DBAL\Types\UTCDateTimeType;
 use Eccube\Doctrine\DBAL\Types\UTCDateTimeTzType;
-use Eccube\Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Eccube\Doctrine\ORM\Mapping\Driver\TraitProxyAttributeDriver;
 use Eccube\Entity\Customer;
 use Eccube\Form\Type\Install\Step1Type;
 use Eccube\Form\Type\Install\Step3Type;
@@ -35,7 +34,7 @@ use Eccube\Form\Type\Install\Step5Type;
 use Eccube\Session\Session;
 use Eccube\Util\CacheUtil;
 use Eccube\Util\StringUtil;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
@@ -109,13 +108,11 @@ class InstallController extends AbstractController
     /**
      * 最初からやり直す場合、SESSION情報をクリア.
      *
-     * @Route("/", name="homepage", methods={"GET"})
-     * @Route("/install", name="install", methods={"GET"})
-     *
-     * @Template("index.twig")
-     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
+    #[Route('/', name: 'homepage', methods: ['GET'])]
+    #[Route('/install', name: 'install', methods: ['GET'])]
+    #[Template('index.twig')]
     public function index()
     {
         if (!$this->isInstallEnv()) {
@@ -130,12 +127,10 @@ class InstallController extends AbstractController
     /**
      * ようこそ.
      *
-     * @Route("/install/step1", name="install_step1", methods={"GET", "POST"})
-     *
-     * @Template("step1.twig")
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      */
+    #[Route('/install/step1', name: 'install_step1', methods: ['GET', 'POST'])]
+    #[Template('step1.twig')]
     public function step1(Request $request)
     {
         if (!$this->isInstallEnv()) {
@@ -171,12 +166,10 @@ class InstallController extends AbstractController
     /**
      * ディレクトリとファイルの書き込み権限をチェック.
      *
-     * @Route("/install/step2", name="install_step2", methods={"GET"})
-     *
-     * @Template("step2.twig")
-     *
      * @return array
      */
+    #[Route('/install/step2', name: 'install_step2', methods: ['GET'])]
+    #[Template('step2.twig')]
     public function step2()
     {
         if (!$this->isInstallEnv()) {
@@ -248,15 +241,13 @@ class InstallController extends AbstractController
     /**
      * サイトの設定.
      *
-     * @Route("/install/step3", name="install_step3", methods={"GET", "POST"})
-     *
-     * @Template("step3.twig")
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @throws \Doctrine\DBAL\DBALException
      * @throws \Exception
      */
+    #[Route('/install/step3', name: 'install_step3', methods: ['GET', 'POST'])]
+    #[Template('step3.twig')]
     public function step3(Request $request, EntityManagerInterface $entityManager)
     {
         if (!$this->isInstallEnv()) {
@@ -281,7 +272,7 @@ class InstallController extends AbstractController
             $sessionData['admin_dir'] = $this->getParameter('eccube_admin_route');
 
             // 管理画面許可IP
-            $sessionData['admin_allow_hosts'] = implode($this->getParameter('eccube_admin_allow_hosts'));
+            $sessionData['admin_allow_hosts'] = implode('', $this->getParameter('eccube_admin_allow_hosts'));
 
             // 強制SSL
             $sessionData['admin_force_ssl'] = $this->getParameter('eccube_force_ssl');
@@ -321,14 +312,12 @@ class InstallController extends AbstractController
     /**
      * データベースの設定.
      *
-     * @Route("/install/step4", name="install_step4", methods={"GET", "POST"})
-     *
-     * @Template("step4.twig")
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @throws \Exception
      */
+    #[Route('/install/step4', name: 'install_step4', methods: ['GET', 'POST'])]
+    #[Template('step4.twig')]
     public function step4(Request $request)
     {
         if (!$this->isInstallEnv()) {
@@ -371,14 +360,12 @@ class InstallController extends AbstractController
     /**
      * データベースの初期化.
      *
-     * @Route("/install/step5", name="install_step5", methods={"GET", "POST"})
-     *
-     * @Template("step5.twig")
-     *
      * @return array|\Symfony\Component\HttpFoundation\RedirectResponse
      *
      * @throws \Exception
      */
+    #[Route('/install/step5', name: 'install_step5', methods: ['GET', 'POST'])]
+    #[Template('step5.twig')]
     public function step5(Request $request)
     {
         if (!$this->isInstallEnv()) {
@@ -453,11 +440,9 @@ class InstallController extends AbstractController
 
     /**
      * インストール完了
-     *
-     * @Route("/install/complete", name="install_complete", methods={"GET"})
-     *
-     * @Template("complete.twig")
      */
+    #[Route('/install/complete', name: 'install_complete', methods: ['GET'])]
+    #[Template('complete.twig')]
     public function complete(Request $request)
     {
         if (!$this->isInstallEnv()) {
@@ -480,11 +465,11 @@ class InstallController extends AbstractController
             'DATABASE_URL' => $databaseUrl,
             'MAILER_DSN' => $mailerUrl,
             'ECCUBE_AUTH_MAGIC' => $sessionData['authmagic'],
-            'DATABASE_SERVER_VERSION' => isset($sessionData['database_version']) ? $sessionData['database_version'] : '3',
+            'DATABASE_SERVER_VERSION' => $sessionData['database_version'] ?? '3',
             'ECCUBE_ADMIN_ALLOW_HOSTS' => $this->convertAdminAllowHosts($sessionData['admin_allow_hosts']),
             'ECCUBE_FORCE_SSL' => $forceSSL,
-            'ECCUBE_ADMIN_ROUTE' => isset($sessionData['admin_dir']) ? $sessionData['admin_dir'] : 'admin',
-            'ECCUBE_COOKIE_PATH' => $request->getBasePath() ? $request->getBasePath() : '/',
+            'ECCUBE_ADMIN_ROUTE' => $sessionData['admin_dir'] ?? 'admin',
+            'ECCUBE_COOKIE_PATH' => $request->getBasePath() ?: '/',
             'ECCUBE_TEMPLATE_CODE' => 'default',
             'ECCUBE_LOCALE' => 'ja',
             'TRUSTED_HOSTS' => '^'.str_replace('.', '\\.', $request->getHost()).'$',
@@ -510,7 +495,7 @@ class InstallController extends AbstractController
 
         return [
             'admin_url' => $adminUrl,
-            'is_sqlite' => strpos($databaseUrl, 'sqlite') !== false,
+            'is_sqlite' => str_contains($databaseUrl, 'sqlite'),
             'token' => $token,
         ];
     }
@@ -555,22 +540,22 @@ class InstallController extends AbstractController
                 $this->addInfo(trans('install.recommend_extension_disabled', ['%module%' => 'apc']), 'install');
             }
         }
-        if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false) {
+        if (isset($_SERVER['SERVER_SOFTWARE']) && str_contains((string) $_SERVER['SERVER_SOFTWARE'], 'Apache')) {
             if (!function_exists('apache_get_modules')) {
                 $this->addWarning(trans('install.mod_rewrite_unknown'), 'install');
             } elseif (!in_array('mod_rewrite', apache_get_modules())) {
                 $this->addDanger(trans('install.mod_rewrite_disabled'), 'install');
             }
-        } elseif (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) {
+        } elseif (isset($_SERVER['SERVER_SOFTWARE']) && str_contains((string) $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS')) {
             // iis
-        } elseif (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'nginx') !== false) {
+        } elseif (isset($_SERVER['SERVER_SOFTWARE']) && str_contains((string) $_SERVER['SERVER_SOFTWARE'], 'nginx')) {
             // nginx
         }
     }
 
     protected function createConnection(array $params)
     {
-        if (strpos($params['url'], 'mysql') !== false) {
+        if (str_contains((string) $params['url'], 'mysql')) {
             $params['charset'] = 'utf8mb4';
             $params['defaultTableOptions'] = [
                 'charset' => 'utf8mb4',
@@ -591,18 +576,18 @@ class InstallController extends AbstractController
         return $conn;
     }
 
-    protected function createEntityManager(Connection $conn)
+    protected function createEntityManager(Connection $conn): EntityManager
     {
         $paths = [
             $this->getParameter('kernel.project_dir').'/src/Eccube/Entity',
             $this->getParameter('kernel.project_dir').'/app/Customize/Entity',
         ];
-        $config = Setup::createConfiguration(true);
-        $driver = new AnnotationDriver(new AnnotationReader(), $paths);
+        $config = ORMSetup::createConfiguration(true);
+        $driver = new TraitProxyAttributeDriver($paths);
         $driver->setTraitProxiesDirectory($this->getParameter('kernel.project_dir').'/app/proxy/entity');
         $config->setMetadataDriverImpl($driver);
 
-        $em = EntityManager::create($conn, $config);
+        $em = new EntityManager($conn, $config);
 
         return $em;
     }
@@ -629,7 +614,7 @@ class InstallController extends AbstractController
                 if (isset($params['database_user'])) {
                     $url .= $params['database_user'];
                     if (isset($params['database_password'])) {
-                        $url .= ':'.\rawurlencode($params['database_password']);
+                        $url .= ':'.\rawurlencode((string) $params['database_password']);
                     }
                     $url .= '@';
                 }
@@ -671,9 +656,9 @@ class InstallController extends AbstractController
             'database' => 'pdo_'.$parsed['scheme'],
             'database_name' => ltrim($parsed['path'], '/'),
             'database_host' => $parsed['host'],
-            'database_port' => isset($parsed['port']) ? $parsed['port'] : null,
-            'database_user' => isset($parsed['user']) ? $parsed['user'] : null,
-            'database_password' => isset($parsed['pass']) ? $parsed['pass'] : null,
+            'database_port' => $parsed['port'] ?? null,
+            'database_user' => $parsed['user'] ?? null,
+            'database_password' => $parsed['pass'] ?? null,
         ];
     }
 
@@ -981,19 +966,11 @@ class InstallController extends AbstractController
         $rsm->addScalarResult('server_version', 'server_version');
 
         $platform = $em->getConnection()->getDatabasePlatform()->getName();
-        switch ($platform) {
-            case 'sqlite':
-                $sql = 'SELECT sqlite_version() AS server_version';
-                break;
-
-            case 'mysql':
-                $sql = 'SELECT version() AS server_version';
-                break;
-
-            case 'postgresql':
-            default:
-                $sql = 'SHOW server_version';
-        }
+        $sql = match ($platform) {
+            'sqlite' => 'SELECT sqlite_version() AS server_version',
+            'mysql' => 'SELECT version() AS server_version',
+            default => 'SHOW server_version',
+        };
 
         $version = $em->createNativeQuery($sql, $rsm)
             ->getSingleScalarResult();

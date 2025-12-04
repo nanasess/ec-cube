@@ -18,7 +18,8 @@ use Doctrine\ORM\Query\Filter\SQLFilter;
 
 class NoStockHiddenFilter extends SQLFilter
 {
-    public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias)
+    #[\Override]
+    public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
     {
         if ($targetEntity->reflClass->getName() === \Eccube\Entity\ProductClass::class) {
             return $targetTableAlias.'.stock >= 1 OR '.$targetTableAlias.'.stock_unlimited = true';

@@ -21,56 +21,39 @@ use Eccube\Service\PurchaseFlow\ItemCollection;
 if (!class_exists(Cart::class)) {
     /**
      * Cart
-     *
-     * @ORM\Table(name="dtb_cart", indexes={
-     *
-     *     @ORM\Index(name="dtb_cart_update_date_idx", columns={"update_date"})
-     *  },
-     *  uniqueConstraints={
-     *
-     *     @ORM\UniqueConstraint(name="dtb_cart_pre_order_id_idx", columns={"pre_order_id"})
-     *  }))
-     *
-     * @ORM\InheritanceType("SINGLE_TABLE")
-     *
-     * @ORM\DiscriminatorColumn(name="discriminator_type", type="string", length=255)
-     *
-     * @ORM\HasLifecycleCallbacks()
-     *
-     * @ORM\Entity(repositoryClass="Eccube\Repository\CartRepository")
      */
+    #[ORM\Table(name: 'dtb_cart', indexes: [
+        new ORM\Index(columns: ['update_date'], name: 'dtb_cart_update_date_idx'),
+    ], uniqueConstraints: [
+        new ORM\UniqueConstraint(name: 'dtb_cart_pre_order_id_idx', columns: ['pre_order_id']),
+    ])]
+    #[ORM\InheritanceType('SINGLE_TABLE')]
+    #[ORM\DiscriminatorColumn(name: 'discriminator_type', type: 'string', length: 255)]
+    #[ORM\HasLifecycleCallbacks]
+    #[ORM\Entity(repositoryClass: \Eccube\Repository\CartRepository::class)]
     class Cart extends AbstractEntity implements PurchaseInterface, ItemHolderInterface
     {
         use PointTrait;
 
         /**
          * @var int
-         *
-         * @ORM\Column(name="id", type="integer", options={"unsigned":true})
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="IDENTITY")
          */
+        #[ORM\Column(name: 'id', type: 'integer', options: ['unsigned' => true])]
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'IDENTITY')]
         private $id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="cart_key", type="string", nullable=true)
          */
+        #[ORM\Column(name: 'cart_key', type: 'string', nullable: true)]
         private $cart_key;
 
         /**
          * @var Customer
-         *
-         * @ORM\ManyToOne(targetEntity="Eccube\Entity\Customer")
-         *
-         * @ORM\JoinColumns({
-         *
-         *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id")
-         * })
          */
+        #[ORM\ManyToOne(targetEntity: Customer::class)]
+        #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id')]
         private $Customer;
 
         /**
@@ -80,53 +63,45 @@ if (!class_exists(Cart::class)) {
 
         /**
          * @var \Doctrine\Common\Collections\Collection|CartItem[]
-         *
-         * @ORM\OneToMany(targetEntity="Eccube\Entity\CartItem", mappedBy="Cart", cascade={"persist"})
-         *
-         * @ORM\OrderBy({"id" = "ASC"})
          */
+        #[ORM\OneToMany(targetEntity: CartItem::class, mappedBy: 'Cart', cascade: ['persist'])]
+        #[ORM\OrderBy(['id' => 'ASC'])]
         private $CartItems;
 
         /**
          * @var string|null
-         *
-         * @ORM\Column(name="pre_order_id", type="string", length=255, nullable=true)
          */
+        #[ORM\Column(name: 'pre_order_id', type: 'string', length: 255, nullable: true)]
         private $pre_order_id;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="total_price", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'total_price', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $total_price;
 
         /**
          * @var string
-         *
-         * @ORM\Column(name="delivery_fee_total", type="decimal", precision=12, scale=2, options={"unsigned":true,"default":0})
          */
+        #[ORM\Column(name: 'delivery_fee_total', type: 'decimal', precision: 12, scale: 2, options: ['unsigned' => true, 'default' => 0])]
         private $delivery_fee_total;
 
         /**
          * @var int|null
-         *
-         * @ORM\Column(name="sort_no", type="smallint", nullable=true, options={"unsigned":true})
          */
+        #[ORM\Column(name: 'sort_no', type: 'smallint', nullable: true, options: ['unsigned' => true])]
         private $sort_no;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="create_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'create_date', type: 'datetimetz')]
         private $create_date;
 
         /**
          * @var \DateTime
-         *
-         * @ORM\Column(name="update_date", type="datetimetz")
          */
+        #[ORM\Column(name: 'update_date', type: 'datetimetz')]
         private $update_date;
 
         /**
@@ -249,6 +224,7 @@ if (!class_exists(Cart::class)) {
          *
          * @return ItemCollection
          */
+        #[\Override]
         public function getItems()
         {
             return (new ItemCollection($this->getCartItems()))->sort();
@@ -291,6 +267,7 @@ if (!class_exists(Cart::class)) {
         /**
          * Alias of setTotalPrice.
          */
+        #[\Override]
         public function setTotal($total)
         {
             return $this->setTotalPrice($total);
@@ -301,6 +278,7 @@ if (!class_exists(Cart::class)) {
          *
          * @return string
          */
+        #[\Override]
         public function getTotal()
         {
             return $this->getTotalPrice();
@@ -322,6 +300,7 @@ if (!class_exists(Cart::class)) {
         /**
          * @param ItemInterface $item
          */
+        #[\Override]
         public function addItem(ItemInterface $item)
         {
             $this->CartItems->add($item);
@@ -340,6 +319,7 @@ if (!class_exists(Cart::class)) {
          *
          * @return int
          */
+        #[\Override]
         public function getQuantity()
         {
             return $this->getTotalQuantity();
@@ -348,6 +328,7 @@ if (!class_exists(Cart::class)) {
         /**
          * {@inheritdoc}
          */
+        #[\Override]
         public function setDeliveryFeeTotal($total)
         {
             $this->delivery_fee_total = $total;
@@ -358,6 +339,7 @@ if (!class_exists(Cart::class)) {
         /**
          * {@inheritdoc}
          */
+        #[\Override]
         public function getDeliveryFeeTotal()
         {
             return $this->delivery_fee_total;
@@ -456,6 +438,7 @@ if (!class_exists(Cart::class)) {
         /**
          * {@inheritdoc}
          */
+        #[\Override]
         public function setDiscount($total)
         {
             // TODO quiet
@@ -464,6 +447,7 @@ if (!class_exists(Cart::class)) {
         /**
          * {@inheritdoc}
          */
+        #[\Override]
         public function setCharge($total)
         {
             // TODO quiet
@@ -474,6 +458,7 @@ if (!class_exists(Cart::class)) {
          *
          * @deprecated
          */
+        #[\Override]
         public function setTax($total)
         {
             // TODO quiet

@@ -17,7 +17,7 @@ use Eccube\Controller\AbstractController;
 use Eccube\Form\Type\Admin\TwoFactorAuthType;
 use Eccube\Repository\MemberRepository;
 use Eccube\Service\TwoFactorAuthService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -56,11 +56,8 @@ class TwoFactorAuthController extends AbstractController
         $this->twoFactorAuthService = $twoFactorAuthService;
     }
 
-    /**
-     * @Route("/%eccube_admin_route%/two_factor_auth/auth", name="admin_two_factor_auth", methods={"GET", "POST"})
-     *
-     * @Template("@admin/two_factor_auth.twig")
-     */
+    #[Route('/%eccube_admin_route%/two_factor_auth', name: 'admin_two_factor_auth', methods: ['GET', 'POST'])]
+    #[Template('@admin/two_factor_auth.twig')]
     public function auth(Request $request)
     {
         $Member = $this->getUser();
@@ -100,11 +97,8 @@ class TwoFactorAuthController extends AbstractController
         ];
     }
 
-    /**
-     * @Route("/%eccube_admin_route%/two_factor_auth/set", name="admin_two_factor_auth_set", methods={"GET", "POST"})
-     *
-     * @Template("@admin/two_factor_auth_set.twig")
-     */
+    #[Route('/%eccube_admin_route%/two_factor_auth/set', name: 'admin_two_factor_auth_set', methods: ['GET', 'POST'])]
+    #[Template('@admin/two_factor_auth_set.twig')]
     public function set(Request $request)
     {
         $Member = $this->getUser();
@@ -116,11 +110,8 @@ class TwoFactorAuthController extends AbstractController
         return $res;
     }
 
-    /**
-     * @Route("/%eccube_admin_route%/setting/system/two_factor_auth/edit", name="admin_setting_system_two_factor_auth_edit", methods={"GET", "POST"})
-     *
-     * @Template("@admin/Setting/System/two_factor_auth_edit.twig")
-     */
+    #[Route('/%eccube_admin_route%/setting/system/two_factor_auth/edit', name: 'admin_setting_system_two_factor_auth_edit', methods: ['GET', 'POST'])]
+    #[Template('@admin/Setting/System/two_factor_auth_edit.twig')]
     public function edit(Request $request)
     {
         $Member = $this->getUser();
@@ -156,7 +147,7 @@ class TwoFactorAuthController extends AbstractController
             $auth_key = $form->get('auth_key')->getData();
             $device_token = $form->get('device_token')->getData();
             if ($form->isSubmitted() && $form->isValid()) {
-                if ($this->twoFactorAuthService->verifyCode($auth_key, $device_token, 2)) {
+                if ($this->twoFactorAuthService->verifyCode($auth_key, $device_token)) {
                     $Member->setTwoFactorAuthKey($auth_key);
                     $this->memberRepository->save($Member);
                     $this->addSuccess('admin.setting.system.two_factor_auth.complete_message', 'admin');
