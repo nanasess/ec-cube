@@ -31,12 +31,13 @@ if (!class_exists(News::class)) {
      *
      * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
      */
-    class News extends AbstractEntity
+    class News extends AbstractEntity implements \Stringable
     {
         /**
          * @return string
          */
-        public function __toString()
+        #[\Override]
+        public function __toString(): string
         {
             return (string) $this->getTitle();
         }

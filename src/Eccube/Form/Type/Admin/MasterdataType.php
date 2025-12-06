@@ -48,6 +48,7 @@ class MasterdataType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $masterdata = [];
@@ -70,7 +71,7 @@ class MasterdataType extends AbstractType
                         continue;
                     }
 
-                    if (strpos($meta->rootEntityName, 'Master') !== false
+                    if (str_contains($meta->rootEntityName, 'Master')
                         && $meta->hasField('id')
                         && $meta->hasField('name')
                         && $meta->hasField('sort_no')
@@ -97,6 +98,7 @@ class MasterdataType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBlockPrefix()
     {
         return 'admin_system_masterdata';

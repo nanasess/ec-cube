@@ -106,7 +106,7 @@ class LogControllerTest extends AbstractAdminWebTestCase
         );
         $this->assertTrue($this->client->getResponse()->isSuccessful());
 
-        list($this->actual) = $crawler->filter('#admin_system_log_line_max')->extract(['style']);
+        [$this->actual] = $crawler->filter('#admin_system_log_line_max')->extract(['style']);
         $this->expected = $expected;
         $this->verify();
         if ($message) {
@@ -123,7 +123,7 @@ class LogControllerTest extends AbstractAdminWebTestCase
             // FIXME 以下のメッセージが翻訳されない
             // https://github.com/symfony/validator/blob/4.4/Resources/translations/validators.ja.xlf#L270
             ['', '', '入力されていません。'],
-            ['a', '', '有効な数字ではありません。'],
+            ['a', '', '有効な数値ではありません。'],
             // [0, '', '1以上でなければなりません。'],
             [0, '', ''],
             [50000, '', ''],

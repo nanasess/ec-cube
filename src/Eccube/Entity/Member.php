@@ -35,7 +35,7 @@ if (!class_exists(Member::class)) {
      *
      * @ORM\Entity(repositoryClass="Eccube\Repository\MemberRepository")
      */
-    class Member extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface, LegacyPasswordAuthenticatedUserInterface, \Serializable
+    class Member extends AbstractEntity implements UserInterface, PasswordAuthenticatedUserInterface, LegacyPasswordAuthenticatedUserInterface, \Serializable, \Stringable
     {
         public static function loadValidatorMetadata(ClassMetadata $metadata)
         {
@@ -48,7 +48,8 @@ if (!class_exists(Member::class)) {
         /**
          * @return string
          */
-        public function __toString()
+        #[\Override]
+        public function __toString(): string
         {
             return (string) $this->getName();
         }
@@ -56,6 +57,7 @@ if (!class_exists(Member::class)) {
         /**
          * {@inheritdoc}
          */
+        #[\Override]
         public function getRoles(): array
         {
             return ['ROLE_ADMIN'];
@@ -72,7 +74,8 @@ if (!class_exists(Member::class)) {
         /**
          * {@inheritdoc}
          */
-        public function eraseCredentials()
+        #[\Override]
+        public function eraseCredentials(): void
         {
         }
 
@@ -328,6 +331,7 @@ if (!class_exists(Member::class)) {
          *
          * @return string
          */
+        #[\Override]
         public function getPassword(): ?string
         {
             return $this->password;
@@ -352,6 +356,7 @@ if (!class_exists(Member::class)) {
          *
          * @return string
          */
+        #[\Override]
         public function getSalt(): ?string
         {
             return $this->salt;
@@ -582,6 +587,7 @@ if (!class_exists(Member::class)) {
          *
          * @since 5.1.0
          */
+        #[\Override]
         public function serialize()
         {
             // see https://symfony.com/doc/2.7/security/entity_provider.html#create-your-user-entity
@@ -607,15 +613,13 @@ if (!class_exists(Member::class)) {
          *
          * @since 5.1.0
          */
+        #[\Override]
         public function unserialize($serialized)
         {
-            list(
-                $this->id,
-                $this->login_id,
-                $this->password,
-                $this->salt) = unserialize($serialized);
+            [$this->id, $this->login_id, $this->password, $this->salt] = unserialize($serialized);
         }
 
+        #[\Override]
         public function getUserIdentifier(): string
         {
             return $this->login_id;

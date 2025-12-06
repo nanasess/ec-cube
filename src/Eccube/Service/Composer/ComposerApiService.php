@@ -102,6 +102,7 @@ class ComposerApiService implements ComposerServiceInterface
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
+    #[\Override]
     public function execRequire($packageName, $output = null, $from = null)
     {
         $packageName = explode(' ', trim($packageName));
@@ -137,6 +138,7 @@ class ComposerApiService implements ComposerServiceInterface
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
+    #[\Override]
     public function execRemove($packageName, $output = null)
     {
         $this->dropTableToExtra($packageName);
@@ -234,9 +236,10 @@ class ComposerApiService implements ComposerServiceInterface
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
+    #[\Override]
     public function foreachRequires($packageName, $version, $callback, $typeFilter = null, $level = 0): void
     {
-        if (strpos($packageName, '/') === false) {
+        if (!str_contains($packageName, '/')) {
             return;
         }
         $info = $this->execInfo($packageName, $version);
@@ -267,6 +270,7 @@ class ComposerApiService implements ComposerServiceInterface
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
+    #[\Override]
     public function execConfig($key, $value = null)
     {
         $commands = [
@@ -387,7 +391,7 @@ class ComposerApiService implements ComposerServiceInterface
         // Config for some environment
         putenv('COMPOSER_HOME='.$this->eccubeConfig['plugin_realdir'].'/.composer');
         $this->initConsole();
-        $this->workingDir = $this->workingDir ? $this->workingDir : $this->eccubeConfig['kernel.project_dir'];
+        $this->workingDir = $this->workingDir ?: $this->eccubeConfig['kernel.project_dir'];
         $url = $this->eccubeConfig['eccube_package_api_url'];
         $config = $this->getConfig();
         $eccube_repository = [
@@ -425,7 +429,7 @@ class ComposerApiService implements ComposerServiceInterface
         $this->execConfig('platform.php', [PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION]);
         $this->execConfig('repositories.eccube', [json_encode($eccube_repository)]);
 
-        if (strpos($url, 'http://') === 0) {
+        if (str_starts_with((string) $url, 'http://')) {
             $this->execConfig('secure-http', ['false']);
         }
         $this->initConsole();
@@ -448,6 +452,7 @@ class ComposerApiService implements ComposerServiceInterface
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
+    #[\Override]
     public function configureRepository(BaseInfo $BaseInfo): void
     {
         $this->init($BaseInfo);
@@ -457,7 +462,7 @@ class ComposerApiService implements ComposerServiceInterface
     {
         $projectRoot = $this->eccubeConfig->get('kernel.project_dir');
 
-        foreach (explode(' ', trim($packageNames)) as $packageName) {
+        foreach (explode(' ', trim((string) $packageNames)) as $packageName) {
             $pluginCode = null;
             // 大文字小文字を区別するファイルシステムを考慮して, ディレクトリ名からプラグインコードを取得する
             foreach (glob($projectRoot.'/app/Plugin/*', GLOB_ONLYDIR) as $dir) {

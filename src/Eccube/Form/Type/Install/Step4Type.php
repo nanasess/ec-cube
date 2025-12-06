@@ -45,6 +45,7 @@ class Step4Type extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $database = [];
@@ -79,13 +80,13 @@ class Step4Type extends AbstractType
             ->add('database_name', TextType::class, [
                 'label' => trans('install.database_name'),
                 'constraints' => [
-                    new Assert\Callback([$this, 'validate']),
+                    new Assert\Callback($this->validate(...)),
                 ],
             ])
             ->add('database_user', TextType::class, [
                 'label' => trans('install.database_user'),
                 'constraints' => [
-                    new Assert\Callback([$this, 'validate']),
+                    new Assert\Callback($this->validate(...)),
                 ],
             ])
             ->add('database_password', PasswordType::class, [
@@ -126,6 +127,7 @@ class Step4Type extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBlockPrefix()
     {
         return 'install_step4';

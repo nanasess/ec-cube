@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class MailType extends AbstractType
 {
-    private MailTemplateRepository $mailTemplateRepository;
+    private readonly MailTemplateRepository $mailTemplateRepository;
 
     private EccubeConfig $eccubeConfig;
 
@@ -43,6 +43,7 @@ class MailType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -113,6 +114,7 @@ class MailType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
@@ -123,6 +125,7 @@ class MailType extends AbstractType
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBlockPrefix()
     {
         return 'mail';

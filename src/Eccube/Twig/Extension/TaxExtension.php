@@ -40,10 +40,11 @@ class TaxExtension extends AbstractExtension
      *
      * @return TwigFunction[] An array of functions
      */
+    #[\Override]
     public function getFunctions()
     {
         return [
-            new TwigFunction('is_reduced_tax_rate', [$this, 'isReducedTaxRate']),
+            new TwigFunction('is_reduced_tax_rate', $this->isReducedTaxRate(...)),
         ];
     }
 
@@ -69,7 +70,7 @@ class TaxExtension extends AbstractExtension
                 ->setMaxResults(1)
                 ->getQuery()
                 ->getOneOrNullResult();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 

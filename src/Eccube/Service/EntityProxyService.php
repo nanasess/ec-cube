@@ -13,7 +13,6 @@
 
 namespace Eccube\Service;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Annotation\EntityExtension;
 use Eccube\Common\EccubeConfig;
@@ -68,17 +67,17 @@ class EntityProxyService
 
         $generatedFiles = [];
 
-        list($addTraits, $removeTrails) = $this->scanTraits([$includesDirs, $excludeDirs]);
+        [$addTraits, $removeTrails] = $this->scanTraits([$includesDirs, $excludeDirs]);
         $targetEntities = array_unique(array_merge(array_keys($addTraits), array_keys($removeTrails)));
 
         // プロキシファイルの生成
         foreach ($targetEntities as $targetEntity) {
-            $traits = isset($addTraits[$targetEntity]) ? $addTraits[$targetEntity] : [];
+            $traits = $addTraits[$targetEntity] ?? [];
             $fileName = $this->originalEntityPath($targetEntity);
             $baseName = basename($fileName);
             $entityTokens = Tokens::fromCode(file_get_contents($fileName));
 
-            if (strpos($fileName, 'app/proxy/entity') === false) {
+            if (!str_contains($fileName, 'app/proxy/entity')) {
                 $this->removeClassExistsBlock($entityTokens); // remove class_exists block
             } else {
                 // Remove to duplicate path of /app/proxy/entity
@@ -168,7 +167,7 @@ class EntityProxyService
 
         $declaredTraits = array_map(function ($fqcn) {
             // FQCNが'\'で始まるように正規化
-            return strpos($fqcn, '\\') === 0 ? $fqcn : '\\'.$fqcn;
+            return str_starts_with($fqcn, '\\') ? $fqcn : '\\'.$fqcn;
         }, get_declared_traits());
 
         // ディレクトリセットに含まれるTraitの一覧を作成
@@ -184,15 +183,15 @@ class EntityProxyService
         }
 
         // TraitをEntityごとにまとめる
-        $reader = new AnnotationReader();
         $proxySets = [];
         foreach ($traitSets as $traits) {
             $proxies = [];
             foreach ($traits as $trait) {
-                $anno = $reader->getClassAnnotation(new \ReflectionClass($trait), EntityExtension::class);
-                if ($anno) {
-                    $class = str_replace('\\\\', '\\', $anno->value);
-                    $class = ltrim($class, '\\');
+                $rc = new \ReflectionClass($trait);
+                foreach ($rc->getAttributes(EntityExtension::class, \ReflectionAttribute::IS_INSTANCEOF) as $attr) {
+                    /** @var EntityExtension $inst */
+                    $inst = $attr->newInstance();
+                    $class = ltrim(str_replace('\\\\', '\\', $inst->value), '\\');
                     $proxies[$class][] = $trait;
                 }
             }
@@ -255,7 +254,7 @@ class EntityProxyService
             $traitsTokens = array_slice($entityTokens->toArray(), $useTraitIndex + 1, $useTraitEndIndex - $useTraitIndex - 1);
 
             // Trait名の配列に変換
-            $traitNames = explode(',', implode(array_map(function ($token) {
+            $traitNames = explode(',', implode('', array_map(function ($token) {
                 return $token->getContent();
             }, array_filter($traitsTokens, function ($token) {
                 return $token->getId() != T_WHITESPACE;
@@ -293,7 +292,7 @@ class EntityProxyService
     {
         $result = [];
         $i = 0;
-        foreach (explode('\\', $name) as $part) {
+        foreach (explode('\\', (string) $name) as $part) {
             // プラグインのtraitの場合は、0番目は空文字
             // 本体でuseされているtraitは0番目にtrait名がくる
             if ($part) {

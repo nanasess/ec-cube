@@ -30,7 +30,7 @@ use Eccube\Service\PluginService;
 use Eccube\Service\SystemService;
 use Eccube\Util\CacheUtil;
 use Eccube\Util\StringUtil;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -105,14 +105,12 @@ class PluginController extends AbstractController
     /**
      * インストール済プラグイン画面
      *
-     * @Route("/%eccube_admin_route%/store/plugin", name="admin_store_plugin", methods={"GET"})
-     *
-     * @Template("@admin/Store/plugin.twig")
-     *
      * @return array
      *
      * @throws PluginException
      */
+    #[Route('/%eccube_admin_route%/store/plugin', name: 'admin_store_plugin', methods: ['GET'])]
+    #[Template('@admin/Store/plugin.twig')]
     public function index()
     {
         $pluginForms = [];
@@ -127,7 +125,7 @@ class PluginController extends AbstractController
                 $code = $unregisteredPlugin['code'];
                 // プラグイン用設定画面があれば表示(プラグイン用のサービスプロバイダーに定義されているか)
                 $unregisteredPluginsConfigPages[$code] = $this->generateUrl('plugin_'.$code.'_config');
-            } catch (RouteNotFoundException $e) {
+            } catch (RouteNotFoundException) {
                 // プラグインで設定画面のルートが定義されていない場合は無視
             }
         }
@@ -151,7 +149,7 @@ class PluginController extends AbstractController
             try {
                 // プラグイン用設定画面があれば表示(プラグイン用のサービスプロバイダーに定義されているか)
                 $configPages[$Plugin->getCode()] = $this->generateUrl(Container::underscore($Plugin->getCode()).'_admin_config');
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // プラグインで設定画面のルートが定義されていない場合は無視
             }
             if ($Plugin->getSource() == 0) {
@@ -196,14 +194,13 @@ class PluginController extends AbstractController
     /**
      * インストール済プラグインからのアップデート
      *
-     * @Route("/%eccube_admin_route%/store/plugin/{id}/update", requirements={"id" = "\d+"}, name="admin_store_plugin_update", methods={"POST"})
-     *
      * @param Request $request
      * @param Plugin $Plugin
      * @param CacheUtil $cacheUtil
      *
      * @return RedirectResponse
      */
+    #[Route('/%eccube_admin_route%/store/plugin/{id}/update', name: 'admin_store_plugin_update', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function update(Request $request, Plugin $Plugin, CacheUtil $cacheUtil)
     {
         $form = $this->formFactory
@@ -263,14 +260,13 @@ class PluginController extends AbstractController
     /**
      * 対象のプラグインを有効にします。
      *
-     * @Route("/%eccube_admin_route%/store/plugin/{id}/enable", requirements={"id" = "\d+"}, name="admin_store_plugin_enable", methods={"POST"})
-     *
      * @param Plugin $Plugin
      *
      * @return RedirectResponse|JsonResponse
      *
      * @throws PluginException
      */
+    #[Route('/%eccube_admin_route%/store/plugin/{id}/enable', name: 'admin_store_plugin_enable', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function enable(Plugin $Plugin, CacheUtil $cacheUtil, Request $request)
     {
         $this->isTokenValid();
@@ -295,7 +291,7 @@ class PluginController extends AbstractController
             if ($Plugin->getSource()) {
                 $requires = $this->pluginService->getPluginRequired($Plugin);
                 $requires = array_filter($requires, function ($req) {
-                    $code = preg_replace('/^ec-cube\//i', '', $req['name']);
+                    $code = preg_replace('/^ec-cube\//i', '', (string) $req['name']);
                     /** @var Plugin $DependPlugin */
                     $DependPlugin = $this->pluginRepository->findByCode($code);
 
@@ -349,14 +345,13 @@ class PluginController extends AbstractController
     /**
      * 対象のプラグインを無効にします。
      *
-     * @Route("/%eccube_admin_route%/store/plugin/{id}/disable", requirements={"id" = "\d+"}, name="admin_store_plugin_disable", methods={"POST"})
-     *
      * @param Request $request
      * @param Plugin $Plugin
      * @param CacheUtil $cacheUtil
      *
      * @return JsonResponse|RedirectResponse
      */
+    #[Route('/%eccube_admin_route%/store/plugin/{id}/disable', name: 'admin_store_plugin_disable', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function disable(Request $request, Plugin $Plugin, CacheUtil $cacheUtil)
     {
         $this->isTokenValid();
@@ -429,8 +424,6 @@ class PluginController extends AbstractController
     /**
      * 対象のプラグインを削除します。
      *
-     * @Route("/%eccube_admin_route%/store/plugin/{id}/uninstall", requirements={"id" = "\d+"}, name="admin_store_plugin_uninstall", methods={"DELETE"})
-     *
      * @param Plugin $Plugin
      * @param CacheUtil $cacheUtil
      *
@@ -438,6 +431,7 @@ class PluginController extends AbstractController
      *
      * @throws \Exception
      */
+    #[Route('/%eccube_admin_route%/store/plugin/{id}/uninstall', name: 'admin_store_plugin_uninstall', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function uninstall(Plugin $Plugin, CacheUtil $cacheUtil)
     {
         $this->isTokenValid();
@@ -474,15 +468,13 @@ class PluginController extends AbstractController
     /**
      * プラグインファイルアップロード画面
      *
-     * @Route("/%eccube_admin_route%/store/plugin/install", name="admin_store_plugin_install", methods={"GET", "POST"})
-     *
-     * @Template("@admin/Store/plugin_install.twig")
-     *
      * @param Request $request
      * @param CacheUtil $cacheUtil
      *
      * @return array|RedirectResponse
      */
+    #[Route('/%eccube_admin_route%/store/plugin/install', name: 'admin_store_plugin_install', methods: ['GET', 'POST'])]
+    #[Template('@admin/Store/plugin_install.twig')]
     public function install(Request $request, CacheUtil $cacheUtil)
     {
         $this->addInfoOnce('admin.common.restrict_file_upload_info', 'admin');
@@ -542,14 +534,12 @@ class PluginController extends AbstractController
     /**
      * 認証キー設定画面
      *
-     * @Route("/%eccube_admin_route%/store/plugin/authentication_setting", name="admin_store_authentication_setting", methods={"GET", "POST"})
-     *
-     * @Template("@admin/Store/authentication_setting.twig")
-     *
      * @param Request $request
      *
      * @return array
      */
+    #[Route('/%eccube_admin_route%/store/plugin/authentication_setting', name: 'admin_store_authentication_setting', methods: ['GET', 'POST'])]
+    #[Template('@admin/Store/authentication_setting.twig')]
     public function authenticationSetting(Request $request, CacheUtil $cacheUtil)
     {
         $builder = $this->formFactory
@@ -615,11 +605,11 @@ class PluginController extends AbstractController
                 continue;
             }
             $config = $this->pluginService->readConfig($dir->getRealPath());
-            $unregisteredPlugins[$pluginCode]['name'] = isset($config['name']) ? $config['name'] : null;
-            $unregisteredPlugins[$pluginCode]['event'] = isset($config['event']) ? $config['event'] : null;
-            $unregisteredPlugins[$pluginCode]['version'] = isset($config['version']) ? $config['version'] : null;
+            $unregisteredPlugins[$pluginCode]['name'] = $config['name'] ?? null;
+            $unregisteredPlugins[$pluginCode]['event'] = $config['event'] ?? null;
+            $unregisteredPlugins[$pluginCode]['version'] = $config['version'] ?? null;
             $unregisteredPlugins[$pluginCode]['enabled'] = Constant::DISABLED;
-            $unregisteredPlugins[$pluginCode]['code'] = isset($config['code']) ? $config['code'] : null;
+            $unregisteredPlugins[$pluginCode]['code'] = $config['code'] ?? null;
         }
 
         return $unregisteredPlugins;

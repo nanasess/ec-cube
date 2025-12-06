@@ -18,7 +18,7 @@ use Eccube\Entity\ItemHolderInterface;
 use Eccube\Entity\ItemInterface;
 use Eccube\Entity\Order;
 
-class PurchaseFlow
+class PurchaseFlow implements \Stringable
 {
     /**
      * @var string
@@ -382,7 +382,7 @@ class PurchaseFlow
     public function dump()
     {
         $callback = function ($processor) {
-            return get_class($processor);
+            return $processor::class;
         };
         $flows = [
             0 => $this->flowType.' flow',
@@ -414,7 +414,8 @@ class PurchaseFlow
     /**
      * @return string
      */
-    public function __toString()
+    #[\Override]
+    public function __toString(): string
     {
         return $this->dump();
     }

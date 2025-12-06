@@ -19,6 +19,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
+    #[\Override]
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('eccube');
@@ -59,7 +60,7 @@ class Configuration implements ConfigurationInterface
                                         ->end()
                                         ->beforeNormalization()
                                             ->ifArray()
-                                            ->then(fn (array $v) => \array_map(fn ($method) => \strtolower($method), $v))
+                                            ->then(fn (array $v) => \array_map(fn ($method) => \strtolower((string) $method), $v))
                                         ->end()
                                     ->enumPrototype()->values(['ip', 'customer', 'user'])->end()
                                         ->defaultValue([])
@@ -71,7 +72,7 @@ class Configuration implements ConfigurationInterface
                                         ->end()
                                         ->beforeNormalization()
                                             ->ifArray()
-                                            ->then(fn (array $v) => \array_map(fn ($method) => \strtoupper($method), $v))
+                                            ->then(fn (array $v) => \array_map(fn ($method) => \strtoupper((string) $method), $v))
                                         ->end()
                                     ->enumPrototype()->values(['GET', 'POST', 'PUT', 'DELETE'])->end()
                                         ->defaultValue(['POST'])

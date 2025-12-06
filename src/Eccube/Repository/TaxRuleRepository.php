@@ -86,7 +86,7 @@ class TaxRuleRepository extends AbstractRepository
         try {
             $CurrentRule = $this->getByRule();
             $RoundingType = $CurrentRule->getRoundingType();
-        } catch (NoResultException $e) {
+        } catch (NoResultException) {
             // quiet
         }
         $TaxRule = new TaxRule();
@@ -216,7 +216,7 @@ class TaxRuleRepository extends AbstractRepository
         // 後に書いてあるほど優先される
         $priorityKeys = [];
         foreach ($this->eccubeConfig['eccube_tax_rule_priority'] as $priorityKey) {
-            $priorityKeys[] = str_replace('_', '', preg_replace('/_id\z/', '', $priorityKey));
+            $priorityKeys[] = str_replace('_', '', preg_replace('/_id\z/', '', (string) $priorityKey));
         }
 
         foreach ($TaxRules as $TaxRule) {
@@ -269,6 +269,7 @@ class TaxRuleRepository extends AbstractRepository
      *
      * @throws NoResultException
      */
+    #[\Override]
     public function delete($TaxRule)
     {
         if (!$TaxRule instanceof TaxRule) {

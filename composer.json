@@ -12,7 +12,7 @@
     },
     "minimum-stability": "stable",
     "require": {
-        "php": "^8.1",
+        "php": "^8.3",
         "ext-curl": "*",
         "ext-intl": "*",
         "ext-json": "*",
@@ -51,7 +51,6 @@
         "psr/log": "~2.0",
         "psr/simple-cache": "^1.0",
         "robthree/twofactorauth": "^1.8",
-        "sensio/framework-extra-bundle": "^6.2",
         "setasign/fpdi": "^2.2",
         "skorp/detect-incompatible-samesite-useragents": "^1.0",
         "softcreatr/jsonpath": "^0.8",
@@ -100,10 +99,10 @@
         "symfony/workflow": "^6.4",
         "symfony/yaml": "^6.4",
         "tecnickcom/tcpdf": "^6.2",
-        "twig/extra-bundle": "3.8.0",
-        "twig/intl-extra": "^3.3",
-        "twig/twig": "3.8.0",
-        "vlucas/phpdotenv": "v5.6.0"
+        "twig/extra-bundle": "^3.21",
+        "twig/intl-extra": "^3.21",
+        "twig/twig": "^3.21",
+        "vlucas/phpdotenv": "^5.6"
     },
     "require-dev": {
         "captbaritone/mailcatcher-codeception-module": "^3.0",
@@ -187,7 +186,7 @@
     },
     "config": {
         "platform": {
-            "php": "8.1.0"
+            "php": "8.4.11"
         },
         "preferred-install": {
             "*": "dist"
@@ -199,6 +198,17 @@
             "kylekatarnls/update-helper": true,
             "ec-cube/plugin-installer": true,
             "symfony/flex": true
+        }
+    },
+    "repositories": {
+        "eccube": {
+            "type": "composer",
+            "url": "https://package-api-c2.ec-cube.net/v43",
+            "options": {
+                "http": {
+                    "header": ["X-ECCUBE-KEY: abcxyzABCXYZ123098"]
+                }
+            }
         }
     }
 }

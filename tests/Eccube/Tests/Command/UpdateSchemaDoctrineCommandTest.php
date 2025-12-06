@@ -51,6 +51,14 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
 
     public const NAME = 'eccube:schema:update';
 
+    /**
+     * 連続してテストを実行すると、プロキシ関係でテストが失敗する。
+     * １メソッドごとに実行すること。
+     *
+     * @return void
+     *
+     * @throws \Doctrine\DBAL\Exception
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -81,7 +89,17 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
                 $conn->executeUpdate('ALTER TABLE dtb_customer DROP test_update_schema_command');
             }
         }
-        parent::tearDown();
+        // プロパティをクリア
+        // parent::tearDown();
+    }
+
+    /**
+     * 中のプロパティをクリアしている
+     *
+     * @return void
+     */
+    public static function tearDownAfterClass(): void
+    {
     }
 
     public function testHelpWithOriginalDoctrineCommand()
@@ -122,7 +140,7 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
     {
         $commandTester = $this->getCommandTester(self::NAME);
 
-        list($configA, $fileA) = $this->createDummyPluginWithEntityExtension();
+        [$configA, $fileA] = $this->createDummyPluginWithEntityExtension();
         $this->pluginService->install($fileA);
 
         $commandTester->execute(
@@ -163,7 +181,7 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
     {
         $commandTester = $this->getCommandTester(self::NAME);
 
-        list($configA, $fileA) = $this->createDummyPluginWithEntityExtension();
+        [$configA, $fileA] = $this->createDummyPluginWithEntityExtension();
         $this->pluginService->install($fileA);
 
         $commandTester->execute(
@@ -201,7 +219,7 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
         $this->markTestIncomplete('Fatal error: Cannot declare class になってしまうためスキップ');
         $commandTester = $this->getCommandTester(self::NAME);
 
-        list($configA, $fileA) = $this->createDummyPluginWithEntityExtension();
+        [$configA, $fileA] = $this->createDummyPluginWithEntityExtension();
 
         $this->pluginService->install($fileA);
 
@@ -242,7 +260,7 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
     public function testEnablePluginWithProxy()
     {
         $commandTester = $this->getCommandTester(self::NAME);
-        list($configA, $fileA) = $this->createDummyPluginWithEntityExtension();
+        [$configA, $fileA] = $this->createDummyPluginWithEntityExtension();
         $this->pluginService->install($fileA);
 
         $this->executeExternalProcess('bin/console eccube:plugin:enable --code='.$configA['code']);
@@ -282,7 +300,7 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
         $this->markTestIncomplete('Fatal error: Cannot declare class になってしまうためスキップ');
         $commandTester = $this->getCommandTester(self::NAME);
 
-        list($configA, $fileA) = $this->createDummyPluginWithEntityExtension();
+        [$configA, $fileA] = $this->createDummyPluginWithEntityExtension();
         $this->pluginService->install($fileA);
 
         $this->executeExternalProcess('bin/console eccube:plugin:enable --code='.$configA['code']);
@@ -327,7 +345,7 @@ class UpdateSchemaDoctrineCommandTest extends EccubeTestCase
     {
         $commandTester = $this->getCommandTester(self::NAME);
 
-        list($configA, $fileA) = $this->createDummyPluginWithEntityExtension();
+        [$configA, $fileA] = $this->createDummyPluginWithEntityExtension();
         $this->pluginService->install($fileA);
 
         $pluginA = $this->pluginRepository->findOneBy(['code' => $configA['code']]);
@@ -428,9 +446,7 @@ namespace Plugin\\{$tmpname}\\Entity;
 use Eccube\Annotation\EntityExtension;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @EntityExtension("Eccube\Entity\Customer")
- */
+ #[\Eccube\Annotation\EntityExtension(\Eccube\Entity\Customer::class)]
 trait HogeTrait
 {
     /**
@@ -489,7 +505,7 @@ EOT
             $process->mustRun();
 
             return $process->getOutput();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // ignore Fatal error: Cannot declare class
             // $this->fail($e->getMessage());
         }

@@ -22,6 +22,7 @@ use Twig\NodeVisitor\NodeVisitorInterface;
 
 class TemplateEventExtension extends AbstractExtension
 {
+    #[\Override]
     public function getNodeVisitors()
     {
         return [new TemplateEventNodeVisiror()];
@@ -30,15 +31,17 @@ class TemplateEventExtension extends AbstractExtension
 
 class TemplateEventNodeVisiror implements NodeVisitorInterface
 {
+    #[\Override]
     public function enterNode(Node $node, Environment $env): Node
     {
         return $node;
     }
 
+    #[\Override]
     public function leaveNode(Node $node, Environment $env): Node
     {
         if ($node instanceof ModuleNode) {
-            if (\str_starts_with($node->getTemplateName(), '__string_template__')) {
+            if (\str_starts_with((string) $node->getTemplateName(), '__string_template__')) {
                 return $node;
             }
             $node->setNode('display_start', new Node([new TemplateEventNode(), $node->getNode('display_start')]));
@@ -47,6 +50,7 @@ class TemplateEventNodeVisiror implements NodeVisitorInterface
         return $node;
     }
 
+    #[\Override]
     public function getPriority()
     {
         return 0;
@@ -55,6 +59,7 @@ class TemplateEventNodeVisiror implements NodeVisitorInterface
 
 class TemplateEventNode extends Node
 {
+    #[\Override]
     public function compile(Compiler $compiler)
     {
         $compiler

@@ -101,7 +101,7 @@ class ExceptionListener implements EventSubscriberInterface
                 'error_title' => $title,
                 'error_message' => $message,
             ]);
-        } catch (\Exception $ignore) {
+        } catch (\Exception) {
             $content = $title;
         }
 
@@ -126,6 +126,7 @@ class ExceptionListener implements EventSubscriberInterface
      *
      * @return array The event names to listen to
      */
+    #[\Override]
     public static function getSubscribedEvents()
     {
         return [

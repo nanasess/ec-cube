@@ -31,6 +31,7 @@ class PluginPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container
      */
+    #[\Override]
     public function process(ContainerBuilder $container)
     {
         // 無効状態のプラグインコード一覧を取得.
@@ -53,7 +54,7 @@ class PluginPass implements CompilerPassInterface
             foreach ($plugins as $plugin) {
                 $namespace = 'Plugin\\'.$plugin.'\\';
 
-                if (false !== \strpos($class, $namespace)) {
+                if (str_contains($class, $namespace)) {
                     foreach ($definition->getTags() as $tag => $attr) {
                         // PluginManagerからレポジトリを取得する場合があるため,
                         // doctrine.repository_serviceタグはスキップする.

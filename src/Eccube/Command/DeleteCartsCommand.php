@@ -69,6 +69,7 @@ class DeleteCartsCommand extends Command
         $this->cartRepository = $cartRepository;
     }
 
+    #[\Override]
     protected function configure()
     {
         $this
@@ -76,6 +77,7 @@ class DeleteCartsCommand extends Command
             ->addArgument('date', InputArgument::REQUIRED, 'Deletes carts before the specified date');
     }
 
+    #[\Override]
     protected function interact(InputInterface $input, OutputInterface $output)
     {
         if (null !== $input->getArgument('date')) {
@@ -102,6 +104,7 @@ class DeleteCartsCommand extends Command
         $input->setArgument('date', $dateStr);
     }
 
+    #[\Override]
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
@@ -110,6 +113,7 @@ class DeleteCartsCommand extends Command
         $this->formatter = $this->createIntlFormatter();
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $dateStr = $input->getArgument('date');
@@ -139,7 +143,7 @@ class DeleteCartsCommand extends Command
             $this->entityManager->commit();
 
             $this->io->comment("Deleted {$deleteRows} carts.");
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $this->io->error('Failed delete carts. Rollbacked.');
             $this->entityManager->rollback();
         }

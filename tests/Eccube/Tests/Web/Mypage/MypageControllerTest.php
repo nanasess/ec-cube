@@ -52,8 +52,9 @@ class MypageControllerTest extends AbstractWebTestCase
 
         // main
         $redirectUrl = $this->generateUrl('mypage_favorite');
+        // mypage_favorite_deleteはprocutt_idを受け取る
         $this->client->request('DELETE',
-            $this->generateUrl('mypage_favorite_delete', ['id' => $TestFavorite->getId()])
+            $this->generateUrl('mypage_favorite_delete', ['id' => $TestFavorite->getProduct()->getId()])
         );
         $this->assertTrue($this->client->getResponse()->isRedirect($redirectUrl));
 
@@ -192,7 +193,7 @@ class MypageControllerTest extends AbstractWebTestCase
         $nodes = $crawler->filterXPath('//div[@class="product_item"]/a[1]');
         foreach ($nodes as $node) {
             $href = $node->getAttribute('href');
-            if (preg_match('/detail\/([0-9]+)/', $href, $matched)) {
+            if (preg_match('/detail\/([0-9]+)/', (string) $href, $matched)) {
                 $actualIds[] = $matched[1];
             }
         }

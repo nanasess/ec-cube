@@ -59,11 +59,13 @@ class ComposerRequireAlreadyInstalledPluginsCommand extends Command
         $this->pluginRepository = $pluginRepository;
     }
 
+    #[\Override]
     public function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->io = new SymfonyStyle($input, $output);
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $packageNames = [];
@@ -75,7 +77,7 @@ class ComposerRequireAlreadyInstalledPluginsCommand extends Command
         $Plugins = $this->pluginRepository->matching($criteria);
 
         foreach ($Plugins as $Plugin) {
-            $packageNames[] = 'ec-cube/'.strtolower($Plugin->getCode()).':'.$Plugin->getVersion();
+            $packageNames[] = 'ec-cube/'.strtolower((string) $Plugin->getCode()).':'.$Plugin->getVersion();
             $data = $this->pluginApiService->getPlugin($Plugin->getCode());
             if (isset($data['version_check']) && !$data['version_check']) {
                 $unSupportedPlugins[] = $Plugin;

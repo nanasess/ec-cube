@@ -106,6 +106,7 @@ class EccubeDataCollector extends DataCollector
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function collect(Request $request, Response $response, ?\Throwable $exception = null)
     {
         $this->data['base_currency_code'] = $this->eccubeConfig->get('currency');
@@ -113,7 +114,7 @@ class EccubeDataCollector extends DataCollector
 
         try {
             $this->data['locale_code'] = $this->eccubeConfig->get('locale');
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         try {
@@ -140,10 +141,11 @@ class EccubeDataCollector extends DataCollector
                 }
                 $this->data['plugins'][$code] = $Plugin->toArray();
             }
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
     }
 
+    #[\Override]
     public function reset()
     {
         $this->data = [];
@@ -152,6 +154,7 @@ class EccubeDataCollector extends DataCollector
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName()
     {
         return 'eccube_core';

@@ -29,12 +29,13 @@ if (!class_exists(ProductImage::class)) {
      *
      * @ORM\Entity(repositoryClass="Eccube\Repository\ProductImageRepository")
      */
-    class ProductImage extends AbstractEntity
+    class ProductImage extends AbstractEntity implements \Stringable
     {
         /**
          * @return string
          */
-        public function __toString()
+        #[\Override]
+        public function __toString(): string
         {
             return (string) $this->getFileName();
         }

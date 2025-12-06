@@ -25,9 +25,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class RateLimiterListener implements EventSubscriberInterface
 {
-    private ContainerInterface $locator;
+    private readonly ContainerInterface $locator;
     private EccubeConfig $eccubeConfig;
-    private Context $requestContext;
+    private readonly Context $requestContext;
 
     public function __construct(ContainerInterface $locator, EccubeConfig $eccubeConfig, Context $requestContext)
     {
@@ -96,6 +96,7 @@ class RateLimiterListener implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function getSubscribedEvents()
     {
         return [

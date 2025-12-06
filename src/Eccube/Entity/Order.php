@@ -1176,6 +1176,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
+        #[\Override]
         public function setDiscount($discount)
         {
             $this->discount = $discount;
@@ -1202,6 +1203,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
+        #[\Override]
         public function setDeliveryFeeTotal($deliveryFeeTotal)
         {
             $this->delivery_fee_total = $deliveryFeeTotal;
@@ -1214,6 +1216,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
+        #[\Override]
         public function getDeliveryFeeTotal()
         {
             return $this->delivery_fee_total;
@@ -1226,6 +1229,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
+        #[\Override]
         public function setCharge($charge)
         {
             $this->charge = $charge;
@@ -1252,6 +1256,7 @@ if (!class_exists(Order::class)) {
          *
          * @deprecated 明細ごとに集計した税額と差異が発生する場合があるため非推奨
          */
+        #[\Override]
         public function setTax($tax)
         {
             $this->tax = $tax;
@@ -1278,6 +1283,7 @@ if (!class_exists(Order::class)) {
          *
          * @return Order
          */
+        #[\Override]
         public function setTotal($total)
         {
             $this->total = $total;
@@ -1290,6 +1296,7 @@ if (!class_exists(Order::class)) {
          *
          * @return string
          */
+        #[\Override]
         public function getTotal()
         {
             return $this->total;
@@ -1604,6 +1611,7 @@ if (!class_exists(Order::class)) {
          *
          * @return ItemCollection
          */
+        #[\Override]
         public function getItems()
         {
             return (new ItemCollection($this->getOrderItems()))->sort();
@@ -1927,11 +1935,13 @@ if (!class_exists(Order::class)) {
         /**
          * @param ItemInterface $item
          */
+        #[\Override]
         public function addItem(ItemInterface $item)
         {
             $this->OrderItems->add($item);
         }
 
+        #[\Override]
         public function getQuantity()
         {
             $quantity = 0;
