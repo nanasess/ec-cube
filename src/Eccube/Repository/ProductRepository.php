@@ -412,4 +412,53 @@ class ProductRepository extends AbstractRepository
 
         return $this->queries->customize(QueryKey::PRODUCT_SEARCH_ADMIN, $qb, $searchData);
     }
+
+    /**
+     * 売上上位商品を取得する
+     *
+     * @param int $limit 取得する商品数
+     * @param \DateTime|null $startDate 期間の開始日時（nullの場合は全期間）
+     * @param \DateTime|null $endDate 期間の終了日時（nullの場合は全期間）
+     * @return array 売上上位の商品配列
+     */
+    public function findBestSellingProducts($limit = 5, $startDate = null, $endDate = null)
+    {
+        $qb = $this->createQueryBuilder('p');
+        $qb->select('p, SUM(oi.quantity) as total_quantity')
+            ->innerJoin(\Eccube\Entity\OrderItem::class, 'oi', 'WITH', 'oi.Product = p')
+            ->innerJoin('oi.Order', 'o')
+            ->where('p.Status = :status')
+            ->andWhere('oi.OrderItemType = :itemType')
+            // 注文取消し、返品を除外
+            ->andWhere('o.OrderStatus NOT IN (:excludeStatus)')
+            ->setParameter('status', ProductStatus::DISPLAY_SHOW)
+            ->setParameter('itemType', \Eccube\Entity\Master\OrderItemType::PRODUCT)
+            ->setParameter('excludeStatus', [
+                \Eccube\Entity\Master\OrderStatus::CANCEL,
+                \Eccube\Entity\Master\OrderStatus::RETURNED
+            ])
+            ->groupBy('p.id')
+            ->orderBy('total_quantity', 'DESC')
+            ->setMaxResults($limit);
+
+        // 期間指定がある場合
+        if ($startDate !== null) {
+            $qb->andWhere('o.order_date >= :startDate')
+                ->setParameter('startDate', $startDate);
+        }
+        if ($endDate !== null) {
+            $qb->andWhere('o.order_date <= :endDate')
+                ->setParameter('endDate', $endDate);
+        }
+
+        $results = $qb->getQuery()->getResult();
+        
+        // 商品エンティティのみを返す
+        $products = [];
+        foreach ($results as $result) {
+            $products[] = $result[0]; // 商品エンティティは配列の最初の要素
+        }
+        
+        return $products;
+    }
 }
