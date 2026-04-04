@@ -1,3 +1,20 @@
+# Worktree Context
+
+This directory was created by `worktree create suggest-feature` as a working worktree.
+
+- **Task name**: suggest-feature
+- **Working directory**: /home/nanasess/git-repos/ec-cube.worktrees/suggest-feature
+- **Project root (source)**: /home/nanasess/git-repos/ec-cube
+
+> **Important**: All code changes must be made within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/suggest-feature`).
+> Do not modify the project root (`/home/nanasess/git-repos/ec-cube`) directly.
+
+## Testing
+
+Run `docker compose up` or other commands within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/suggest-feature`) to verify changes.
+
+---
+
 # EC-CUBE Development Guide
 
 ## Project Overview
@@ -197,3 +214,65 @@ EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or
 - `Member` — Admin user
 - `Plugin` — Installed plugin metadata
 - `BaseInfo` — Store configuration (shop name, address, tax settings)
+
+---
+
+# 実装計画: フロント画面のサジェスト機能
+
+## 概要
+
+フロント画面のヘッダー検索欄にオートコンプリート（サジェスト）機能を追加する。キーワード入力に応じて商品候補をドロップダウン表示し、クリックで商品詳細に遷移できるようにする。
+
+## 実装チェックリスト
+
+### 1. サジェスト用APIコントローラの作成
+
+- [ ] `app/Customize/Controller/ProductSuggestController.php` を新規作成
+  - `AbstractController` を継承
+  - Route: `GET /products/suggest` (name: `product_suggest`)
+  - パラメータ: `keyword` (string), `category_id` (int, optional)
+  - `ProductRepository::getQueryBuilderBySearchData()` を再利用してクエリ構築
+  - `setMaxResults(10)` で最大10件に制限
+  - JSONレスポンス: `[{id, name, price, image, url}]`
+  - 空キーワード or 2文字未満は空配列を返す
+  - `BaseInfo::isOptionNostockHidden()` で在庫なし非表示に対応
+
+### 2. サジェスト用JavaScriptの実装
+
+- [ ] `html/user_data/assets/js/customize.js` に追記
+  - `.search-name` 入力欄に `input` イベントリスナーをバインド
+  - 300msデバウンス処理
+  - `$.ajax()` で `/products/suggest?keyword=xxx` にGETリクエスト
+  - カテゴリ選択中なら `category_id` も送信
+  - 検索結果をドロップダウンリストとして表示
+  - 上下キーで候補移動、Enterで選択、ESCで閉じる
+  - フォーカス外れで非表示（mousedown対策で遅延クローズ）
+  - XHRリクエストの abort 制御
+
+### 3. サジェスト用CSSの実装
+
+- [ ] `html/user_data/assets/css/customize.css` に追記
+  - `.ec-headerSearch__keyword` に `position: relative`
+  - `.ec-suggest` を `position: absolute; z-index: 9999`
+  - ホバー/キーボード選択時のハイライト
+  - レスポンシブ対応（SP時は幅を画面幅に合わせる）
+
+### 4. テンプレートカスタマイズ（任意）
+
+- [ ] `app/template/default/Block/search_product.twig` にオーバーライド
+  - `autocomplete="off"` を検索入力欄に追加
+  - `data-suggest-url="{{ path('product_suggest') }}"` を追加
+
+## 関連ファイル（参照のみ）
+
+- `src/Eccube/Controller/ProductController.php` - 商品一覧コントローラ
+- `src/Eccube/Controller/Block/SearchProductController.php` - 検索ブロックコントローラ
+- `src/Eccube/Repository/ProductRepository.php` - `getQueryBuilderBySearchData()`
+- `src/Eccube/Resource/template/default/Block/search_product.twig` - 検索ブロックテンプレート
+- `src/Eccube/Form/Type/SearchProductBlockType.php` - 検索フォーム型
+
+## 注意事項
+
+- XSS対策: JSでHTML生成時は `text()` メソッドを使い商品名等をエスケープ
+- パフォーマンス: LIKE検索のため `setMaxResults(10)` が重要
+- SP対応: ドロワー内検索フォームにも `.search-name` クラスで統一バインド
