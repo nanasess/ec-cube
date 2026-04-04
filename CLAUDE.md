@@ -1,3 +1,20 @@
+# Worktree Context
+
+This directory was created by `worktree create stock-search` as a working worktree.
+
+- **Task name**: stock-search
+- **Working directory**: /home/nanasess/git-repos/ec-cube.worktrees/stock-search
+- **Project root (source)**: /home/nanasess/git-repos/ec-cube
+
+> **Important**: All code changes must be made within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/stock-search`).
+> Do not modify the project root (`/home/nanasess/git-repos/ec-cube`) directly.
+
+## Testing
+
+Run `docker compose up` or other commands within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/stock-search`) to verify changes.
+
+---
+
 # EC-CUBE Development Guide
 
 ## Project Overview
@@ -197,3 +214,59 @@ EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or
 - `Member` — Admin user
 - `Plugin` — Installed plugin metadata
 - `BaseInfo` — Store configuration (shop name, address, tax settings)
+
+---
+
+# 実装計画: 管理画面で商品検索条件に在庫数量を追加
+
+## 概要
+
+管理画面の商品一覧で、在庫数量の範囲指定（下限〜上限）による検索条件を追加する。既存の「在庫あり/なし」チェックボックスに加え、具体的な数量での絞り込みを可能にする。
+
+## 設計方針
+
+コアファイルは変更せず `app/Customize/` 配下のみで実装する。FormExtension + QueryCustomizer パターンを使用。
+
+## 実装チェックリスト
+
+### 1. Form Extension の作成
+
+- [ ] `app/Customize/Form/Extension/Admin/SearchProductTypeExtension.php` を新規作成
+  - `AbstractTypeExtension` を継承
+  - `getExtendedTypes()` で `SearchProductType::class` を返す
+  - `stock_quantity_min` (IntegerType, required: false) を追加
+  - `stock_quantity_max` (IntegerType, required: false) を追加
+  - バリデーション: `Assert\Type("integer")`, `Assert\GreaterThanOrEqual(0)`
+
+### 2. QueryCustomizer の作成
+
+- [ ] `app/Customize/Doctrine/Query/StockQuantityCustomizer.php` を新規作成
+  - `QueryCustomizer` インターフェース (`Eccube\Doctrine\Query\QueryCustomizer`) を実装
+  - `getQueryKey()` で `QueryKey::PRODUCT_SEARCH_ADMIN` を返す
+  - `customize()` で在庫数量の範囲条件を追加
+  - `pc` エイリアスが JOIN済みの場合: `pc.stock >= :stock_quantity_min` 等
+  - `pc` エイリアスが未JOINの場合（countクエリ）: EXISTS サブクエリ形式で対応
+  - `stock_unlimited = true` の商品は除外（`pc.stock_unlimited = false` 条件追加）
+
+### 3. テンプレートのオーバーライド
+
+- [ ] `app/template/admin/Product/index.twig` をコアからコピーしてオーバーライド
+  - 既存「在庫（あり/なし）」チェックボックスの直下（185-188行目の後）に配置
+  - 在庫数量の下限・上限入力欄を範囲指定UIで追加
+
+### 4. 翻訳メッセージの追加（任意）
+
+- [ ] `app/Customize/Resource/locale/messages.ja.yaml` を作成
+
+## 関連ファイル（参照のみ）
+
+- `src/Eccube/Form/Type/Admin/SearchProductType.php` - 拡張対象フォーム
+- `src/Eccube/Repository/ProductRepository.php` - `getQueryBuilderBySearchDataForAdmin()`, `countBySearchDataForAdmin()`
+- `src/Eccube/Doctrine/Query/QueryCustomizer.php` - 実装すべきインターフェース
+- `src/Eccube/Resource/template/admin/Product/index.twig` - テンプレートオーバーライド元
+
+## 注意事項
+
+- `Kernel.php`(244行目)で `QueryCustomizer` 実装クラスは自動タグ付け・登録される
+- `countBySearchDataForAdmin()` は JOIN を避ける高速カウント版のため、サブクエリ形式で対応が必要
+- 在庫無制限商品（`stock_unlimited = true`）は数量検索から除外する

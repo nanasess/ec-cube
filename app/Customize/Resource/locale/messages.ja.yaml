@@ -1,0 +1,4 @@
+# 在庫数量検索用の翻訳メッセージ
+admin.product.stock_quantity: 在庫数量
+admin.product.stock_quantity_min: 在庫数量(下限)
+admin.product.stock_quantity_max: 在庫数量(上限)
