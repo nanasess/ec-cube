@@ -1,0 +1,134 @@
+{#
+セール管理 編集画面
+#}
+{% extends '@admin/default_frame.twig' %}
+
+{% set menus = ['product', 'sale_config'] %}
+
+{% block title %}セール設定{% endblock %}
+{% block sub_title %}{{ 'admin.product.product_management'|trans }}{% endblock %}
+
+{% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
+
+{% block main %}
+    <form method="post" novalidate>
+        {{ form_widget(form._token) }}
+
+        <div class="c-contentsArea__cols">
+            <div class="c-contentsArea__primaryCol">
+                <div class="c-primaryCol">
+                    <div class="card rounded border-0 mb-4">
+                        <div class="card-header">
+                            <span>セール基本情報</span>
+                        </div>
+                        <div class="card-body">
+                            {# セール名 #}
+                            <div class="row mb-2">
+                                <div class="col-3">
+                                    <span>セール名</span>
+                                    <span class="badge badge-primary ml-1">{{ 'admin.common.required'|trans }}</span>
+                                </div>
+                                <div class="col">
+                                    {{ form_widget(form.name) }}
+                                    {{ form_errors(form.name) }}
+                                </div>
+                            </div>
+
+                            {# 割引タイプ #}
+                            <div class="row mb-2">
+                                <div class="col-3">
+                                    <span>割引タイプ</span>
+                                    <span class="badge badge-primary ml-1">{{ 'admin.common.required'|trans }}</span>
+                                </div>
+                                <div class="col">
+                                    {{ form_widget(form.discount_type) }}
+                                    {{ form_errors(form.discount_type) }}
+                                </div>
+                            </div>
+
+                            {# 割引値 #}
+                            <div class="row mb-2">
+                                <div class="col-3">
+                                    <span>割引値</span>
+                                    <span class="badge badge-primary ml-1">{{ 'admin.common.required'|trans }}</span>
+                                </div>
+                                <div class="col">
+                                    {{ form_widget(form.discount_value) }}
+                                    {{ form_errors(form.discount_value) }}
+                                    <p class="text-muted small mt-1">
+                                        割引率の場合は「10」（=10%OFF）、固定値引きの場合は「500」（=500円引き）のように入力してください。
+                                    </p>
+                                </div>
+                            </div>
+
+                            {# 開始日時 #}
+                            <div class="row mb-2">
+                                <div class="col-3">
+                                    <span>開始日時</span>
+                                </div>
+                                <div class="col">
+                                    {{ form_widget(form.start_date) }}
+                                    {{ form_errors(form.start_date) }}
+                                    <p class="text-muted small mt-1">未設定の場合、即時適用されます。</p>
+                                </div>
+                            </div>
+
+                            {# 終了日時 #}
+                            <div class="row mb-2">
+                                <div class="col-3">
+                                    <span>終了日時</span>
+                                </div>
+                                <div class="col">
+                                    {{ form_widget(form.end_date) }}
+                                    {{ form_errors(form.end_date) }}
+                                    <p class="text-muted small mt-1">未設定の場合、無期限となります。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# 対象カテゴリ #}
+                    <div class="card rounded border-0 mb-4">
+                        <div class="card-header">
+                            <span>対象カテゴリ</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-3">
+                                    <span>カテゴリ</span>
+                                    <span class="badge badge-primary ml-1">{{ 'admin.common.required'|trans }}</span>
+                                </div>
+                                <div class="col">
+                                    {{ form_widget(form.Categories) }}
+                                    {{ form_errors(form.Categories) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="c-conversionArea">
+            <div class="c-conversionArea__container">
+                <div class="row justify-content-between align-items-center">
+                    <div class="col-6">
+                        <div class="c-conversionArea__leftBlockItem">
+                            <a class="c-baseLink" href="{{ url('admin_sale_config_index') }}">
+                                <i class="fa fa-backward" aria-hidden="true"></i>
+                                <span>セール一覧に戻る</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div id="ex-conversion-action" class="row align-items-center justify-content-end">
+                            <div class="col-auto">
+                                <button class="btn btn-ec-conversion px-5" type="submit">{{ 'admin.common.registration'|trans }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

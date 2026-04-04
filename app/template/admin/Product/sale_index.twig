@@ -1,0 +1,142 @@
+{#
+セール管理 一覧画面
+#}
+{% extends '@admin/default_frame.twig' %}
+
+{% set menus = ['product', 'sale_config'] %}
+
+{% block title %}セール管理{% endblock %}
+{% block sub_title %}{{ 'admin.product.product_management'|trans }}{% endblock %}
+
+{% block main %}
+    <div class="c-contentsArea__cols">
+        <div class="c-contentsArea__primaryCol">
+            <div class="c-primaryCol">
+                <div class="d-block mb-3">
+                    <a class="btn btn-ec-regular" href="{{ url('admin_sale_config_new') }}">
+                        <i class="fa fa-plus mr-1"></i>
+                        セールを新規作成
+                    </a>
+                </div>
+
+                {% if SaleConfigs|length > 0 %}
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
+                        <span>セール一覧</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th class="border-top-0 pl-3">ID</th>
+                                    <th class="border-top-0">セール名</th>
+                                    <th class="border-top-0">割引タイプ</th>
+                                    <th class="border-top-0">割引値</th>
+                                    <th class="border-top-0">開始日時</th>
+                                    <th class="border-top-0">終了日時</th>
+                                    <th class="border-top-0">ステータス</th>
+                                    <th class="border-top-0">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for SaleConfig in SaleConfigs %}
+                                <tr>
+                                    <td class="pl-3">{{ SaleConfig.id }}</td>
+                                    <td>
+                                        <a href="{{ url('admin_sale_config_edit', { id: SaleConfig.id }) }}">
+                                            {{ SaleConfig.name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if SaleConfig.discountType == 1 %}
+                                            割引率（%）
+                                        {% else %}
+                                            固定値引き（円）
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if SaleConfig.discountType == 1 %}
+                                            {{ SaleConfig.discountValue }}%
+                                        {% else %}
+                                            {{ SaleConfig.discountValue|price }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ SaleConfig.startDate ? SaleConfig.startDate|date('Y/m/d H:i') : '-' }}</td>
+                                    <td>{{ SaleConfig.endDate ? SaleConfig.endDate|date('Y/m/d H:i') : '-' }}</td>
+                                    <td>
+                                        {% if SaleConfig.isActive %}
+                                            <span class="badge badge-success">有効（セール中）</span>
+                                        {% elseif SaleConfig.enabled %}
+                                            <span class="badge badge-warning">有効（期間外）</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">無効</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-inline-block" style="min-width: 180px;">
+                                            {# 有効/無効トグル #}
+                                            <form method="post" action="{{ url('admin_sale_config_toggle', { id: SaleConfig.id }) }}" style="display:inline;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('_token') }}">
+                                                {% if SaleConfig.enabled %}
+                                                    <button type="submit" class="btn btn-sm btn-ec-conversion" data-confirm="true" data-message="セールを無効にしますか？">
+                                                        <i class="fa fa-pause mr-1"></i>無効にする
+                                                    </button>
+                                                {% else %}
+                                                    <button type="submit" class="btn btn-sm btn-ec-regular" data-confirm="true" data-message="セールを有効にしますか？">
+                                                        <i class="fa fa-play mr-1"></i>有効にする
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+
+                                            {# 削除 #}
+                                            <div class="d-inline-block" data-tooltip="true" data-placement="top" title="{{ 'admin.common.delete'|trans }}">
+                                                <a href="#" class="btn btn-sm btn-ec-actionIcon"
+                                                   data-toggle="modal"
+                                                   data-target="#deleteModal-{{ SaleConfig.id }}">
+                                                    <i class="fa fa-close"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        {# 削除確認モーダル #}
+                                        <div class="modal fade" id="deleteModal-{{ SaleConfig.id }}" tabindex="-1" role="dialog">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">{{ 'admin.common.delete_modal_header'|trans }}</h5>
+                                                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>「{{ SaleConfig.name }}」を削除してもよろしいですか？</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button class="btn btn-ec-sub" type="button" data-dismiss="modal">{{ 'admin.common.cancel'|trans }}</button>
+                                                        <form method="post" action="{{ url('admin_sale_config_delete', { id: SaleConfig.id }) }}">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('_token') }}">
+                                                            <input type="hidden" name="_method" value="DELETE">
+                                                            <button class="btn btn-ec-delete" type="submit">{{ 'admin.common.delete'|trans }}</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
+                    <div class="card rounded border-0 mb-4">
+                        <div class="card-body">
+                            <p class="text-center text-muted mb-0">セール設定がまだありません。</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,9 @@
+services:
+
+    # セール価格 PurchaseFlow Preprocessor
+    # TaxProcessor（priority: 1000）より前に実行し、セール価格を適用する
+    Customize\Service\PurchaseFlow\Processor\SalePricePreprocessor:
+        autowire: true
+        tags:
+            - { name: eccube.item.holder.preprocessor, flow_type: cart, priority: 1100 }
+            - { name: eccube.item.holder.preprocessor, flow_type: shopping, priority: 1100 }
