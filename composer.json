@@ -39,6 +39,7 @@
         "egulias/email-validator": "^4.0",
         "exercise/htmlpurifier-bundle": "^5.0",
         "friendsofphp/php-cs-fixer": "^3.75",
+        "geoip2/geoip2": "^3.3",
         "guzzlehttp/guzzle": "^7.4.5",
         "knplabs/knp-paginator-bundle": "^6.8",
         "mobiledetect/mobiledetectlib": "^2.8",
