@@ -1,3 +1,20 @@
+# Worktree Context
+
+This directory was created by `worktree create out-of-stock-type` as a working worktree.
+
+- **Task name**: out-of-stock-type
+- **Working directory**: /home/nanasess/git-repos/ec-cube.worktrees/out-of-stock-type
+- **Project root (source)**: /home/nanasess/git-repos/ec-cube
+
+> **Important**: All code changes must be made within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/out-of-stock-type`).
+> Do not modify the project root (`/home/nanasess/git-repos/ec-cube`) directly.
+
+## Testing
+
+Run `docker compose up` or other commands within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/out-of-stock-type`) to verify changes.
+
+---
+
 # EC-CUBE Development Guide
 
 ## Project Overview
@@ -197,3 +214,69 @@ EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or
 - `Member` — Admin user
 - `Plugin` — Installed plugin metadata
 - `BaseInfo` — Store configuration (shop name, address, tax settings)
+
+---
+
+# 実装計画: フロント画面の品切れ表示を欠品と廃盤に分ける
+
+## 概要
+
+現在「ただいま品切れ中です。」と一律表示されている品切れ表示を、「欠品（一時的な在庫切れ）」と「廃盤（恒久的に販売終了）」に分けて表示する。
+
+## 設計方針
+
+ProductClass に `out_of_stock_type` カラムを追加する方式。Entity Trait + FormExtension でコア変更不要。
+
+品切れ種別: null/0=未設定（従来互換:欠品扱い）、1=欠品、2=廃盤
+
+## 実装チェックリスト
+
+### 1. Entity拡張（Trait）の作成
+
+- [ ] `app/Customize/Entity/ProductClassTrait.php` を新規作成
+  - `@EntityExtension("Eccube\Entity\ProductClass")` アノテーション
+  - `out_of_stock_type` カラム（nullable smallint）
+  - 定数: `OUT_OF_STOCK_TYPE_SHORTAGE = 1`, `OUT_OF_STOCK_TYPE_DISCONTINUED = 2`
+- [ ] `app/Customize/Entity/ProductTrait.php` を新規作成
+  - `@EntityExtension("Eccube\Entity\Product")` アノテーション
+  - `getOutOfStockType(): ?int` - 全規格を走査し品切れ種別を集約（全廃盤→廃盤、1つでも欠品→欠品）
+
+### 2. プロキシ生成 & DBマイグレーション
+
+- [ ] `bin/console eccube:generate:proxies` を実行
+- [ ] `app/DoctrineMigrations/VersionXXXX.php` マイグレーション作成
+  - `dtb_product_class` に `out_of_stock_type` (SMALLINT, nullable) 追加
+- [ ] `bin/console doctrine:migrations:migrate` を実行
+
+### 3. 管理画面フォーム拡張
+
+- [ ] `app/Customize/Form/Extension/ProductClassExtension.php` を新規作成
+  - `ProductClassEditType` を拡張、`out_of_stock_type` を ChoiceType で追加
+- [ ] `app/Customize/Form/Extension/ProductExtension.php` を新規作成（規格なし商品用）
+
+### 4. フロントテンプレートのオーバーライド
+
+- [ ] `app/template/default/Product/detail.twig` をオーバーライド
+  - 384行目付近の品切れ表示ブロックで `Product.outOfStockType` を判定して表示分岐
+- [ ] `app/template/default/Product/list.twig` をオーバーライド
+  - 204-209行目付近の品切れ表示を同様に修正
+
+### 5. 翻訳メッセージの追加
+
+- [ ] `app/Customize/Resource/locale/messages.ja.yaml` を作成
+  - `front.product.out_of_stock_shortage`: ただいま欠品中です。
+  - `front.product.discontinued`: この商品は廃盤です。
+
+## 関連ファイル（参照のみ）
+
+- `src/Eccube/Entity/ProductClass.php` - `getStockFind()` の在庫判定ロジック
+- `src/Eccube/Entity/Product.php` - `_calc()` と `getStockFind()` による商品レベルの在庫集約
+- `src/Eccube/Resource/template/default/Product/detail.twig` - 品切れ表示（384-414行目）
+- `src/Eccube/Resource/template/default/Product/list.twig` - 品切れ表示（176-210行目）
+- `src/Eccube/Annotation/EntityExtension.php` - Entity拡張Traitのアノテーション
+
+## 注意事項
+
+- `Product._calc()` はコアメソッドでTraitオーバーライド不可。`getOutOfStockType()` は独立メソッドとして実装
+- 規格選択ドロップダウンの「(品切れ中)」ラベル（116行目）はTwig Extension or JSで対応
+- 廃盤の場合は構造化データ（JSON-LD）の `availability` を `Discontinued` に変更推奨

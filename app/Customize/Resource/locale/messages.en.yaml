@@ -1,0 +1,8 @@
+# Out-of-stock type (shortage/discontinued) translation messages
+front.product.out_of_stock_shortage: Currently out of stock.
+front.product.discontinued: This product has been discontinued.
+
+admin.product.out_of_stock_type: Out of stock type
+admin.product.out_of_stock_type__unset: Unset (treated as shortage)
+admin.product.out_of_stock_type__shortage: Shortage
+admin.product.out_of_stock_type__discontinued: Discontinued

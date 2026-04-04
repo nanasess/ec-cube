@@ -1,0 +1,8 @@
+# 品切れ種別（欠品/廃盤）関連の翻訳メッセージ
+front.product.out_of_stock_shortage: ただいま欠品中です。
+front.product.discontinued: この商品は廃盤です。
+
+admin.product.out_of_stock_type: 品切れ種別
+admin.product.out_of_stock_type__unset: 未設定（欠品扱い）
+admin.product.out_of_stock_type__shortage: 欠品
+admin.product.out_of_stock_type__discontinued: 廃盤
