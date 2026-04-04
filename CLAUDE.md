@@ -1,3 +1,20 @@
+# Worktree Context
+
+This directory was created by `worktree create order-sort` as a working worktree.
+
+- **Task name**: order-sort
+- **Working directory**: /home/nanasess/git-repos/ec-cube.worktrees/order-sort
+- **Project root (source)**: /home/nanasess/git-repos/ec-cube
+
+> **Important**: All code changes must be made within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/order-sort`).
+> Do not modify the project root (`/home/nanasess/git-repos/ec-cube`) directly.
+
+## Testing
+
+Run `docker compose up` or other commands within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/order-sort`) to verify changes.
+
+---
+
 # EC-CUBE Development Guide
 
 ## Project Overview
@@ -197,3 +214,51 @@ EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or
 - `Member` — Admin user
 - `Plugin` — Installed plugin metadata
 - `BaseInfo` — Store configuration (shop name, address, tax settings)
+
+---
+
+# 実装計画: 受注リストを注文番号でソートする
+
+## 概要
+
+管理画面の受注一覧で、注文番号（order_no）によるソート機能を追加する。
+
+## 現状
+
+- テンプレートの `<th>` に `data-sortkey="XXX"` でソートキーを指定
+- JSがクリックイベントで `sortkey`/`sorttype` のhiddenフィールドにセットしフォームsubmit
+- `OrderRepository::COLUMNS` 定数のマッピングに基づいてORDER BYを設定
+- 現在のCOLUMNSに `order_no` キーが存在しないためソート不可
+- `order_no` は VARCHAR(255), nullable。インデックス `dtb_order_order_no_idx` が既存
+
+## 実装チェックリスト
+
+### 1. OrderRepository の COLUMNS 定数に order_no を追加
+
+- [ ] `src/Eccube/Repository/OrderRepository.php` (42行目)
+  - COLUMNS 定数に `'order_no' => 'o.order_no'` を追加
+  - `o.order_no` は Order テーブルに直接属するカラムのため追加JOINは不要
+
+### 2. テンプレートにソートリンクを追加
+
+- [ ] `src/Eccube/Resource/template/admin/Order/index.twig` (475行目付近)
+  - テーブルヘッダの2列目（ID/注文者）セルに注文番号のソートリンクを追加
+  - `<a href="#" class="js-listSort" data-sortkey="order_no"><i class="fa fa-arrow-up"></i></a>`
+
+## 変更不要な箇所
+
+- SearchOrderType: `sortkey` は HiddenType で自由な文字列を受け取るため変更不要
+- AbstractRepository: 汎用ソート実装のため変更不要
+- JavaScript (function.js): `data-sortkey` の値をそのまま使うため変更不要
+
+## 関連ファイル
+
+- `src/Eccube/Repository/OrderRepository.php` - COLUMNS定数、setQueryBuilderAdminSearchDataOrderBy()
+- `src/Eccube/Resource/template/admin/Order/index.twig` - ソートリンクUI
+- `src/Eccube/Repository/AbstractRepository.php` - 汎用ソート処理
+- `src/Eccube/Controller/Admin/Order/OrderController.php` - wrap-queries制御（296-299行目）
+
+## 注意事項
+
+- `order_no` が NULL のレコードがある場合のソート順はDBエンジン依存
+- ページネーション・セッション復旧時のソート条件維持を確認すること
