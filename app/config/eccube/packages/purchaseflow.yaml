@@ -267,3 +267,12 @@ services:
             - '@Eccube\Service\PointHelper'
         tags:
             - { name: eccube.purchase.processor, flow_type: order, priority: 900 }
+
+    # 名入れ情報の永続化プロセッサ
+    eccube.purchase.flow.purchase.processor.naire.processor:
+        class: Customize\Service\PurchaseFlow\Processor\NairePurchaseProcessor
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+            - '@Symfony\Component\HttpFoundation\RequestStack'
+        tags:
+            - { name: eccube.purchase.processor, flow_type: shopping, priority: 500 }

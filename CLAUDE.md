@@ -1,3 +1,20 @@
+# Worktree Context
+
+This directory was created by `worktree create naire-engraving` as a working worktree.
+
+- **Task name**: naire-engraving
+- **Working directory**: /home/nanasess/git-repos/ec-cube.worktrees/naire-engraving
+- **Project root (source)**: /home/nanasess/git-repos/ec-cube
+
+> **Important**: All code changes must be made within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/naire-engraving`).
+> Do not modify the project root (`/home/nanasess/git-repos/ec-cube`) directly.
+
+## Testing
+
+Run `docker compose up` or other commands within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/naire-engraving`) to verify changes.
+
+---
+
 # EC-CUBE Development Guide
 
 ## Project Overview
@@ -197,3 +214,88 @@ EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or
 - `Member` — Admin user
 - `Plugin` — Installed plugin metadata
 - `BaseInfo` — Store configuration (shop name, address, tax settings)
+
+---
+
+# 実装計画: 名入れ機能（ノベルティなど）
+
+## 概要
+
+商品購入時にお客様が名入れテキストを入力できる機能。商品ごとに名入れ対応/非対応を設定可能。名入れ情報はカート→注文確認→受注詳細まで一貫して保持・表示される。
+
+## 設計方針
+
+CartItem の `__sleep()` は `['product_class_id', 'price', 'quantity']` のみ返すため、Traitでプロパティを追加してもセッション経由で失われる。名入れ情報はセッションに別キーで保持し、購入確定時に NaireInfo エンティティとして永続化する。
+
+## 実装チェックリスト
+
+### 1. 商品マスタ: 名入れ対応フラグ追加
+
+- [ ] `app/Customize/Entity/ProductTrait.php` を新規作成
+  - `@EntityExtension("Eccube\Entity\Product")` アノテーション
+  - `naire_enabled` (boolean, default false)
+  - `@FormAppend` アノテーションで管理画面に自動追加
+- [ ] `bin/console eccube:generate:proxies` 実行
+- [ ] マイグレーション作成（`dtb_product` に `naire_enabled` カラム追加）
+
+### 2. 名入れ情報エンティティ
+
+- [ ] `app/Customize/Entity/NaireInfo.php` を新規作成
+  - テーブル: `dtb_naire_info`
+  - カラム: id, naire_text(string,max255), create_date, update_date
+  - OrderItem への ManyToOne リレーション
+- [ ] `app/Customize/Entity/OrderItemTrait.php` を新規作成
+  - `@EntityExtension("Eccube\Entity\OrderItem")`
+  - NaireInfo への OneToOne リレーション
+- [ ] `app/Customize/Repository/NaireInfoRepository.php` を新規作成
+- [ ] プロキシ再生成 & マイグレーション
+
+### 3. カートフォーム拡張
+
+- [ ] `app/Customize/Form/Extension/AddCartTypeExtension.php` を新規作成
+  - `AddCartType` を拡張、`naire_text` フィールド追加（TextType, mapped:false, required:false）
+  - PRE_SET_DATA で `naire_enabled` が false の場合はフィールド除去
+  - maxlength: 255 バリデーション
+
+### 4. カート追加時のセッション保存
+
+- [ ] `app/Customize/EventListener/AddCartNaireListener.php` を新規作成
+  - `FRONT_PRODUCT_CART_ADD_COMPLETE` イベントをリッスン
+  - セッションに `naire_info` キーで `[product_class_id => naire_text]` 保存
+
+### 5. 購入確定時の永続化
+
+- [ ] `app/Customize/Service/PurchaseFlow/Processor/NairePurchaseProcessor.php` を新規作成
+  - `PurchaseProcessor` 実装
+  - `prepare()`: セッションの名入れ情報を NaireInfo として作成・persist
+  - `commit()`: セッションクリア
+  - `rollback()`: NaireInfo 削除
+- [ ] `app/config/eccube/packages/purchaseflow.yaml` に登録
+
+### 6. テンプレート
+
+- [ ] `app/template/default/Product/detail.twig` をオーバーライド
+  - `{% if form.naire_text is defined %}` で名入れ入力欄を表示
+- [ ] `app/template/default/Cart/index.twig` をオーバーライド
+  - セッションから名入れ情報を取得して表示
+- [ ] `app/template/default/Shopping/confirm.twig` をオーバーライド
+  - `orderItem.NaireInfo` で名入れテキスト表示
+
+### 7. 管理画面の受注詳細
+
+- [ ] `app/Customize/Form/Extension/Admin/OrderItemTypeExtension.php` を新規作成
+  - 受注明細に名入れ情報を読み取り専用で表示
+
+## 関連ファイル（参照のみ）
+
+- `src/Eccube/Entity/CartItem.php` - __sleep() によるセッションシリアライズ制約（92行目）
+- `src/Eccube/Form/Type/AddCartType.php` - カートフォーム拡張の基盤
+- `src/Eccube/Service/CartService.php` - addProduct/mergeCartItems のカート処理フロー
+- `src/Eccube/Form/Extension/DoctrineOrmExtension.php` - @FormAppend による自動フォーム拡張
+- `src/Eccube/Entity/OrderItem.php` - OrderItem エンティティ拡張先
+
+## 注意事項
+
+- CartItem の `__sleep()` 制約により、名入れ情報はCartItemに直接持たせられない
+- CartItemComparator は商品規格IDのみで同一判定。同じ商品で異なる名入れは最後の入力が有効
+- `@FormAppend` でProductの管理画面フォームに自動で名入れ対応チェックボックスが追加される
