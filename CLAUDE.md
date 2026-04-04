@@ -1,3 +1,20 @@
+# Worktree Context
+
+This directory was created by `worktree create private-product` as a working worktree.
+
+- **Task name**: private-product
+- **Working directory**: /home/nanasess/git-repos/ec-cube.worktrees/private-product
+- **Project root (source)**: /home/nanasess/git-repos/ec-cube
+
+> **Important**: All code changes must be made within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/private-product`).
+> Do not modify the project root (`/home/nanasess/git-repos/ec-cube`) directly.
+
+## Testing
+
+Run `docker compose up` or other commands within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/private-product`) to verify changes.
+
+---
+
 # EC-CUBE Development Guide
 
 ## Project Overview
@@ -197,3 +214,69 @@ EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or
 - `Member` — Admin user
 - `Plugin` — Installed plugin metadata
 - `BaseInfo` — Store configuration (shop name, address, tax settings)
+
+---
+
+# 実装計画: 特定のお客様専用URLの商品ページ（限定公開）
+
+## 概要
+
+商品を「非公開」のままにしつつ、秘密トークン付きURLを知っている顧客だけがその商品ページを閲覧・購入できる仕組みを構築する。
+
+## 実装チェックリスト
+
+### 1. エンティティ: PrivateLink の作成
+
+- [ ] `app/Customize/Entity/PrivateLink.php` を新規作成
+  - テーブル: `dtb_private_link`
+  - カラム: id, product_id(FK→Product), customer_id(nullable,FK→Customer), token(unique,64文字), expires_at(nullable), is_active(default:true), create_date, update_date
+  - customer_idがNULL=トークンで誰でも閲覧可、値あり=特定顧客のみ
+  - トークン生成: `bin2hex(random_bytes(32))`
+
+### 2. リポジトリ
+
+- [ ] `app/Customize/Repository/PrivateLinkRepository.php` を新規作成
+  - `findValidByToken(string $token): ?PrivateLink` - トークン検索（有効期限・is_active確認）
+  - `findByProduct(Product $product): array`
+  - `generateUniqueToken(): string`
+
+### 3. DBマイグレーション
+
+- [ ] `app/DoctrineMigrations/VersionXXXX.php` マイグレーション作成
+
+### 4. フロント用コントローラ
+
+- [ ] `app/Customize/Controller/PrivateLinkController.php` を新規作成
+  - `GET /products/private/{token}` (name: `product_private_link`) - 商品詳細表示
+  - `POST /products/private/{token}/add_cart` (name: `product_private_link_add_cart`) - カート追加
+  - トークン検証 → 無効なら404、customer_id設定ありなら顧客一致チェック
+  - 非公開商品でもトークン経由なら表示許可（既存 `checkVisibility()` をバイパス）
+  - 既存の `Product/detail.twig` テンプレートを再利用
+
+### 5. 管理画面コントローラ
+
+- [ ] `app/Customize/Controller/Admin/PrivateLinkController.php` を新規作成
+  - `GET /%eccube_admin_route%/product/{id}/private_link` - リンク一覧
+  - `POST` - 新規トークン発行（顧客指定・有効期限設定）
+  - `DELETE` - リンク無効化
+
+### 6. フォームタイプ
+
+- [ ] `app/Customize/Form/Type/Admin/PrivateLinkType.php` を新規作成
+  - Customer(EntityType,nullable), expires_at(DateTimeType,nullable), is_active(CheckboxType)
+
+### 7. テンプレート
+
+- [ ] `app/template/admin/Product/private_link.twig` - 限定公開リンク管理画面
+- [ ] 商品編集画面へのUI挿入（EventSubscriber or テンプレートオーバーライド）
+
+## 関連ファイル（参照のみ）
+
+- `src/Eccube/Controller/ProductController.php` - `checkVisibility()` (503-519行目)
+- `src/Eccube/Resource/template/admin/Product/product.twig` - 管理画面導線挿入箇所（920行目付近）
+
+## 注意事項
+
+- トークンは暗号論的に安全な乱数（`random_bytes(32)`）で生成
+- 有効期限切れリンクはDB削除せず無効扱い
+- Rate Limiterでブルートフォース対策を検討

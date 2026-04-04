@@ -1,0 +1,227 @@
+{#
+限定公開リンク管理画面
+
+商品ごとの限定公開リンクの一覧・発行・無効化を行うテンプレート。
+#}
+{% extends '@admin/default_frame.twig' %}
+
+{% set menus = ['product', 'product_edit'] %}
+
+{% block title %}限定公開リンク管理{% endblock %}
+{% block sub_title %}{{ 'admin.product.product_management'|trans }}{% endblock %}
+
+{% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
+
+{% block stylesheet %}
+    <style>
+        .private-link-url {
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.85em;
+        }
+        .badge-active {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .badge-inactive {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .badge-expired {
+            background-color: #6c757d;
+            color: #fff;
+        }
+        .copy-btn {
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(function() {
+            // URLコピー機能
+            $('.copy-btn').on('click', function() {
+                var url = $(this).data('url');
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(function() {
+                        alert('URLをクリップボードにコピーしました。');
+                    });
+                } else {
+                    // フォールバック
+                    var $temp = $('<input>');
+                    $('body').append($temp);
+                    $temp.val(url).select();
+                    document.execCommand('copy');
+                    $temp.remove();
+                    alert('URLをクリップボードにコピーしました。');
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+    <div class="c-contentsArea__cols">
+        <div class="c-contentsArea__primaryCol">
+            <div class="c-primaryCol">
+
+                {# 商品情報ヘッダー #}
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-8">
+                                <span class="card-title">
+                                    商品: {{ Product.name }}
+                                    <span class="badge bg-secondary ms-2">ID: {{ Product.id }}</span>
+                                </span>
+                            </div>
+                            <div class="col-4 text-end">
+                                <a href="{{ url('admin_product_product_edit', {id: Product.id}) }}" class="btn btn-ec-regular btn-sm">
+                                    <i class="fa fa-pencil me-1"></i>商品編集に戻る
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# 新規リンク発行フォーム #}
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
+                        <span class="card-title">新規限定公開リンクの発行</span>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{{ url('admin_product_private_link', {id: Product.id}) }}">
+                            {{ form_widget(form._token) }}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    {{ form_label(form.Customer) }}
+                                    {{ form_widget(form.Customer) }}
+                                    {{ form_errors(form.Customer) }}
+                                    <small class="form-text text-muted">
+                                        顧客を指定すると、その顧客がログインしている場合のみアクセス可能になります。
+                                    </small>
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form_label(form.expires_at) }}
+                                    {{ form_widget(form.expires_at) }}
+                                    {{ form_errors(form.expires_at) }}
+                                    <small class="form-text text-muted">
+                                        未設定の場合は無期限です。
+                                    </small>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-ec-conversion">
+                                        <i class="fa fa-plus me-1"></i>発行
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {# 既存リンク一覧 #}
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
+                        <span class="card-title">発行済みリンク一覧</span>
+                        <span class="badge bg-info ms-2">{{ PrivateLinks|length }}件</span>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if PrivateLinks|length > 0 %}
+                            <table class="table table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="border-top-0 pt-2 pb-2 ps-3" style="width: 5%">ID</th>
+                                        <th class="border-top-0 pt-2 pb-2" style="width: 30%">URL</th>
+                                        <th class="border-top-0 pt-2 pb-2" style="width: 15%">対象顧客</th>
+                                        <th class="border-top-0 pt-2 pb-2" style="width: 12%">有効期限</th>
+                                        <th class="border-top-0 pt-2 pb-2" style="width: 8%">状態</th>
+                                        <th class="border-top-0 pt-2 pb-2" style="width: 12%">作成日</th>
+                                        <th class="border-top-0 pt-2 pb-2 pe-3 text-end" style="width: 18%">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for PrivateLink in PrivateLinks %}
+                                        {% set linkUrl = url('product_private_link', {token: PrivateLink.token}) %}
+                                        {% set isExpired = PrivateLink.expiresAt is not null and PrivateLink.expiresAt < date() %}
+                                        <tr>
+                                            <td class="align-middle ps-3">{{ PrivateLink.id }}</td>
+                                            <td class="align-middle">
+                                                <div class="private-link-url">
+                                                    <a href="{{ linkUrl }}" target="_blank" rel="noopener">
+                                                        {{ linkUrl|length > 60 ? linkUrl[:60] ~ '...' : linkUrl }}
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary copy-btn ms-1" data-url="{{ linkUrl }}" title="URLをコピー">
+                                                        <i class="fa fa-clipboard"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                {% if PrivateLink.customer %}
+                                                    {{ PrivateLink.customer.name01 }} {{ PrivateLink.customer.name02 }}
+                                                    <br><small class="text-muted">{{ PrivateLink.customer.email }}</small>
+                                                {% else %}
+                                                    <span class="text-muted">制限なし</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="align-middle">
+                                                {% if PrivateLink.expiresAt %}
+                                                    {{ PrivateLink.expiresAt|date('Y/m/d H:i') }}
+                                                {% else %}
+                                                    <span class="text-muted">無期限</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="align-middle">
+                                                {% if not PrivateLink.active %}
+                                                    <span class="badge badge-inactive">無効</span>
+                                                {% elseif isExpired %}
+                                                    <span class="badge badge-expired">期限切れ</span>
+                                                {% else %}
+                                                    <span class="badge badge-active">有効</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="align-middle">
+                                                {{ PrivateLink.createDate|date('Y/m/d H:i') }}
+                                            </td>
+                                            <td class="align-middle pe-3 text-end">
+                                                {% if PrivateLink.active %}
+                                                    <form method="post" action="{{ url('admin_product_private_link_disable', {id: Product.id, link_id: PrivateLink.id}) }}" style="display:inline;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_product_private_link_disable') }}">
+                                                        <input type="hidden" name="_method" value="PUT">
+                                                        <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('このリンクを無効化しますか？')">
+                                                            <i class="fa fa-ban"></i> 無効化
+                                                        </button>
+                                                    </form>
+                                                {% else %}
+                                                    <form method="post" action="{{ url('admin_product_private_link_enable', {id: Product.id, link_id: PrivateLink.id}) }}" style="display:inline;">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_product_private_link_enable') }}">
+                                                        <input type="hidden" name="_method" value="PUT">
+                                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('このリンクを有効化しますか？')">
+                                                            <i class="fa fa-check"></i> 有効化
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                                <form method="post" action="{{ url('admin_product_private_link_delete', {id: Product.id, link_id: PrivateLink.id}) }}" style="display:inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('admin_product_private_link_delete') }}">
+                                                    <input type="hidden" name="_method" value="DELETE">
+                                                    <button type="submit" class="btn btn-sm btn-ec-delete" onclick="return confirm('このリンクを削除しますか？削除すると復元できません。')">
+                                                        <i class="fa fa-trash"></i> 削除
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="p-4 text-center text-muted">
+                                限定公開リンクはまだ発行されていません。
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

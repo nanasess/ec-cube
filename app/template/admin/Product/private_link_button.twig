@@ -1,0 +1,26 @@
+{#
+限定公開リンク管理ボタン
+
+商品編集画面のショップ用メモの下に挿入されるスニペット。
+商品IDが存在する場合のみ表示される。
+#}
+{% if Product is defined and Product.id %}
+<script>
+    $(function() {
+        // ショップ用メモカードの後に限定公開リンク管理ボタンを挿入
+        var $privateLinkCard = $('<div class="card rounded border-0 mb-4">' +
+            '<div class="card-header"><span class="card-title">限定公開リンク</span></div>' +
+            '<div class="card-body">' +
+            '<p class="mb-2">この商品の限定公開URLを管理できます。非公開商品でもトークン付きURLを知っている顧客がアクセス・購入できます。</p>' +
+            '<a href="{{ url("admin_product_private_link", {id: Product.id}) }}" class="btn btn-ec-regular">' +
+            '<i class="fa fa-link me-1"></i>限定公開リンク管理</a>' +
+            '</div></div>');
+
+        // ショップ用メモのカード（#shopMemoの親要素）の後に挿入
+        var $shopMemo = $('#shopMemo').closest('.card');
+        if ($shopMemo.length) {
+            $shopMemo.after($privateLinkCard);
+        }
+    });
+</script>
+{% endif %}
