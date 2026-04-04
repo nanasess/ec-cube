@@ -1,0 +1,211 @@
+{#
+ 発送日基準 売上集計画面テンプレート
+
+ 検索フォーム、集計結果テーブル、Chart.jsグラフ、CSV出力ボタン
+#}
+{% extends '@admin/default_frame.twig' %}
+
+{% set menus = ['order', 'sales_report'] %}
+
+{% block title %}売上集計{% endblock %}
+{% block sub_title %}受注管理{% endblock %}
+
+{% form_theme form '@admin/Form/bootstrap_4_layout.html.twig' %}
+
+{% block stylesheet %}
+<style>
+    .sales-report-chart-container {
+        position: relative;
+        height: 300px;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+$(function() {
+    {% if results|length > 0 %}
+    var ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [
+                {% for row in results %}
+                    '{{ row.report_period }}'{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            datasets: [
+                {
+                    label: '売上合計',
+                    data: [
+                        {% for row in results %}
+                            {{ row.sales_total }}{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y'
+                },
+                {
+                    label: '受注件数',
+                    data: [
+                        {% for row in results %}
+                            {{ row.order_count }}{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ],
+                    type: 'line',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 2,
+                    fill: false,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    beginAtZero: true,
+                    title: { display: true, text: '売上合計 (円)' }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    beginAtZero: true,
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: '受注件数' }
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}
+
+{% block main %}
+<form method="post" action="{{ url('admin_sales_report') }}">
+    {{ form_widget(form._token) }}
+
+    <div class="c-outsideBlock__contents mb-3">
+        <div class="card rounded border-0 mb-4">
+            <div class="card-header"><span class="card-title">検索条件</span></div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-3">
+                        <label class="col-form-label">日付種別</label>
+                        {{ form_widget(form.date_type, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label">開始日</label>
+                        {{ form_widget(form.date_start, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.date_start) }}
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label">終了日</label>
+                        {{ form_widget(form.date_end, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.date_end) }}
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label">集計単位</label>
+                        {{ form_widget(form.unit, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label class="col-form-label">受注ステータス（未選択時はキャンセル・返品等を除外）</label>
+                        <div class="form-inline">
+                            {{ form_widget(form.order_statuses) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-ec-conversion px-5">集計</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% if results|length > 0 %}
+    {# グラフ表示 #}
+    <div class="c-outsideBlock__contents mb-3">
+        <div class="card rounded border-0 mb-4">
+            <div class="card-header"><span class="card-title">売上グラフ</span></div>
+            <div class="card-body">
+                <div class="sales-report-chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# 集計結果テーブル #}
+    <div class="c-outsideBlock__contents mb-3">
+        <div class="card rounded border-0 mb-4">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-8">
+                        <span class="card-title">集計結果</span>
+                    </div>
+                    <div class="col-4 text-end">
+                        {# CSV出力ボタン #}
+                        <form method="post" action="{{ url('admin_sales_report_csv') }}" style="display:inline;">
+                            <input type="hidden" name="sales_report_type[_token]" value="{{ form._token.vars.value }}">
+                            {# 検索条件を隠しフィールドで再送信 #}
+                            <input type="hidden" name="sales_report_type[date_type]" value="{{ form.date_type.vars.data }}">
+                            <input type="hidden" name="sales_report_type[date_start]" value="{{ form.date_start.vars.data|date('Y-m-d') }}">
+                            <input type="hidden" name="sales_report_type[date_end]" value="{{ form.date_end.vars.data|date('Y-m-d') }}">
+                            <input type="hidden" name="sales_report_type[unit]" value="{{ form.unit.vars.data }}">
+                            {% if form.order_statuses.vars.data is not empty %}
+                                {% for status in form.order_statuses.vars.data %}
+                                    <input type="hidden" name="sales_report_type[order_statuses][]" value="{{ status.id }}">
+                                {% endfor %}
+                            {% endif %}
+                            <button type="submit" class="btn btn-ec-regular">
+                                <i class="fa fa-cloud-download mr-1"></i>CSV出力
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>日付</th>
+                            <th class="text-end">受注件数</th>
+                            <th class="text-end">売上合計</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in results %}
+                        <tr>
+                            <td>{{ row.report_period }}</td>
+                            <td class="text-end">{{ row.order_count|number_format }}</td>
+                            <td class="text-end">{{ row.sales_total|number_format }} 円</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-active font-weight-bold">
+                            <td>合計</td>
+                            <td class="text-end">{{ totalOrderCount|number_format }}</td>
+                            <td class="text-end">{{ totalSalesAmount|number_format }} 円</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
