@@ -1,0 +1,11 @@
+services:
+    # セット割引プロセッサ
+    # カート画面・購入フロー画面の両方でセット割引を適用する
+    customize.purchase.flow.discount.processor.cross_product_discount:
+        class: Customize\Service\PurchaseFlow\Processor\CrossProductDiscountProcessor
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+            - '@Customize\Repository\CrossProductDiscountRepository'
+        tags:
+            - { name: eccube.discount.processor, flow_type: cart, priority: 900 }
+            - { name: eccube.discount.processor, flow_type: shopping, priority: 900 }
