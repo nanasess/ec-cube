@@ -1,0 +1,23 @@
+{{ Customer.name01 }} {{ Customer.name02 }}様
+
+この度はご購入いただき、誠にありがとうございます。
+
+お友だち紹介クーポンを発行いたしました。
+下記のクーポンコードをお友だちにお伝えください。
+
+━━━━━━━━━━━━━━━━━━━━
+ クーポンコード: {{ Coupon.coupon_code }}
+ 値引き額: {{ Coupon.discount_amount|number_format }}円
+ 有効期限: {{ Coupon.expires_at|date('Y年m月d日') }}
+━━━━━━━━━━━━━━━━━━━━
+
+お友だちがこのクーポンを使って購入を完了されると、
+{{ Customer.name01 }} {{ Customer.name02 }}様に {{ Coupon.referrer_point|number_format }}ポイントが付与されます。
+
+※ クーポンはお一人様1回のみご利用いただけます。
+※ ご本人様はこのクーポンをご利用いただけません。
+
+━━━━━━━━━━━━━━━━━━━━
+{{ BaseInfo.shop_name }}
+{{ BaseInfo.email01 }}
+━━━━━━━━━━━━━━━━━━━━

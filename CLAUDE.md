@@ -1,3 +1,20 @@
+# Worktree Context
+
+This directory was created by `worktree create referral-coupon` as a working worktree.
+
+- **Task name**: referral-coupon
+- **Working directory**: /home/nanasess/git-repos/ec-cube.worktrees/referral-coupon
+- **Project root (source)**: /home/nanasess/git-repos/ec-cube
+
+> **Important**: All code changes must be made within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/referral-coupon`).
+> Do not modify the project root (`/home/nanasess/git-repos/ec-cube`) directly.
+
+## Testing
+
+Run `docker compose up` or other commands within this directory (`/home/nanasess/git-repos/ec-cube.worktrees/referral-coupon`) to verify changes.
+
+---
+
 # EC-CUBE Development Guide
 
 ## Project Overview
@@ -197,3 +214,139 @@ EC-CUBE uses a proxy system for entities in `app/proxy/entity/`. When plugins or
 - `Member` — Admin user
 - `Plugin` — Installed plugin metadata
 - `BaseInfo` — Store configuration (shop name, address, tax settings)
+
+---
+
+# 実装計画: 紹介クーポン機能
+
+## 概要
+
+購入完了時に紹介クーポンコードを発行し、被紹介者がそのクーポンを使用して購入完了したら、紹介者にポイント付与、被紹介者には注文時の値引きを適用する。
+
+## 実装チェックリスト
+
+### Phase 1: エンティティ・DB
+
+- [ ] `app/Customize/Entity/ReferralCoupon.php` を新規作成
+  - テーブル: `dtb_referral_coupon`
+  - カラム: id, coupon_code(unique,12桁), referrer_id(FK→Customer), referee_id(nullable,FK→Customer), referee_order_id(nullable,FK→Order), discount_amount, referrer_point, referrer_point_granted(boolean,default:false ※ポイント付与済みフラグ), status(0:未使用/1:使用済/2:期限切れ/3:無効/4:返品取消), expires_at, used_at, create_date, update_date
+- [ ] `app/Customize/Entity/ReferralConfig.php` を新規作成
+  - テーブル: `dtb_referral_config`（値引額、付与ポイント、有効日数、上限枚数、有効/無効）
+- [ ] `app/Customize/Repository/ReferralCouponRepository.php` を新規作成
+  - `findByOrder(Order $order): ?ReferralCoupon` - 注文に紐づくクーポン取得
+- [ ] `app/Customize/Repository/ReferralConfigRepository.php` を新規作成
+- [ ] `app/DoctrineMigrations/VersionXXXX.php` マイグレーション作成
+
+### Phase 2: 購入フロー（PurchaseFlow）
+
+- [ ] `app/Customize/Service/PurchaseFlow/Processor/ReferralCouponDiscountProcessor.php` を新規作成
+  - `DiscountProcessor` を実装。クーポン適用時に `OrderItemType::DISCOUNT` 明細を追加
+  - 割引額は注文の数量や金額に依存しない**固定額**（ReferralConfigの設定値）
+  - ただし注文合計が割引額より小さい場合は注文合計を上限とする
+- [ ] `app/Customize/Service/PurchaseFlow/Processor/ReferralCouponPurchaseProcessor.php` を新規作成
+  - `PurchaseProcessor` を実装
+  - `prepare()`: クーポンステータスを「使用済」に変更、被紹介者・注文情報をクーポンに記録
+  - `commit()`: 紹介者のポイント加算、`referrer_point_granted = true` に更新、紹介者へメール通知
+  - `rollback()`: prepare の変更を元に戻す（クーポンを未使用に復元、被紹介者情報クリア）
+- [ ] `app/Customize/Resource/config/services.yaml` にタグ登録
+  - discount.processor: priority 900, purchase.processor: priority 650
+
+### Phase 3: UI（購入画面）
+
+- [ ] `app/Customize/Form/Extension/OrderTypeReferralCouponExtension.php` を新規作成
+  - OrderType に `referral_coupon_code` フィールド追加（mapped: false）
+- [ ] `app/Customize/Controller/ReferralCouponController.php` を新規作成
+  - POST `/shopping/referral_coupon` - クーポン適用（セッション保存）
+  - POST `/shopping/referral_coupon/remove` - クーポン解除
+
+### Phase 4: クーポン発行
+
+- [ ] `app/Customize/EventSubscriber/ReferralCouponEventSubscriber.php` を新規作成
+  - `FRONT_SHOPPING_COMPLETE_INITIALIZE` イベントで購入完了時にクーポン自動発行
+
+### Phase 5: 返品・キャンセル・受注編集への対応
+
+- [ ] `app/Customize/EventSubscriber/ReferralCouponOrderStateSubscriber.php` を新規作成
+  - `EventSubscriberInterface` を実装
+  - 以下のワークフローイベントを購読:
+
+  **返品時 (`workflow.order.transition.return`):**
+  - 被紹介者の注文が返品された場合:
+    1. `ReferralCoupon` を注文IDで検索
+    2. 紹介者に付与済みのポイントを回収（`referrer_point_granted` が true の場合のみ）
+       - `$referrer->setPoint($referrer->getPoint() - $coupon->getReferrerPoint())`
+    3. クーポンステータスを `4:返品取消` に更新
+    4. `referrer_point_granted = false` に戻す
+    5. ※クーポン自体を「未使用」に戻すかどうかは運用判断（計画では戻さない=再利用不可）
+
+  **キャンセル時 (`workflow.order.transition.cancel`):**
+  - 返品時と同じ処理。紹介者ポイント回収 + クーポンステータスを `4:返品取消` に更新
+
+  **返品取消時 (`workflow.order.transition.cancel_return`):**
+  - 返品を取り消して元に戻す場合:
+    1. 紹介者にポイントを再付与
+    2. クーポンステータスを `1:使用済` に戻す
+    3. `referrer_point_granted = true` に更新
+
+- [ ] 管理画面での受注編集時の考慮:
+  - `EditController` は編集時に `PurchaseFlow::validate()` を呼ぶため、`DiscountProcessor` の `removeDiscountItem` → `addDiscountItem` が再実行される
+  - **管理者が割引明細を手動削除した場合**: `addDiscountItem` でセッションにクーポン情報がないため再追加されない（管理画面編集時はセッションを参照しない設計とする）
+  - **管理者が割引金額を手動変更した場合**: `processor_name` で識別し、クーポン割引明細の金額変更は許可する（管理者の裁量）
+  - **数量変更**: クーポン割引は注文全体への固定額割引のため、商品数量変更の影響を受けない
+
+### Phase 6: メール通知
+
+- [ ] `app/Customize/Service/ReferralCouponMailService.php` を新規作成
+  - `sendCouponIssuedMail()` - 購入者へクーポン発行通知
+  - `sendReferrerRewardMail()` - 紹介者へポイント付与通知
+  - `sendReferrerPointRevokedMail()` - 紹介者へポイント回収通知（返品/キャンセル時）
+- [ ] `app/Customize/Resource/template/mail/referral_coupon_issued.twig` - クーポン発行通知
+- [ ] `app/Customize/Resource/template/mail/referral_reward_notify.twig` - 紹介報酬通知
+- [ ] `app/Customize/Resource/template/mail/referral_point_revoked.twig` - ポイント回収通知
+
+### Phase 7: マイページ
+
+- [ ] `app/Customize/Controller/Mypage/ReferralCouponController.php` を新規作成
+  - GET `/mypage/referral_coupon` - 自分のクーポン一覧
+- [ ] `app/template/default/Mypage/referral_coupon.twig` を新規作成
+
+### Phase 8: 管理画面
+
+- [ ] `app/Customize/Controller/Admin/ReferralCouponController.php` - クーポン管理・検索・ステータス変更
+- [ ] `app/Customize/Form/Type/Admin/ReferralConfigType.php` - 設定フォーム
+
+## 関連ファイル（参照のみ）
+
+- `src/Eccube/Service/PurchaseFlow/Processor/PointProcessor.php` - DiscountProcessor実装パターン参考
+- `src/Eccube/Service/PointHelper.php` - ポイント操作ヘルパー（rollback処理の参考）
+- `src/Eccube/Service/OrderStateMachine.php` - ステータス遷移とイベント定義
+  - `rollbackUsePoint()` / `rollbackAddPoint()` のパターンを参考にクーポンポイント回収を実装
+- `src/Eccube/Controller/Admin/Order/EditController.php` - 受注編集時のPurchaseFlow呼び出しフロー
+- `app/config/eccube/packages/purchaseflow.yaml` - PurchaseFlow設定
+
+## 受注ライフサイクルとクーポンの状態遷移
+
+```
+[被紹介者が購入]
+  → PurchaseProcessor.prepare(): クーポン=使用済, 被紹介者記録
+  → PurchaseProcessor.commit():  紹介者にポイント付与, granted=true
+
+[被紹介者の注文が返品/キャンセル]
+  → OrderStateSubscriber: 紹介者ポイント回収, クーポン=返品取消, granted=false
+
+[返品取消（元に戻す）]
+  → OrderStateSubscriber: 紹介者ポイント再付与, クーポン=使用済, granted=true
+
+[管理画面で受注編集]
+  → DiscountProcessor が再実行されるが、管理画面ではセッション参照しないため
+    既存の割引明細は管理者の変更を尊重する
+```
+
+## 注意事項
+
+- クーポンコード生成は `random_bytes()` + Base62で推測困難なコードを生成
+- 自分自身が発行したクーポンは使用不可とするバリデーション
+- 同一会員が複数の紹介クーポンを同時使用できないよう制限
+- `referrer_point_granted` フラグで二重付与・二重回収を防止
+- 返品/キャンセル時のポイント回収でポイントが負になる場合は0に丸める（ポイントを消費済みの場合）
+- 返品取消済みクーポンは再利用不可（別のクーポンを発行する運用）

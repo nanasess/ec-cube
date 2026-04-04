@@ -1,0 +1,12 @@
+services:
+    # 紹介クーポン割引プロセッサ（DiscountProcessor）
+    # ポイント割引（priority: 1000）の後に実行されるよう priority: 900 を設定
+    Customize\Service\PurchaseFlow\Processor\ReferralCouponDiscountProcessor:
+        tags:
+            - { name: eccube.discount.processor, flow_type: shopping, priority: 900 }
+
+    # 紹介クーポン購入プロセ���サ（PurchaseProcessor）
+    # PointProcessor（priority: 900）の後、StockReduceProcessor（priority: 800）の間で実行
+    Customize\Service\PurchaseFlow\Processor\ReferralCouponPurchaseProcessor:
+        tags:
+            - { name: eccube.purchase.processor, flow_type: shopping, priority: 650 }

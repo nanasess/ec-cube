@@ -1,0 +1,103 @@
+{#
+紹介クーポン一覧（マイページ）
+#}
+{% extends 'default_frame.twig' %}
+
+{% set mypageno = 'referral_coupon' %}
+
+{% set body_class = 'mypage' %}
+
+{% block main %}
+    <div class="ec-layoutRole__main">
+        <div class="ec-mypageRole">
+            <div class="ec-pageHeader">
+                <h1>{{ 'front.mypage.title'|trans }}/紹介クーポン</h1>
+            </div>
+            {% include 'Mypage/navi.twig' %}
+        </div>
+
+        <div class="ec-mypageRole">
+            {% if Config.enabled %}
+                <div class="ec-off1Grid">
+                    <div class="ec-off1Grid__cell">
+                        <div class="ec-borderedDefs">
+                            <dl>
+                                <dt>紹介クーポンについて</dt>
+                                <dd>
+                                    <p>お買い物完了時に紹介クーポンが発行されます。</p>
+                                    <p>お友だちがクーポンを使って購入を完了すると、{{ Config.referrerPoint|number_format }}ポイントが付与されます。</p>
+                                    <p>お友だちは{{ Config.discountAmount|number_format }}円の値引きを受けられます。</p>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                {% if Coupons|length > 0 %}
+                    <div class="ec-off1Grid" style="margin-top: 20px;">
+                        <div class="ec-off1Grid__cell">
+                            <table class="ec-table-simple">
+                                <thead>
+                                    <tr>
+                                        <th>クーポンコード</th>
+                                        <th>値引き額</th>
+                                        <th>ステータス</th>
+                                        <th>有効期限</th>
+                                        <th>発行日</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for Coupon in Coupons %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ Coupon.couponCode }}</strong>
+                                            </td>
+                                            <td>{{ Coupon.discountAmount|number_format }}円</td>
+                                            <td>
+                                                {% if Coupon.status == 0 %}
+                                                    {% if Coupon.expiresAt and Coupon.expiresAt < date() %}
+                                                        <span class="text-danger">期限切れ</span>
+                                                    {% else %}
+                                                        <span class="text-success">未使用</span>
+                                                    {% endif %}
+                                                {% elseif Coupon.status == 1 %}
+                                                    <span class="text-secondary">使用済</span>
+                                                {% elseif Coupon.status == 2 %}
+                                                    <span class="text-danger">期限切れ</span>
+                                                {% elseif Coupon.status == 3 %}
+                                                    <span class="text-danger">無効</span>
+                                                {% elseif Coupon.status == 4 %}
+                                                    <span class="text-warning">返品取消</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if Coupon.expiresAt %}
+                                                    {{ Coupon.expiresAt|date('Y/m/d') }}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ Coupon.createDate|date('Y/m/d') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="ec-off1Grid" style="margin-top: 20px;">
+                        <div class="ec-off1Grid__cell">
+                            <p class="ec-para-normal">紹介クーポンはまだ発行されていません。お買い物をすると自動で発行されます。</p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="ec-off1Grid" style="margin-top: 20px;">
+                    <div class="ec-off1Grid__cell">
+                        <p class="ec-para-normal">紹介クーポン機能は現在ご利用いただけません。</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
