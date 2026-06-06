@@ -63,6 +63,9 @@ class SalePriceEventSubscriber implements EventSubscriber
             return;
         }
 
+        // 表示の取り消し線用に、上書き前の元の税込販売価格を退避しておく
+        $entity->setOriginalPrice02IncTax($entity->getPrice02IncTax());
+
         $salePrice = $this->salePriceService->getSalePrice($entity);
         $saleConfig = $this->salePriceService->getAppliedSaleConfig($entity);
 

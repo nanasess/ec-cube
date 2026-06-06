@@ -37,6 +37,14 @@ trait ProductClassTrait
     private $sale_price_inc_tax;
 
     /**
+     * セール上書き前の元の販売価格（税込）。表示の取り消し線用。
+     * postLoad で price02IncTax を上書きする前に退避する。
+     *
+     * @var string|null
+     */
+    private $original_price02_inc_tax;
+
+    /**
      * セール価格を取得
      */
     public function getSalePrice(): ?string
@@ -86,6 +94,25 @@ trait ProductClassTrait
     public function setSalePriceIncTax(?string $sale_price_inc_tax): self
     {
         $this->sale_price_inc_tax = $sale_price_inc_tax;
+
+        return $this;
+    }
+
+    /**
+     * セール上書き前の元の販売価格（税込）を取得。
+     * 退避されていない場合は現在の price02IncTax を返す。
+     */
+    public function getOriginalPrice02IncTax(): ?string
+    {
+        return $this->original_price02_inc_tax ?? $this->getPrice02IncTax();
+    }
+
+    /**
+     * セール上書き前の元の販売価格（税込）をセット
+     */
+    public function setOriginalPrice02IncTax(?string $price): self
+    {
+        $this->original_price02_inc_tax = $price;
 
         return $this;
     }

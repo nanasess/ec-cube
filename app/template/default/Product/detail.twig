@@ -391,7 +391,7 @@
                             {# 規格なし商品でセール中の場合 #}
                             {% set pc = Product.ProductClasses|first %}
                             <div class="ec-price">
-                                <span class="ec-price__original ec-price__price">{{ Product.getPrice02IncTaxMin|price }}</span>
+                                <span class="ec-price__original ec-price__price">{{ pc.originalPrice02IncTax|price }}</span>
                                 <br>
                                 <span class="ec-price__sale ec-price__price">{{ pc.salePriceIncTax|price }}</span>
                                 <span class="ec-price__sale-label">SALE</span>
@@ -400,14 +400,20 @@
                         {% elseif has_sale and Product.hasProductClass %}
                             {# 規格あり商品でセール中の場合（初期表示用、規格選択でJSが更新） #}
                             {% set sale_prices = [] %}
+                            {% set orig_prices = [] %}
                             {% for ProductClass in Product.ProductClasses %}
-                                {% if ProductClass.visible and ProductClass.isOnSale is defined and ProductClass.isOnSale() %}
-                                    {% set sale_prices = sale_prices|merge([ProductClass.salePriceIncTax]) %}
+                                {% if ProductClass.visible %}
+                                    {% set orig_prices = orig_prices|merge([ProductClass.originalPrice02IncTax]) %}
+                                    {% if ProductClass.isOnSale is defined and ProductClass.isOnSale() %}
+                                        {% set sale_prices = sale_prices|merge([ProductClass.salePriceIncTax]) %}
+                                    {% endif %}
                                 {% endif %}
                             {% endfor %}
-                            {% if Product.getPrice02IncTaxMin == Product.getPrice02IncTaxMax %}
+                            {% set orig_min = orig_prices|sort|first %}
+                            {% set orig_max = orig_prices|sort|last %}
+                            {% if orig_min == orig_max %}
                                 <div class="ec-price">
-                                    <span class="ec-price__original ec-price__price price02-default">{{ Product.getPrice02IncTaxMin|price }}</span>
+                                    <span class="ec-price__original ec-price__price price02-default">{{ orig_min|price }}</span>
                                     <br>
                                     {% if sale_prices|length > 0 %}
                                         {% set min_sale = sale_prices|sort|first %}
@@ -425,7 +431,7 @@
                                 </div>
                             {% else %}
                                 <div class="ec-price">
-                                    <span class="ec-price__original ec-price__price price02-default">{{ Product.getPrice02IncTaxMin|price }} ~ {{ Product.getPrice02IncTaxMax|price }}</span>
+                                    <span class="ec-price__original ec-price__price price02-default">{{ orig_min|price }} ~ {{ orig_max|price }}</span>
                                     <br>
                                     {% if sale_prices|length > 0 %}
                                         {% set min_sale = sale_prices|sort|first %}

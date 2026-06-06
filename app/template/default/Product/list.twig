@@ -164,16 +164,21 @@
                                     {% endif %}
                                 {% endfor %}
                                 {% if has_sale %}
+                                    {# セール上書き前の元の税込販売価格（取り消し線用） #}
+                                    {% set orig_prices = [] %}
+                                    {% for ProductClass in Product.ProductClasses %}
+                                        {% if ProductClass.visible %}
+                                            {% set orig_prices = orig_prices|merge([ProductClass.originalPrice02IncTax]) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% set orig_min = orig_prices|sort|first %}
+                                    {% set orig_max = orig_prices|sort|last %}
                                     <p class="price02-default">
                                         <span style="text-decoration: line-through; color: #999;">
-                                            {% if Product.hasProductClass %}
-                                                {% if Product.getPrice02Min == Product.getPrice02Max %}
-                                                    {{ Product.getPrice02IncTaxMin|price }}
-                                                {% else %}
-                                                    {{ Product.getPrice02IncTaxMin|price }} ~ {{ Product.getPrice02IncTaxMax|price }}
-                                                {% endif %}
+                                            {% if orig_min == orig_max %}
+                                                {{ orig_min|price }}
                                             {% else %}
-                                                {{ Product.getPrice02IncTaxMin|price }}
+                                                {{ orig_min|price }} ~ {{ orig_max|price }}
                                             {% endif %}
                                         </span>
                                         <br>
