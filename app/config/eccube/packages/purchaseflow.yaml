@@ -34,8 +34,8 @@ services:
             - { name: eccube.item.validator, flow_type: cart, priority: 900 }
             - { name: eccube.item.validator, flow_type: shopping, priority: 900 }
 
-    eccube.purchase.flow.item.validator.price.change.validator: # 商品価格の変更検知
-        class: Eccube\Service\PurchaseFlow\Processor\PriceChangeValidator
+    eccube.purchase.flow.item.validator.price.change.validator: # 商品価格の変更検知(セール価格対応)
+        class: Customize\Service\PurchaseFlow\Processor\SaleAwarePriceChangeValidator
         tags:
             - { name: eccube.item.validator, flow_type: cart, priority: 800 }
             - { name: eccube.item.validator, flow_type: shopping, priority: 800 }
