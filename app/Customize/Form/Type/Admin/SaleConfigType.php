@@ -60,13 +60,15 @@ class SaleConfigType extends AbstractType
                 'label' => '開始日時',
                 'required' => false,
                 'widget' => 'single_text',
-                'input' => 'datetime_immutable',
+                // エンティティの start_date は datetimetz(\DateTime)のため input も datetime に揃える
+                'input' => 'datetime',
             ])
             ->add('end_date', DateTimeType::class, [
                 'label' => '終了日時',
                 'required' => false,
                 'widget' => 'single_text',
-                'input' => 'datetime_immutable',
+                // エンティティの end_date は datetimetz(\DateTime)のため input も datetime に揃える
+                'input' => 'datetime',
             ])
             ->add('Categories', EntityType::class, [
                 'label' => '対象カテゴリ',
