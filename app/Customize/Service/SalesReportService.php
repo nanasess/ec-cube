@@ -9,7 +9,9 @@
 
 namespace Customize\Service;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\ORM\EntityManagerInterface;
 use Eccube\Entity\Master\OrderStatus;
 
@@ -87,8 +89,7 @@ class SalesReportService
         $sql .= ' GROUP BY s.order_id';
 
         // ステップ2: サブクエリの結果から期間ごとに集計する
-        $isPostgreSQL = $conn->getDatabasePlatform() instanceof PostgreSQLPlatform;
-        $dateFormat = $this->getDateFormatForPlatform($unit, $isPostgreSQL);
+        $dateFormat = $this->getDateFormatForPlatform($unit, $conn->getDatabasePlatform());
 
         $outerSql = 'SELECT '.$dateFormat.' AS report_period,'
             .' COUNT(*) AS order_count,'
@@ -108,14 +109,22 @@ class SalesReportService
     /**
      * DB プラットフォームに応じた日付フォーマットSQL断片を返す
      */
-    private function getDateFormatForPlatform(string $unit, bool $isPostgreSQL): string
+    private function getDateFormatForPlatform(string $unit, AbstractPlatform $platform): string
     {
         // sub.report_date を基準にフォーマット
-        if ($isPostgreSQL) {
+        if ($platform instanceof PostgreSQLPlatform) {
             return match ($unit) {
                 'monthly' => "TO_CHAR(sub.report_date, 'YYYY-MM')",
                 'yearly' => "TO_CHAR(sub.report_date, 'YYYY')",
                 default => "TO_CHAR(sub.report_date, 'YYYY-MM-DD')",
+            };
+        }
+
+        if ($platform instanceof SqlitePlatform) {
+            return match ($unit) {
+                'monthly' => "strftime('%Y-%m', sub.report_date)",
+                'yearly' => "strftime('%Y', sub.report_date)",
+                default => "strftime('%Y-%m-%d', sub.report_date)",
             };
         }
 
