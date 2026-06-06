@@ -3,7 +3,8 @@
 /*
  * 名入れ機能: 受注明細エンティティ拡張
  *
- * OrderItem に名入れ情報 (NaireInfo) への OneToOne リレーションを追加する。
+ * OrderItem に名入れテキストを保持する naire_text カラムを追加する。
+ * （旧実装の NaireInfo OneToOne リレーション + dtb_naire_info テーブルを置き換え）
  */
 
 namespace Customize\Entity;
@@ -17,30 +18,30 @@ use Eccube\Annotation\EntityExtension;
 trait OrderItemTrait
 {
     /**
-     * 名入れ情報
+     * 名入れテキスト
      *
-     * @var NaireInfo|null
+     * @var string|null
      *
-     * @ORM\OneToOne(targetEntity="Customize\Entity\NaireInfo", mappedBy="OrderItem", cascade={"persist", "remove"})
+     * @ORM\Column(name="naire_text", type="string", length=255, nullable=true)
      */
-    private ?NaireInfo $NaireInfo = null;
+    private ?string $naire_text = null;
 
     /**
-     * @return NaireInfo|null
+     * @return string|null
      */
-    public function getNaireInfo(): ?NaireInfo
+    public function getNaireText(): ?string
     {
-        return $this->NaireInfo;
+        return $this->naire_text;
     }
 
     /**
-     * @param NaireInfo|null $naireInfo
+     * @param string|null $naireText
      *
      * @return $this
      */
-    public function setNaireInfo(?NaireInfo $naireInfo): self
+    public function setNaireText(?string $naireText): self
     {
-        $this->NaireInfo = $naireInfo;
+        $this->naire_text = $naireText;
 
         return $this;
     }

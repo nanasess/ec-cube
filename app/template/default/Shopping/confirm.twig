@@ -101,8 +101,8 @@ file that was distributed with this source code.
                                         {% endif %}
                                         <p>{{ orderItem.priceIncTax|price }} × {{ orderItem.quantity|number_format }}<span>{{ 'common.subtotal__with_separator'|trans }}{{ orderItem.totalPrice|price }}</span></p>
                                         {# 名入れテキスト表示 #}
-                                        {% if orderItem.NaireInfo is defined and orderItem.NaireInfo is not null %}
-                                            <p><strong>名入れ：</strong>{{ orderItem.NaireInfo.naireText }}</p>
+                                        {% if orderItem.naire_text is defined and orderItem.naire_text is not empty %}
+                                            <p><strong>名入れ：</strong>{{ orderItem.naire_text }}</p>
                                         {% endif %}
                                     </div>
                                 </div>

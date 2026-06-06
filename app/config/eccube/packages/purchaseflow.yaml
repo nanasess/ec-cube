@@ -268,11 +268,13 @@ services:
         tags:
             - { name: eccube.purchase.processor, flow_type: order, priority: 900 }
 
-    # 名入れ情報の永続化プロセッサ
-    eccube.purchase.flow.purchase.processor.naire.processor:
-        class: Customize\Service\PurchaseFlow\Processor\NairePurchaseProcessor
+    # 名入れ情報プロセッサ
+    # - item.holder.preprocessor: セッションの名入れテキストを OrderItem.naire_text にコピー(確認画面でも表示)
+    # - purchase.processor: 購入確定時にセッションの名入れ情報をクリア
+    eccube.purchase.flow.processor.naire.processor:
+        class: Customize\Service\PurchaseFlow\Processor\NaireProcessor
         arguments:
-            - '@doctrine.orm.default_entity_manager'
             - '@Symfony\Component\HttpFoundation\RequestStack'
         tags:
+            - { name: eccube.item.holder.preprocessor, flow_type: shopping, priority: 400 }
             - { name: eccube.purchase.processor, flow_type: shopping, priority: 500 }
