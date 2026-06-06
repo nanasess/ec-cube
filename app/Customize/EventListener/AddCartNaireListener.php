@@ -67,16 +67,11 @@ class AddCartNaireListener implements EventSubscriberInterface
             return;
         }
 
-        // リクエストから product_class_id を取得
-        $addCartData = $request->request->all();
-        $productClassId = null;
+        // AddCartType のフィールドはルート名（add_cart プレフィックスなし）で POST されるため、
+        // ルートの ProductClass パラメータから product_class_id を取得する。
+        $productClassId = $request->request->get('ProductClass');
 
-        // フォームデータから ProductClass ID を取得
-        if (isset($addCartData['add_cart']['ProductClass'])) {
-            $productClassId = $addCartData['add_cart']['ProductClass'];
-        }
-
-        if ($productClassId === null) {
+        if ($productClassId === null || $productClassId === '') {
             return;
         }
 
