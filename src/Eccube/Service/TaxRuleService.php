@@ -21,6 +21,7 @@ use Eccube\Entity\Product;
 use Eccube\Entity\ProductClass;
 use Eccube\Repository\BaseInfoRepository;
 use Eccube\Repository\TaxRuleRepository;
+use Symfony\Polyfill\Php84\Php84;
 
 class TaxRuleService
 {
@@ -125,6 +126,19 @@ class TaxRuleService
      */
     public static function roundByRoundingType(string $value, int $RoundingType): string
     {
+        static $diag = false;
+        if (!$diag) {
+            $diag = true;
+            $ref = new \ReflectionClass(Php84::class);
+            fwrite(\STDERR, sprintf(
+                "[DIAG TaxRule] Php84::bcround=%d file=%s methods=%s global_bcround=%s\n",
+                method_exists(Php84::class, 'bcround') ? 1 : 0,
+                (string) $ref->getFileName(),
+                implode(',', array_map(static fn (\ReflectionMethod $m): string => $m->getName(), $ref->getMethods())),
+                function_exists('bcround') ? (new \ReflectionFunction('bcround'))->getFileName().':'.(new \ReflectionFunction('bcround'))->getStartLine() : 'nofunc'
+            ));
+        }
+
         return match ($RoundingType) {
             // 四捨五入
             RoundingType::ROUND => bcround($value),
