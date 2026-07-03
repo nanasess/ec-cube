@@ -21,6 +21,7 @@ use Eccube\Entity\Product;
 use Eccube\Entity\ProductClass;
 use Eccube\Repository\BaseInfoRepository;
 use Eccube\Repository\TaxRuleRepository;
+use Symfony\Polyfill\Php84\Php84;
 
 class TaxRuleService
 {
@@ -128,14 +129,11 @@ class TaxRuleService
         static $diag = false;
         if (!$diag) {
             $diag = true;
-            $cls = 'Symfony\\Polyfill\\Php84\\Php84';
-            $fn = 'bcround';
-            $ref = new \ReflectionClass($cls);
+            $ref = new \ReflectionClass(Php84::class);
             fwrite(\STDERR, sprintf(
-                "[DIAG TaxRule] file=%s methods=%s global_bcround=%s\n",
+                "[DIAG TaxRule] file=%s methods=%s\n",
                 (string) $ref->getFileName(),
-                implode(',', array_map(static fn (\ReflectionMethod $m): string => $m->getName(), $ref->getMethods())),
-                function_exists($fn) ? (new \ReflectionFunction($fn))->getFileName().':'.(new \ReflectionFunction($fn))->getStartLine() : 'nofunc'
+                implode(',', array_map(static fn (\ReflectionMethod $m): string => $m->getName(), $ref->getMethods()))
             ));
         }
 
