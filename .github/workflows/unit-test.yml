@@ -86,6 +86,22 @@ jobs:
       - name: Initialize Composer
         uses: ./.github/actions/composer
 
+      - name: Diagnose bcround
+        run: |
+          php -r '
+            require "vendor/autoload.php";
+            echo "PHP=".PHP_VERSION."\n";
+            echo "bcmath=".(extension_loaded("bcmath")?1:0)." apcu=".(extension_loaded("apcu")?1:0)." opcache=".(extension_loaded("Zend OPcache")?1:0)."\n";
+            echo "Php84::bcround method_exists=".(method_exists("Symfony\\Polyfill\\Php84\\Php84","bcround")?1:0)."\n";
+            echo "RoundingMode=".((class_exists("RoundingMode")||enum_exists("RoundingMode"))?1:0)."\n";
+            $rm = new ReflectionClass("Symfony\\Polyfill\\Php84\\Php84");
+            echo "Php84 file=".$rm->getFileName()."\n";
+            echo "Php84 methods=".implode(",", array_map(function($m){return $m->name;}, $rm->getMethods()))."\n";
+            $rf = new ReflectionFunction("bcround");
+            echo "global bcround=".$rf->getFileName().":".$rf->getStartLine()."\n";
+            echo "bcround(2.5)=".@bcround("2.5")."\n";
+          '
+
       - name: Generate ECCUBE_AUTH_MAGIC
         run: echo "ECCUBE_AUTH_MAGIC=$(openssl rand -hex 32)" >> $GITHUB_ENV
 
