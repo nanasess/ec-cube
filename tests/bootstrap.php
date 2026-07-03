@@ -12,14 +12,15 @@
  */
 
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Polyfill\Php84\Php84;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
 // TEMP DIAGNOSTIC (bcround 調査)
 fwrite(STDERR, sprintf(
     "[DIAG bootstrap] Php84::bcround=%d file=%s global_bcround=%s bcround(2.5)=%s\n",
-    method_exists('Symfony\\Polyfill\\Php84\\Php84', 'bcround') ? 1 : 0,
-    (new ReflectionClass('Symfony\\Polyfill\\Php84\\Php84'))->getFileName(),
+    method_exists(Php84::class, 'bcround') ? 1 : 0,
+    (new ReflectionClass(Php84::class))->getFileName(),
     function_exists('bcround') ? (new ReflectionFunction('bcround'))->getFileName().':'.(new ReflectionFunction('bcround'))->getStartLine() : 'nofunc',
     function_exists('bcround') ? @bcround('2.5') : 'nofunc'
 ));
