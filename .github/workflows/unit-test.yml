@@ -82,6 +82,7 @@ jobs:
           php-version: ${{ matrix.php }}
           github-token: ''
           extensions: :xdebug, redis
+          ini-values: opcache.enable=0, opcache.enable_cli=0
       - name: Initialize Composer
         uses: ./.github/actions/composer
 
