@@ -56,7 +56,7 @@ class MasterdataController extends AbstractController
 
         if ('POST' === $request->getMethod()) {
             $form->handleRequest($request);
-            if ($form->isValid()) {
+            if ($form->isSubmitted() && $form->isValid()) {
                 $event = new EventArgs(
                     [
                         'form' => $form,
@@ -156,7 +156,7 @@ class MasterdataController extends AbstractController
                 }
             }
 
-            if ($form2->isValid()) {
+            if ($form2->isSubmitted() && $form2->isValid()) {
                 $data = $form2->getData();
                 $sortNo = 0;
                 $ids = array_filter(array_map(

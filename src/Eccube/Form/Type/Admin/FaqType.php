@@ -77,6 +77,9 @@ class FaqType extends AbstractType
                     'admin.common.show' => true,
                     'admin.common.hide' => false,
                 ],
+                'constraints' => [
+                    new Assert\NotNull(),
+                ],
             ]);
 
         if ($options['sortable']) {
