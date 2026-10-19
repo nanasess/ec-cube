@@ -7,7 +7,7 @@ name: OWASP ZAP
 # 3. 「Run workflow」ボタンをクリックします。
 # 4. 必要に応じて、表示される入力フォームでパラメータを指定し、「Run workflow」を再度クリックして実行します。
 #
-# ターゲットの一覧と個別の設定 (scenario / app_env / before_script / context / thread_per_host) は zap/targets.json で管理します。
+# ターゲットの一覧と個別の設定 (scenario / app_env / injectable / before_script / context / thread_per_host) は zap/targets.json で管理します。
 on:
   workflow_dispatch:
     inputs:
@@ -26,6 +26,13 @@ on:
         description: 'スキャン用のパッチ (zap/patches/ のファイル名から .patch を除いたものを空白区切り。all (既定) ですべて。空なら当てない)'
         type: string
         default: 'all'
+      database:
+        description: 'DB (DB に依存して処理が変わる箇所があるため、MySQL でもスキャンする)'
+        type: choice
+        options:
+          - pgsql
+          - mysql
+        default: pgsql
 
 permissions:
   contents: read
@@ -91,7 +98,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
-      COMPOSE_FILE: docker-compose.yml:docker-compose.pgsql.yml:docker-compose.owaspzap.ci.yml
+      COMPOSE_FILE: docker-compose.yml:docker-compose.${{ inputs.database || 'pgsql' }}.yml:docker-compose.owaspzap.ci.yml
       POLICY: ${{ inputs.policy || 'Sequence' }}
       TARGET: ${{ matrix.target }}
       PATCHES: ${{ inputs.patches }}
@@ -163,6 +170,8 @@ jobs:
           ZAP_CONTEXT: ${{ matrix.context }}
           ZAP_SCENARIO: ${{ matrix.scenario }}
           ZAP_APP_ENV: ${{ matrix.app_env }}
+          # 攻撃する場所 (scanner.injectable)。zap/bin/autorun.sh が読む
+          ZAP_INJECTABLE: ${{ matrix.injectable }}
           ZAP_BEFORE_SCRIPT: ${{ matrix.before_script }}
           THREAD_PER_HOST: ${{ matrix.thread_per_host }}
         run: |
