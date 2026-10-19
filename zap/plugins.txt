@@ -7,7 +7,7 @@
 eccube-api4:api44:Api44:nanasess:fix/zap-500-errors
 coupon-plugin:coupon44:Coupon44:nanasess:fix/zap-500-errors
 mail-magazine-plugin:mailmagazine44:MailMagazine44:nanasess:fix/zap-500-errors
-ProductReview-plugin:productreview44:ProductReview44
+ProductReview-plugin:productreview44:ProductReview44:nanasess:fix/zap-500-errors
 recommend-plugin:recommend44:Recommend44:nanasess:fix/zap-500-errors
 related-product-plugin:relatedproduct44:RelatedProduct44:nanasess:fix/zap-500-errors
 sales-report-plugin:salesreport44:SalesReport44
