@@ -16,6 +16,8 @@ run sed -i \
     app/config/eccube/packages/eccube.yaml
 run rm -f app/config/eccube/packages/prod/eccube_rate_limiter.yaml
 run sed -i -e 's/30 min/1 min/g' app/config/eccube/packages/eccube_rate_limiter.yaml
+# MCP のレート制限 (IP ごとに 1 分 60 件、クライアントごとに 1 分 300 件) は、能動スキャンの攻撃の大半を 429 で止める
+run sed -i -e 's/limit: 60$/limit: 100000/' -e 's/limit: 300$/limit: 100000/' app/config/eccube/packages/mcp_rate_limiter.yaml
 # eccube-api4 の動的クライアント登録 (/register) は IP ごとに 1 時間 20 件までのため、攻撃が 429 で止まる
 API_CONFIG=app/Plugin/Api44/Resource/config/services.yaml
 if run test -f "${API_CONFIG}"; then
@@ -23,8 +25,9 @@ if run test -f "${API_CONFIG}"; then
 fi
 # インストール後のプラグインの有効化 (/install/plugin*) は、インストーラが書き出すトランザクションのファイルの
 # トークンで認可する。install_plugins.zst が ECCUBE-CSRF-TOKEN に入れて送るトークンで置く (期限は 2100 年)。
+# インストーラと同じく末尾に改行を付けない (改行があるとトークンが一致しない)。
 # ローカルでは、ターゲットごとに zap/local/restore.sh が置き直す
-run sh -c 'echo "4102444800:zap-install-plugin-token" > var/.httransaction'
+run sh -c 'printf %s 4102444800:zap-install-plugin-token > var/.httransaction'
 run bin/console cache:clear > /dev/null
 run bin/console debug:container --parameter eccube_login_throttling_max_attempts
 run bin/console debug:container --parameter eccube_login_throttling_interval
