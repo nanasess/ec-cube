@@ -131,6 +131,47 @@ Shell Shock、React2Shell、パディングオラクル、Swagger、HTTP のみ�
   URL 末尾の文字列をファイル名として送るチェックが、比較用の長いファイル名で入力欄の文字数上限に
   かかるだけで High を出すためです。ファイルを読み取れた本来の検知は根拠を持ちます。
 
+### 結果のレビュー
+
+`bin/review_alerts.py` は、全ターゲットの結果を、Informational までの全レベルでルールごとにまとめた HTML にします。
+同じルールが多数のターゲットで出るため、URL (ID を `{id}` に正規化) とパラメータの組で重複をまとめ、出たターゲットと DB を並べます。
+誤検知のフィルターや根拠の無い Path Traversal で除外したものは、除外の理由を付けて残します。
+フィルターに当てはまるのに ZAP が外していないものは「フィルター #N が効いていない」と出します。
+ルールごとの判定とメモはブラウザに保存され、CSV で書き出せます。
+
+```bash
+gh run download <pgsql の run-id> -D out/pgsql -p 'zap-*-report'
+gh run download <mysql の run-id> -D out/mysql -p 'zap-*-report'
+zap/bin/review_alerts.py -o out/review.html pgsql=out/pgsql mysql=out/mysql
+# ローカルの結果なら
+zap/bin/review_alerts.py -o out/review.html pgsql=zap/local/out/Sequence
+```
+
+### 既知のアラート
+
+レビューで判断が済んだアラートは、毎回確かめなくてよいよう、次の 2 か所に理由と一緒に記録しています。
+`bin/review_alerts.py` は両方を読み、該当するアラートに理由を表示します。
+
+- 画面ごとの誤検知: `options.properties` のフィルターで外します (ZAP のレポートでは False Positive)。理由はフィルターの直前のコメントに書きます。
+- ルール全体を EC-CUBE の仕様とするものと、根拠の無い Path Traversal: `known_alerts.tsv` に書きます。ZAP のレポートには残します。
+
+High と Medium は、ZAP の判定によらず、レーンで攻撃を送り直して確かめました (2026-10-20)。
+
+| ルール | 区分 | 判断 |
+|---|---|---|
+| Path Traversal (6) | 誤検知 | 出るのは名前・住所などの入力欄で、根拠 (読めたファイルの中身) を持たない。ファイルを扱う画面 (ファイル管理の表示・ダウンロード、ログ) に `../` などを直接送っても読めない |
+| SQL Injection (40018) | 誤検知 | クーポンの新規登録 (`unique_values.js` の置き換えによる差。真偽の組を送っても応答に差が無い) と、納品書の発行日 (日付として PDF に書くだけ) |
+| Anti-CSRF Tokens (10202) | 誤検知 | フォームに `_token` があるもの (ZAP は `_token` をトークンとして扱わない。トークンが無いか不正なら拒否されることを確かめた)、送り先が状態を変えないもの、外部のサイトへのフォーム |
+| Anti-CSRF Tokens (10202) | 仕様 | 商品詳細のお気に入り。未ログインの状態からお気に入りに登録できるよう、ログインの後に GET で戻して登録する |
+| CSP (10038)・HSTS (10035) | 仕様 | EC-CUBE はこれらのヘッダーを付けない。HSTS は Web サーバーやリバースプロキシで設定する |
+| Server (10036)・X-Powered-By (10037) | 仕様 | Web サーバー・PHP の設定で決まる |
+| SameSite=None (10054) | 仕様 | セッションの Cookie の設定 (`app/config/eccube/packages/framework.yaml`) |
+| Timestamp Disclosure (10096) | 仕様 | 応答の数値が Unix 時刻の範囲にあるもの |
+| Cross-Domain JavaScript Source File Inclusion (10017) | 仕様 | 郵便番号から住所を入れる YubinBango を外部から読み込む |
+
+判断していないもの: Big Redirect Detected (10044、Low) と Informational のルール。
+新しく判断したものは、該当する方へ足し、この表も直してください。
+
 ## GitHub Actions で実行する
 
 `.github/workflows/zaproxy.yml` を手動で実行します (Actions タブ → OWASP ZAP → Run workflow)。
